@@ -42,7 +42,7 @@ function SideBar() {
           </div>
         </div>
       </div>
-
+<div className="bg-white flex justify-center align-middle">
       {session && (
         <img
           onClick={() => signOut()}
@@ -50,7 +50,9 @@ function SideBar() {
           alt="Profile picture"
           className="h-12 w-12 rounded-full cursor-pointer mx-auto mb-2 hover:opacity-50"
         />
+        
       )}
+      </div>
     </div>
   );
 }
