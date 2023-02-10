@@ -1,23 +1,25 @@
-import { getApp, getApps, initializeApp } from "firebase/app"
-import { getFirestore } from "firebase/firestore";
-
 // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAB3zTX5AbI2FLWw7YIMd_HeKN8lReJeWU",
-  authDomain: "chatgpt-messenger-et.firebaseapp.com",
-  projectId: "chatgpt-messenger-et",
-  storageBucket: "chatgpt-messenger-et.appspot.com",
-  messagingSenderId: "835101775211",
-  appId: "1:835101775211:web:a227104168378b5851a82e"
+  apiKey: "AIzaSyA8iXh34NYc9_obAVzZ4Pjsx-P_LzgX3KE",
+  authDomain: "attychat-5d9ea.firebaseapp.com",
+  projectId: "attychat-5d9ea",
+  storageBucket: "attychat-5d9ea.appspot.com",
+  messagingSenderId: "879623665878",
+  appId: "1:879623665878:web:346001f3986deca6163177",
+  measurementId: "G-9FGH41LRJN"
 };
 
 // Initialize Firebase
-//const app = initializeApp(firebaseConfig);
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app)
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
 
 export { db };
