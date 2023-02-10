@@ -5,10 +5,8 @@ const query = async (prompt: string, chatId: string, model: string) => {
     .createCompletion({
       model,
       prompt,
-      temperature: 0.3,
+      temperature: 0.5,
       max_tokens: 1000,
-      frequency_penalty: 0,
-      presence_penalty: 0,
     })
     .then((res) => res.data.choices[0].text)
     .catch(
