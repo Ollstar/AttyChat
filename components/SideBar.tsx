@@ -42,7 +42,6 @@ function SideBar() {
           </div>
         </div>
       </div>
-<div className="bg-white flex justify-center align-middle">
       {session && (
         <img
           onClick={() => signOut()}
@@ -53,7 +52,6 @@ function SideBar() {
         
       )}
       </div>
-    </div>
   );
 }
 
