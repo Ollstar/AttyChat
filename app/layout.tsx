@@ -17,18 +17,18 @@ export default async function RootLayout({
 
   return (
     <html>
-      <head />
+      <head/>
+
       <body>
         <SessionProvider session={session}>
           {!session ? (
             <Login />
           ) : (
             <div>
-
-                <Drawer />
+              <Drawer />
 
               <ClientProvider />
-              <div className="bg-black">{children}</div>
+              <div>{children}</div>
             </div>
           )}
         </SessionProvider>
