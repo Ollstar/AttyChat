@@ -1,13 +1,11 @@
 "use client"
-import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
+import { TextField, InputAdornment, IconButton, CircularProgress, AppBar, Toolbar, Typography, Link, Box } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-import toast from "react-hot-toast";
-import ModelSelection from "./ModelSelection";
 import useSWR from "swr";
-import NewChat from "./NewChat";
 
 type Props = {
   chatId: string;
@@ -16,15 +14,18 @@ type Props = {
 
 function ChatInput({ chatId, initialPrompt }: Props) {
   const [prompt, setPrompt] = useState(initialPrompt || "");
+  const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
   });
 
-  const sendMessage = async (message: string) => {
-    if (!message) return;
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!prompt) return;
 
-    const input = message.trim();
+    setIsLoading(true);
+    const input = prompt.trim();
     setPrompt("");
 
     const newMessage: Message = {
@@ -50,9 +51,6 @@ function ChatInput({ chatId, initialPrompt }: Props) {
       newMessage
     );
 
-    // Toast notification
-    const notification = toast.loading("Thinking...");
-
     await fetch("/api/askQuestion", {
       method: "POST",
       headers: {
@@ -64,39 +62,59 @@ function ChatInput({ chatId, initialPrompt }: Props) {
         model,
         session,
       }),
-    }).then(() => {
-      toast.success("My thoughts on this", {
-        id: notification,
-      });
     });
+
+    setIsLoading(false);
   };
 
   return (
-    <div className="bg-gray-700/50 text-gray-400 rounded-lg text-sm">
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        sendMessage(prompt);
-      }} className="p-5 space-x-5 flex">
-        <input
-          className="bg-transparent focus:outline-none flex-1 disabled:cursor-not-allowed disabled:text-gray-300"
-          disabled={!session}
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          type="text"
-          name="message"
-          placeholder="Type a message..."
+    <AppBar position="fixed" sx={{zIndex: (theme) => theme.zIndex.drawer + 1, bottom: "0", top: "auto", padding: "5px", backgroundColor: "rgb(240,240,240)" }}>
+    <Toolbar>
+    <Box sx={{width:"100%"}}>
+      <form onSubmit={sendMessage}>
+      <TextField
+        id="outlined-basic"
+        label="Enter message..."
+        variant="outlined"
+        value={prompt}
+        color='primary'
+        disabled={!session || isLoading}
+        InputLabelProps={{                style: { fontFamily:"poppins" },
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                color="primary"
+                aria-label="sendMessage"
+                disabled={!prompt || !session || isLoading}
+                onClick={sendMessage}
+                sx={{ width: "100%", backgroundColor: "white"}}
+              
+              >
+                {isLoading ? <CircularProgress size={24} /> : <SendIcon />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}            
+        sx={{ width: "100%", backgroundColor: "white"}} 
+        onChange={e => setPrompt(e.target.value)}
         />
-        <button
-          disabled={!prompt || !session}
-          type="submit"
-          className="bg-[#11A37F] hover:opacity-50 text-white font-boldpx-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-          <PaperAirplaneIcon className="h-4 w-4 -rotate-45" />
-          </button>
-          </form>
-          <NewChat message="Hey write 100 words" sendMessage={sendMessage} />
-          </div>
-          );
-          }
-          
-          export default ChatInput;
+      </form>
+        </Box>
+        </Toolbar>
+          <footer>
+            <Typography variant="body2" fontSize={8} fontFamily={"poppins"} color="text.secondary" align="center">
+              {'Powered by '}
+              <Link color="inherit" href="https://rivaltech.com/">
+                Rival
+              </Link>{' '}
+              {new Date().getFullYear()}
+              {'.'}
+            </Typography>
+          </footer>
+        </AppBar>
+        );
+        }
+        
+        export default ChatInput;

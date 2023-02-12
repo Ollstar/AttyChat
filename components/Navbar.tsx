@@ -1,7 +1,6 @@
 "use client"
 import {AppBar, Toolbar, IconButton, Typography, Button} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
-import NewChatWithQuestion from "./NewChatWithQuestion";
 
 function Navbar() {
   return (

@@ -11,13 +11,14 @@ import { Label } from "@mui/icons-material";
 
 type Props = {
   message?: string;
-  sendMessage: (message: string) => void;
+  sendMessage?: (message: string) => void;
 };
 
 function NewChat({ message, sendMessage }: Props) {
   const router = useRouter();
   const { data: session } = useSession();
   const pathname = usePathname();
+  const [chatId, setChatId] = useState("");
 
   const createNewChat = async () => {
     const doc = await addDoc(
@@ -28,8 +29,11 @@ function NewChat({ message, sendMessage }: Props) {
       }
       
     );
+    setChatId(doc.id);
      router.push(`/chat/${doc.id}`)
   };
+
+
 
 
 
