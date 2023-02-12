@@ -28,7 +28,7 @@ export default async function RootLayout({
                 <Drawer />
 
               <ClientProvider />
-              <div >{children}</div>
+              <div className="bg-black">{children}</div>
             </div>
           )}
         </SessionProvider>

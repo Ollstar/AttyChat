@@ -136,15 +136,13 @@ export default function PersistentDrawerLeft() {
         open={open}
       >
         <DrawerHeader>
-            <NewChat />
-            <NewChat message='Hello'/>
+
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         
         </DrawerHeader>
         <div>
-          <NewChat />
           <div className="hidden sm:inline">
           </div>
 
