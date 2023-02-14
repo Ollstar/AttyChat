@@ -1,11 +1,13 @@
-"use client";
+"use client"
+import React, { useEffect, useRef } from 'react';
 import { ArrowDownCircleIcon } from "@heroicons/react/24/solid";
 import { query, collection, orderBy } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { db } from "../firebase";
 import Message from "./Message";
-import { Box, Avatar, Typography, makeStyles, Container } from "@mui/material";
+import { Box, Avatar, Typography } from "@mui/material";
+import DrawerSpacer from './DrawerSpacer';
 
 type Props = {
   chatId: string;
@@ -13,7 +15,7 @@ type Props = {
 
 function Chat({ chatId }: Props) {
   const { data: session } = useSession();
-  const [messages] = useCollection(
+  const [messages, loading, error] = useCollection(
     session &&
       query(
         collection(
@@ -28,8 +30,35 @@ function Chat({ chatId }: Props) {
       )
   );
 
+  const containerRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop =
+        containerRef.current.scrollHeight;
+    }
+  
+
+  }, [messages]);
+
   return (
-    <Container>
+
+    <Box
+      ref={containerRef}
+      sx={{
+        padding: '10px',
+        position: 'absolute',
+        display:"flex", 
+        width:"100%",
+        marginBottom:"10px",
+        flexDirection:"column",
+        backgroundColor:"purple", 
+                overflow: 'scroll',
+        bottom: '0',
+        top: '0',
+      }}
+    >
+      <DrawerSpacer />
       {messages?.empty && (
         <>
           <Typography
@@ -39,13 +68,23 @@ function Chat({ chatId }: Props) {
           >
             Type a prompt in below to get started!
           </Typography>
-          <ArrowDownCircleIcon className="h-10 w-10 mx-auto mt-5 text-black animate-bounce" />
+          <ArrowDownCircleIcon
+            className="h-10 w-10 mx-auto mt-5 text-black animate-bounce"
+          />
         </>
-      )}{" "}
+      )}
       {messages?.docs.map((message) => (
-        <Message key={message.id} message={message.data()} />
-      ))}
-    </Container>
+    <Box key={message.id} sx={{backgroundColor:"teal", padding:"10px"}}>
+          <Message key={message.id} message={message.data()} />
+          </Box>
+
+
+    ))}
+          <DrawerSpacer />
+
+        </Box>
+
+
   );
 }
 

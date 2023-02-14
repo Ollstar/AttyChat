@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
@@ -9,16 +9,11 @@ import { useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import { Label } from "@mui/icons-material";
 
-type Props = {
-  message?: string;
-  sendMessage?: (message: string) => void;
-};
 
-function NewChat({ message, sendMessage }: Props) {
+
+function NewChat() {
   const router = useRouter();
   const { data: session } = useSession();
-  const pathname = usePathname();
-  const [chatId, setChatId] = useState("");
 
   const createNewChat = async () => {
     const doc = await addDoc(
@@ -27,13 +22,9 @@ function NewChat({ message, sendMessage }: Props) {
         userId: session?.user?.email!,
         createdAt: serverTimestamp(),
       }
-      
     );
-    setChatId(doc.id);
-     router.push(`/chat/${doc.id}`)
+    router.push(`/chat/${doc.id}`);
   };
-
-
 
 
 

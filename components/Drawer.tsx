@@ -24,29 +24,14 @@ import NewChat from "./NewChat";
 import ChatRow from "./ChatRow";
 import { collection, orderBy, query } from "firebase/firestore";
 import { db } from "../firebase";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
+import { Settings } from "./Settings";
+import { Avatar } from "@mui/material";
 
 const drawerWidth = 240;
 
-const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
-  open?: boolean;
-}>(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create("margin", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginLeft: `-${drawerWidth}px`,
-  ...(open && {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  }),
-}));
+
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -82,6 +67,7 @@ export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const { data: session } = useSession();
+  const [primer, setPrimer] = React.useState("");
 
   const [chats, loading, error] = useCollection(
     session &&
@@ -99,24 +85,8 @@ export default function PersistentDrawerLeft() {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, ...(open && { display: "none" }) }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Persistent drawer
-          </Typography>
-        </Toolbar>
-      </AppBar>
       <Drawer
         sx={{
           width: drawerWidth,
@@ -158,21 +128,43 @@ export default function PersistentDrawerLeft() {
         </div>
       </Drawer>
       <DrawerHeader />
-      <AppBar position="fixed" open={open}>
+      <AppBar
+        position="fixed"
+        sx={{
+          
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: "rgb(240,240,240)",
+        }}
+        open={open}
+        elevation={2}
+      >
         <Toolbar>
           <IconButton
-            color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={open ? handleDrawerClose : handleDrawerOpen}
             edge="start"
-            sx={{ mr: 2, ...(open && { display: "none" }) }}
+            sx={{ mr: 2 }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Persistent drawer
-          </Typography>
-        </Toolbar>
+          <Typography
+            variant="h6"
+            fontFamily={"poppins"}
+            color="black"
+            overflow={"hidden"}
+            component="div"
+            sx={{ flexGrow: 1 }}
+          >
+            AttyChat          
+            </Typography>
+
+          <Box sx={{ flexGrow: 1 }} />
+          <img
+       onClick={() => signOut()}
+       src={session?.user?.image!}
+          alt="Profile picture"
+          className="h-12 w-12 rounded-full cursor-pointer mx-auto mb-2 hover:opacity-50">
+            </img>       </Toolbar>
       </AppBar>
     </Box>
   );

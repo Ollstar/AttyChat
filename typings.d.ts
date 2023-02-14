@@ -7,3 +7,11 @@ interface Message {
         avatar: string;
     };
 }
+interface Primer {
+    text: string;
+    createdAt: admin.firestore.Timestamp;
+    user : {
+        _id: string;
+        name: string;
+    };
+}

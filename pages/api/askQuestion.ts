@@ -1,8 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import query from "../../lib/queryApi";
+import query2 from "../../lib/queryApi";
 import admin from "firebase-admin";
 import { adminDb } from "../../firebaseAdmin";
+import { useSession } from "next-auth/react";
 
 type Data = {
   answer: string;
@@ -12,24 +13,17 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { prompt, chatId, model, session } = req.body;
-
-  if (!prompt) {
-    res.status(400).json({
-      answer: "Please provide a prompt.",
-    });
+  console.log(req.body)
+  const prompt = req.body.prompt || '';
+  if (prompt.trim().length === 0) {
+    res.status(200).json({ answer: "Please ask a question!" });
     return;
   }
-
-  if (!chatId) {
-    res.status(400).json({
-      answer: "Please provide a chat ID.",
-    });
-    return;
-  }
-
+  const prependageMessage = req.body.primer || 'Cluck click.';
+const session = req.body.session;
+const chatId = req.body.chatId;
   // ChatGpt Query
-  const response = await query(prompt, chatId, model);
+  const response = await query2(prompt, req.body.chatId, prependageMessage);
 
   const message: Message = {
     text: response || "Hmm, I may have to get out an encyclopedia!",

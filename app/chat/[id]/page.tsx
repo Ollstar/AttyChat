@@ -1,5 +1,6 @@
 import Chat from "../../../components/Chat";
 import ChatInput from "../../../components/ChatInput";
+import DrawerSpacer from "../../../components/DrawerSpacer";
 
 type Props = {
   params: {
@@ -8,10 +9,14 @@ type Props = {
 };
 function ChatPage({ params: { id } }: Props) {
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <>
+    <div className="flex bg-red-500 flex-col overflow-y-scroll">
       <Chat chatId={id} />
       <ChatInput chatId={id} />
+
     </div>
+    <DrawerSpacer />
+    </>
   );
 }
 

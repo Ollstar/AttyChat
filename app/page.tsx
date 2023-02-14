@@ -3,61 +3,37 @@ import {
     ExclamationTriangleIcon,
     SunIcon,
   } from "@heroicons/react/24/outline";
+import DrawerSpacer from "../components/DrawerSpacer";
   
   function HomePage() {
     return (
-      <div className="text-white flex flex-col h-screen px-2 items-center justify-center">
-        <h1 className="text-5xl font-bold mb-20">ChatGPT</h1>
-  
-        <div className="flex space-x-2 text-center">
-          <div>
-            <div className="flex justify-center flex-col items-center mb-5">
-              <SunIcon className="h-8 w-8" />
-              <h2>Examples</h2>
-            </div>
-  
-            <div className="space-y-2">
-              <p className="infoText">Explain something to me</p>
-              <p className="infoText">
-                "What is the difference between a dog and a cat?"
+      <>
+      <div className="flex flex-col items-center justify-center min-h-screen py-2">
+        <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
+          <h1 className="text-6xl font-bold">Welcome to Chat!</h1>
+
+          <p className="mt-3 text-2xl">
+            Get started by creating a new chat
+          </p>
+
+          <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
+            <a
+              href="#"
+              className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
+            >
+              <h3 className="text-2xl font-bold">New Chat &rarr;</h3>
+              <p className="mt-4 text-xl">
+                Start a new chat with a random person
               </p>
-              <p className="infoText">"What is the color of the sun?"</p>
+            </a>
             </div>
-          </div>
-  
-          <div>
-            <div className="flex justify-center flex-col items-center mb-5">
-              <BoltIcon className="h-8 w-8" />
-              <h2>Capabilities</h2>
-            </div>
-  
-            <div className="space-y-2">
-              <p className="infoText">
-                Remembers what user said earlier in the conversation
-              </p>
-              <p className="infoText">
-                "What is the difference between a dog and a cat?"
-              </p>
-              <p className="infoText">"What is the color of the sun?"</p>
-            </div>
-          </div>
-  
-          <div>
-            <div className="flex justify-center flex-col items-center mb-5">
-              <ExclamationTriangleIcon className="h-8 w-8" />
-              <h2>Limitations</h2>
-            </div>
-  
-            <div className="space-y-2">
-              <p className="infoText">Explain something to me</p>
-              <p className="infoText">
-                "What is the difference between a dog and a cat?"
-              </p>
-              <p className="infoText">"What is the color of the sun?"</p>
-            </div>
-          </div>
-        </div>
+        </main>
+
+
       </div>
+      </>
+
+   
     );
   }
   

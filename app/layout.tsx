@@ -7,6 +7,7 @@ import Login from "../components/Login";
 import ClientProvider from "../components/ClientProvider";
 import Navbar from "../components/Navbar";
 import Drawer from "../components/Drawer";
+import { Box } from "@mui/material";
 
 export default async function RootLayout({
   children,
@@ -20,18 +21,19 @@ export default async function RootLayout({
       <head/>
 
       <body>
+        <div style={{display:"flex"}}>
         <SessionProvider session={session}>
           {!session ? (
             <Login />
           ) : (
             <div>
               <Drawer />
-
               <ClientProvider />
               <div>{children}</div>
             </div>
           )}
         </SessionProvider>
+        </div>
       </body>
     </html>
   );
