@@ -31,10 +31,10 @@ function Message2({ message }: Props) {
           variant="body1"
           sx={{
             fontSize: {
-              lg: 12,
-              md: 11,
-              sm: 10,
-              xs: 10,
+              lg: 20,
+              md: 16,
+              sm: 16,
+              xs: 16,
             },
             wordWrap: "break-word",
           }}
@@ -47,10 +47,10 @@ function Message2({ message }: Props) {
             variant="caption"
             sx={{
               fontSize: {
-                lg: 9,
-                md: 8,
-                sm: 7,
-                xs: 6,
+                lg: 12,
+                md: 12,
+                sm: 10,
+                xs: 10,
               },
             }}
           >
@@ -61,10 +61,10 @@ function Message2({ message }: Props) {
             variant="caption"
             sx={{
               fontSize: {
-                lg: 9,
-                md: 8,
-                sm: 7,
-                xs: 6,
+                lg: 12,
+                md: 12,
+                sm: 10,
+                xs: 10,
               },
             }}
           >
