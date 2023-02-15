@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { FormEvent, useState } from "react";
@@ -8,6 +7,7 @@ import { db } from "../firebase";
 import toast from "react-hot-toast";
 import ModelSelection from "./ModelSelection";
 import useSWR from "swr";
+import PrimerFeild from "./PrimerFeild";
 
 type Props = {
   chatId: string;
@@ -20,16 +20,19 @@ function ChatInput({ chatId }: Props) {
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
   });
+  const { data: primer } = useSWR("primer", {
+    fallbackData: "Imagine your a chatbot for AttyChat and you like to get people to leave reveiws about how the bot is in keeping up a conversation.",
+  });
 
   // TODO useswr toget model.
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!prompt) return;
-
+  
     const input = prompt.trim();
     setPrompt("");
-
+  
     const message: Message = {
       text: input,
       createdAt: serverTimestamp(),
@@ -41,7 +44,7 @@ function ChatInput({ chatId }: Props) {
           `https://ui-avatars.com/api/?name=${session?.user?.name}`,
       },
     };
-
+  
     await addDoc(
       collection(
         db,
@@ -53,10 +56,17 @@ function ChatInput({ chatId }: Props) {
       ),
       message
     );
-
+  
     //Toast notification
     const notification = toast.loading("Thinking...");
-
+  
+    let primerValue = "default"; // default primer value
+    if (primer) {
+      primerValue = primer.text || "defo";
+    }
+  
+    console.log("primer value: ", primerValue);
+  
     await fetch("/api/askQuestion", {
       method: "POST",
       headers: {
@@ -66,6 +76,7 @@ function ChatInput({ chatId }: Props) {
         prompt: input,
         chatId,
         model,
+        primer: primerValue,
         session,
       }),
     }).then(() => {
@@ -74,6 +85,7 @@ function ChatInput({ chatId }: Props) {
       });
     });
   };
+  
 
   return (
     <div className="bg-gray-700/50 text-gray-400 rounded-lg text-sm">
@@ -96,8 +108,8 @@ function ChatInput({ chatId }: Props) {
         </button>
       </form>
 
-      <div className="md:hidden">
-        <ModelSelection />
+      <div className="justify-center">
+        <PrimerFeild />
       </div>
     </div>
   );
