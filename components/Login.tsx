@@ -1,7 +1,6 @@
-"use client";
-
+"use client"
 import { signIn } from "next-auth/react";
-import Image from "next/image" 
+import Image from "next/image"
 
 function Login() {
   return (
@@ -13,9 +12,13 @@ function Login() {
         height={300}
         alt="logo"
       />
-      <button onClick={() => signIn("google")}  className="text-white font-bold 
+      <button onClick={() => signIn("google")} className="text-white font-bold 
       text-3xl animate-pulse">
-        Sign In to use ChatGPT 
+        Sign In with Google
+      </button>
+      <button onClick={() => signIn("email")} className="text-white font-bold 
+      text-3xl animate-pulse mt-4">
+        Sign In with Email
       </button>
     </div>
   )

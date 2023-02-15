@@ -6,7 +6,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
     "@heroicons/react": "^2.0.15",
+    "@mui/icons-material": "^5.11.9",
+    "@mui/material": "^5.11.9",
     "firebase": "^9.17.1",
     "firebase-admin": "^11.5.0",
     "next": "latest",

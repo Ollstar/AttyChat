@@ -1,35 +1,44 @@
-import { useState } from 'react';
+import { FormEvent, useState } from "react";
 import {
   Box,
   Button,
+  IconButton,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   TextField,
+  ListSubheader,
   Toolbar,
-} from '@mui/material';
-import useSWR from 'swr';
-import { useSession } from 'next-auth/react';
-import mySwrConfig from '../lib/swr-config'
+} from "@mui/material";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import useSWR from "swr";
+import { useSession } from "next-auth/react";
+import mySwrConfig from "../lib/swr-config";
 
-const fetchPrimer = (session: any) => 
-  fetch('/api/getPrimer', {
-    method: 'POST',
+const fetchPrimer = (session: any) =>
+  fetch("/api/getPrimer", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ session: { user: { email: session?.user?.email! } } }),
+    body: JSON.stringify({
+      session: { user: { email: session?.user?.email! } },
+    }),
   }).then((res) => res.json());
 
 function PrimerField() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
-  const { data: primer, mutate: setPrimer } = useSWR("primer", session ? () => fetchPrimer(session) : null, {
-    ...mySwrConfig,
-    revalidateOnMount: true,
-  });
-  const [text, setText] = useState(primer?.text || '');
+  const { data: primer, mutate: setPrimer } = useSWR(
+    "primer",
+    session ? () => fetchPrimer(session) : null,
+    {
+      ...mySwrConfig,
+      revalidateOnMount: true,
+    }
+  );
+  const [text, setText] = useState(primer?.text || "");
 
   const handleOpen = async () => {
     setIsOpen(true);
@@ -43,10 +52,10 @@ function PrimerField() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await fetch('/api/setPrimer', {
-      method: 'POST',
+    const response = await fetch("/api/setPrimer", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         session: { user: { email: session?.user?.email! } },
@@ -69,32 +78,57 @@ function PrimerField() {
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={handleOpen}>
-        Set Primer
-      </Button>
-      <Dialog open={isOpen} onClose={handleClose}>
-        <DialogTitle>Set Primer</DialogTitle>
-        <DialogContent>
-          <Box display="flex" flexDirection="column">
+      <IconButton color="primary" onClick={handleOpen}>
+        <PsychologyIcon />
+      </IconButton>
+      <Dialog
+        fullWidth
+        open={isOpen}
+        scroll="paper"
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={{}} bgcolor="background.paper">
+          <Box padding={2}>
+            <ListSubheader
+              sx={{ fontFamily: "poppins" }}
+              component="div"
+              id="modal-header"
+            >
+              Training Message
+            </ListSubheader>
             <form onSubmit={handleSubmit}>
               <TextField
-                label="Primer"
+                id="filled-multiline-static"
+                fullWidth
+                multiline
+                rows={10}
+                InputProps={{ style: { fontFamily: "poppins" } }}
+                variant="outlined"
                 value={text}
                 onChange={handleChange}
-                fullWidth
-                margin="normal"
+                InputLabelProps={{ style: { fontFamily: "poppins" } }}
               />
-              <Toolbar>
-                <Box display="flex" justifyContent="flex-end" width="100%">
-                  <Button onClick={handleClose}>Cancel</Button>
-                  <Button type="submit" color="primary" variant="contained">
-                    Save
-                  </Button>
-                </Box>
-              </Toolbar>
+                  <Toolbar sx={{ justifyContent: "flex-end" }}>
+          <Button
+          type="submit"
+            sx={{ fontFamily: "poppins" }}
+            variant="outlined"
+          >
+            Save
+          </Button>
+          <Button
+            sx={{ fontFamily: "poppins" }}
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
+        </Toolbar>
             </form>
           </Box>
-        </DialogContent>
+        </Box>
+    
       </Dialog>
     </>
   );

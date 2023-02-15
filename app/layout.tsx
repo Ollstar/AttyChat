@@ -1,11 +1,10 @@
 import { SessionProvider } from "../components/SessionProvider";
-import SideBar from "../components/SideBar";
 import "../styles/globals.css";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import Login from "../components/Login";
 import ClientProvider from "../components/ClientProvider";
-import { SWRConfig } from "swr";
+import Drawer from "../components/SideAndTopBar";
 
 
 export default async function RootLayout({
@@ -14,25 +13,25 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
   return (
     <html>
-      <head />
+      <head/>
+
       <body>
+        <div style={{display:"flex"}}>
         <SessionProvider session={session}>
           {!session ? (
             <Login />
           ) : (
-            <div className="flex">
-              <div className="bg-[#202123] max-w-xs h-screen overflow-y-auto md:min-w-[20rem]">
-                <SideBar />
-              </div>
+            <div>
+              <Drawer />
               <ClientProvider />
-              <div className="bg-[#343541] flex-1">{children}</div>
+              <div>{children}</div>
             </div>
           )}
         </SessionProvider>
+        </div>
       </body>
     </html>
   );
