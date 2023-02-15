@@ -24,6 +24,7 @@ function ChatInput({ chatId }: Props) {
     fallbackData: "Imagine your a chatbot for AttyChat and you like to get people to leave reveiws about how the bot is in keeping up a conversation.",
   });
 
+
   // TODO useswr toget model.
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {

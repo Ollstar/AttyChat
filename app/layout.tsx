@@ -5,6 +5,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import Login from "../components/Login";
 import ClientProvider from "../components/ClientProvider";
+import { SWRConfig } from "swr";
+
 
 export default async function RootLayout({
   children,
@@ -12,6 +14,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
+  const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
   return (
     <html>

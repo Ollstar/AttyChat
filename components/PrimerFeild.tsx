@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
+import mySwrConfig from '../lib/swr-config'
 
 const fetchPrimer = (session: any) => 
   fetch('/api/getPrimer', {
@@ -19,23 +20,22 @@ const fetchPrimer = (session: any) =>
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ session: { user: { email: session?.user?.email! } } }),
-
-
   }).then((res) => res.json());
 
-
- function PrimerField() {
+function PrimerField() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
-  const { data: primer, mutate: setPrimer } = useSWR("primer", fetchPrimer);
+  const { data: primer, mutate: setPrimer } = useSWR("primer", session ? () => fetchPrimer(session) : null, {
+    ...mySwrConfig,
+    revalidateOnMount: true,
+  });
   const [text, setText] = useState(primer?.text || '');
-  
+
   const handleOpen = async () => {
     setIsOpen(true);
     const data = await fetchPrimer(session);
     setText(data.text);
   };
-  
 
   const handleClose = () => {
     setIsOpen(false);
@@ -58,11 +58,14 @@ const fetchPrimer = (session: any) =>
     setText(data.text);
     setIsOpen(false);
   };
-  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
   };
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <>
