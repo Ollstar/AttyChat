@@ -18,7 +18,7 @@ const query = async (
     .createCompletion({
       model,
       prompt: fullPrompt,
-      temperature: 0.5,
+      temperature: 0.0,
       max_tokens: 1000,
     })
     .then((res) => res.data.choices[0].text)

@@ -26,9 +26,10 @@ import { collection, orderBy, query } from "firebase/firestore";
 import { db } from "../firebase";
 import { signOut, useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
+import NewChatWithMessage from "./NewChatWithMessage";
+import { useMediaQuery } from "@mui/material";
 
 const drawerWidth = 240;
-
 
 
 interface AppBarProps extends MuiAppBarProps {
@@ -61,7 +62,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function PersistentDrawerLeft() {
+export default function PersistentDrawerLeft(this: any) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const { data: session } = useSession();
@@ -82,10 +83,14 @@ export default function PersistentDrawerLeft() {
     setOpen(false);
   };
 
+
   return (
     <Box>
       <CssBaseline />
       <Drawer
+        ModalProps={{ onBackdropClick: handleDrawerClose }}
+
+      id="drawer"
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -94,12 +99,13 @@ export default function PersistentDrawerLeft() {
             boxSizing: "border-box",
           },
         }}
-        variant="persistent"
+        variant="temporary"
         anchor="left"
         open={open}
       >
         <DrawerHeader>
           <NewChat />
+          <NewChatWithMessage messageText="Hello"/>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />
@@ -146,14 +152,16 @@ export default function PersistentDrawerLeft() {
             <MenuIcon />
           </IconButton>
           <Typography
+          className= {open ? "hidden sm:inline" : "block"}
             variant="h6"
             fontFamily={"poppins"}
             color="black"
             overflow={"hidden"}
             component="div"
-            sx={{ flexGrow: 1 }}
+            sx={{ flexGrow: 1
+            }}
           >
-            AttyChat          
+            Atty Chat          
             </Typography>
 
           <Box sx={{ flexGrow: 1 }} />

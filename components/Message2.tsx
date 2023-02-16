@@ -31,8 +31,8 @@ function Message2({ message }: Props) {
           variant="body1"
           sx={{
             fontSize: {
-              lg: 20,
-              md: 16,
+              lg: 18,
+              md: 18,
               sm: 16,
               xs: 16,
             },

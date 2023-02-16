@@ -1,20 +1,27 @@
-"use client"
+"use client";
 import {
-    TextField,
-    InputAdornment,
-    IconButton,
-    CircularProgress,
-    AppBar,
-    Toolbar,
-    Typography,
-    Link,
-    Box,
-  } from "@mui/material";
-  import SendIcon from "@mui/icons-material/Send";
+  TextField,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+  AppBar,
+  Toolbar,
+  Typography,
+  Link,
+  Box,
+} from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
-import { FormEvent, useState } from "react";
-import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from "firebase/firestore";
+import { FormEvent, useState, useEffect, useRef } from "react";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import toast from "react-hot-toast";
 import ModelSelection from "./ModelSelection";
@@ -30,17 +37,26 @@ function ChatInput2({ chatId }: Props) {
   const [prompt, setPrompt] = useState("");
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
   });
   const { data: primer } = useSWR("primer", {
-    fallbackData: "Imagine your a chatbot for AttyChat and you like to get people to leave reveiws about how the bot is in keeping up a conversation.",
+    fallbackData:
+      "Imagine your a chatbot for AttyChat and you like to get people to leave reveiws about how the bot is in keeping up a conversation.",
   });
   const { data: messages } = useSWR("messages", () => {
     if (session && session.user && session.user.email) {
       const messagesQuery = query(
-        collection(db, "users", session.user.email, "chats", chatId, "messages"),
+        collection(
+          db,
+          "users",
+          session.user.email,
+          "chats",
+          chatId,
+          "messages"
+        ),
         orderBy("createdAt", "asc")
       );
       return getDocs(messagesQuery).then((querySnapshot) =>
@@ -50,48 +66,58 @@ function ChatInput2({ chatId }: Props) {
     return Promise.resolve([]);
   });
 
-  // TODO useswr toget model.
-
+  useEffect(() => {
+    if (!messages) return;
+    if (messages && messages.length === 1) {
+      console.log("messages: ", messages);
+      formRef.current!.dispatchEvent(
+        new Event("submit", { cancelable: true, bubbles: true })
+      );
+    }
+  }, [messages ]);
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!prompt) return;
-  
-    const input = prompt.trim();
+
+    let input = prompt.trim();
     setPrompt("");
-  
-    const message: Message2 = {
-      text: input,
-      createdAt: serverTimestamp(),
-      user: {
-        _id: session?.user?.email!,
-        name: session?.user?.name!,
-        avatar:
-          session?.user?.image! ||
-          `https://ui-avatars.com/api/?name=${session?.user?.name}`,
-      },
-    };
-  
-    await addDoc(
-      collection(
-        db,
-        "users",
-        session?.user?.email!,
-        "chats",
-        chatId,
-        "messages"
-      ),
-      message
-    );
-  
+
+    console.log("input: ", input);
+    if (messages && messages.length > 1) {
+      const message: Message2 = {
+        text: input,
+        createdAt: serverTimestamp(),
+        user: {
+          _id: session?.user?.email!,
+          name: session?.user?.name!,
+          avatar:
+            session?.user?.image! ||
+            `https://ui-avatars.com/api/?name=${session?.user?.name}`,
+        },
+      };
+
+      setIsLoading(true);
+      await addDoc(
+        collection(
+          db,
+          "users",
+          session?.user?.email!,
+          "chats",
+          chatId,
+          "messages"
+        ),
+        message
+      );
+      setIsLoading(false);
+    }
     //Toast notification
     const notification = toast.loading("Thinking...");
-  
+
     let primerValue = "default"; // default primer value
     if (primer) {
       primerValue = primer.text || "defo";
     }
-  
-  
+
     await fetch("/api/askQuestion", {
       method: "POST",
       headers: {
@@ -111,7 +137,6 @@ function ChatInput2({ chatId }: Props) {
       });
     });
   };
-  
 
   return (
     <AppBar
@@ -126,7 +151,7 @@ function ChatInput2({ chatId }: Props) {
     >
       <Toolbar>
         <Box sx={{ width: "100%" }}>
-          <form onSubmit={sendMessage}>
+          <form ref={formRef} onSubmit={sendMessage}>
             <TextField
               id="outlined-basic"
               label="Enter message..."
@@ -140,10 +165,10 @@ function ChatInput2({ chatId }: Props) {
                   <InputAdornment position="end">
                     <PrimerField />
                     <IconButton
-                        type="submit"
-                        disabled={!session || isLoading}
-                        sx={{ color: "primary.main" }}
-                        >
+                      type="submit"
+                      disabled={!session || isLoading}
+                      sx={{ color: "primary.main" }}
+                    >
                       {isLoading ? (
                         <CircularProgress size={24} />
                       ) : (
