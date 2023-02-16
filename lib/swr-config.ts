@@ -16,9 +16,7 @@ const mySwrConfig: SWRConfiguration = {
     toast.error(`Error fetching ${key}: ${err}`);
   },
   onSuccess: (data, key, config) => {
-    if (config?.refreshInterval) {
-      toast.success(`Successfully fetched ${key}`);
-    }
+      toast.success(`Successful ${key} operation`);
     },
 
 

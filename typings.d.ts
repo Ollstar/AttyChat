@@ -1,4 +1,4 @@
-interface Message {
+interface Message2 {
     text: string;
     createdAt: admin.firestore.Timestamp;
     user : {

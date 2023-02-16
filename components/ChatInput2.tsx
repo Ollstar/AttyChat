@@ -14,13 +14,13 @@ import {
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { FormEvent, useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import toast from "react-hot-toast";
 import ModelSelection from "./ModelSelection";
 import useSWR from "swr";
-import PrimerFeild from "./PrimerFeild";
 import PrimerField from "./PrimerFeild";
+import mySwrConfig from "../lib/swr-config";
 
 type Props = {
   chatId: string;
@@ -37,7 +37,18 @@ function ChatInput2({ chatId }: Props) {
   const { data: primer } = useSWR("primer", {
     fallbackData: "Imagine your a chatbot for AttyChat and you like to get people to leave reveiws about how the bot is in keeping up a conversation.",
   });
-
+  const { data: messages } = useSWR("messages", () => {
+    if (session && session.user && session.user.email) {
+      const messagesQuery = query(
+        collection(db, "users", session.user.email, "chats", chatId, "messages"),
+        orderBy("createdAt", "asc")
+      );
+      return getDocs(messagesQuery).then((querySnapshot) =>
+        querySnapshot.docs.map((doc) => doc.data())
+      );
+    }
+    return Promise.resolve([]);
+  });
 
   // TODO useswr toget model.
 
@@ -48,7 +59,7 @@ function ChatInput2({ chatId }: Props) {
     const input = prompt.trim();
     setPrompt("");
   
-    const message: Message = {
+    const message: Message2 = {
       text: input,
       createdAt: serverTimestamp(),
       user: {
@@ -80,7 +91,6 @@ function ChatInput2({ chatId }: Props) {
       primerValue = primer.text || "defo";
     }
   
-    console.log("primer value: ", primerValue);
   
     await fetch("/api/askQuestion", {
       method: "POST",
@@ -92,6 +102,7 @@ function ChatInput2({ chatId }: Props) {
         chatId,
         model,
         primer: primerValue,
+        messages: messages?.map((message) => message.text) || [],
         session,
       }),
     }).then(() => {
