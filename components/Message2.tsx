@@ -18,7 +18,7 @@ function Message2({ message }: Props) {
           display: "inline-block",
           maxWidth: "70%",
           padding: "10px",
-          borderRadius: "5px",
+          borderRadius: "10px",
           backgroundColor: isUser ? "#E9E9EB" : "#397EF7",
           textAlign: isUser ? "right" : "left",
           float: isUser ? "right" : "left",

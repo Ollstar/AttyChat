@@ -10,11 +10,14 @@ import {
   TextField,
   ListSubheader,
   Toolbar,
+  Typography,
+  duration,
 } from "@mui/material";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
 import mySwrConfig from "../lib/swr-config";
+import toast from "react-hot-toast";
 
 const fetchPrimer = (session: any) =>
   fetch("/api/getPrimer", {
@@ -62,11 +65,26 @@ function PrimerField() {
         text,
       }),
     });
+
+
     const data = await response.json();
     setPrimer(data.text);
     setText(data.text);
     setIsOpen(false);
+  
+    // Display custom toast with animation
+    toast.success("Primer Saved!", {
+      duration: 2000,
+      position: "top-center",
+      style: {
+        border: "1px solid white",
+        padding: "16px",
+      },
+    });
+    
+  
   };
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);

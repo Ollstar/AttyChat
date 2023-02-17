@@ -25,9 +25,9 @@ function HomePage() {
                 <SunIcon className="h-8 w-8" />
                 <h2>Examples</h2>
                 <div className="space-y-2">
-                  <NewChatWithMessage messageText="Remembers what user said earlier in the conversation" />
-                  <NewChatWithMessage messageText="Distinguishes between different entities and their attributes" />
-                  <NewChatWithMessage messageText="Generates human-like responses" />
+                  <NewChatWithMessage messageText="What is ChatGPT?" />
+                  <NewChatWithMessage messageText="Can you pretend to be like Elvis for the rest of our conversation?" />
+                  <NewChatWithMessage messageText="Can you use lots of emojis in the rest of our conversation?" />
                 </div>
               </div>
             </div>
@@ -39,7 +39,7 @@ function HomePage() {
                 <div className="space-y-2">
                   <NewChatWithMessage messageText="What can Atty Chat do?" />
                   <NewChatWithMessage messageText="How do I use Atty Chat?" />
-                  <NewChatWithMessage messageText="Who are your customers?" />
+                  <NewChatWithMessage messageText="Who should use Atty Chat?" />
                 </div>
               </div>
             </div>
@@ -49,9 +49,9 @@ function HomePage() {
                 <BoltIcon className="h-8 w-8" />
                 <h2>Features</h2>
                 <div className="space-y-2">
-                  <NewChatWithMessage messageText="Easy to use interface" />
-                  <NewChatWithMessage messageText="Customizable responses" />
-                  <NewChatWithMessage messageText="Real-time chat support" />
+                  <NewChatWithMessage messageText="Can you imagine yourself as the president of the USA for the rest of the conversation?" />
+                  <NewChatWithMessage messageText="Can you write in exclamation for the rest of our conversation?" />
+                  <NewChatWithMessage messageText="Will you pretend to be my freind?" />
                 </div>
               </div>
             </div>

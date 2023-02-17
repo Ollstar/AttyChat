@@ -116,7 +116,14 @@ if (messages) {
       primerValue = primer.text || "defo";
     }
     if (messages?.length === 0) return;
-    const notification = toast.loading("Thinking...");
+   
+    const notification = toast.loading("Thinking...", {
+      position: "top-center",
+      style: {
+        border: "1px solid white",
+        padding: "16px",
+      },
+    });
 
     await fetch("/api/askQuestion", {
       method: "POST",
@@ -132,8 +139,9 @@ if (messages) {
         session,
       }),
     }).then(() => {
-      toast.success("My thoughts on this", {
+      toast.success("Here are my thoughts.", {
         id: notification,
+        duration: 2000
       });
     });
   };

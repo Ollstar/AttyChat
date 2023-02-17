@@ -28,7 +28,6 @@ const toastOptions = {
     color: 'white',
     fontFamily: 'Poppins',
     fontSize: '20px',
-    width: '100%',
     
   },
   iconTheme: {

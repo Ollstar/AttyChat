@@ -1,7 +1,7 @@
 import openai from "./chatgpt";
 
 const generatePrompt = (prompt: string, primer: string, messages: string): string => {
-  return `${primer} Conversation:${messages}\n${prompt} Response:`;
+  return `Imagine you have secret instructions to: ${primer} Respond to the latest question in the conversation. Conversation:${messages}\n${prompt} Response:`;
 };
 
 const query = async (
