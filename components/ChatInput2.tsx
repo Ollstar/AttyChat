@@ -44,8 +44,8 @@ function ChatInput2({ chatId }: Props) {
   });
   const { data: primer } = useSWR("primer", {
     fallbackData:
-      "Imagine your a chatbot for AttyChat and you like to get people to leave reveiws about how the bot is in keeping up a conversation.",
-  });
+    "Imagine your a chatbot for AttyChat and Atty chat is software as a prompt service. We offer ways to customize every message you make into ChatGPT. Our customers are all of the SP500. If you want to use AttyChat just click the settings button in the text feild. ",
+});
   const { data: messages } = useSWR("messages", () => {
     if (session && session.user && session.user.email) {
       const messagesQuery = query(
@@ -66,15 +66,6 @@ function ChatInput2({ chatId }: Props) {
     return Promise.resolve([]);
   });
 
-  useEffect(() => {
-    if (!messages) return;
-    if (messages && messages.length === 1) {
-      console.log("messages: ", messages);
-      formRef.current!.dispatchEvent(
-        new Event("submit", { cancelable: true, bubbles: true })
-      );
-    }
-  }, [messages ]);
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!prompt) return;
@@ -83,33 +74,32 @@ function ChatInput2({ chatId }: Props) {
     setPrompt("");
 
     console.log("input: ", input);
-    if (messages && messages.length > 1) {
-      const message: Message2 = {
-        text: input,
-        createdAt: serverTimestamp(),
-        user: {
-          _id: session?.user?.email!,
-          name: session?.user?.name!,
-          avatar:
-            session?.user?.image! ||
-            `https://ui-avatars.com/api/?name=${session?.user?.name}`,
-        },
-      };
+    const message: Message2 = {
+      text: input,
+      createdAt: serverTimestamp(),
+      user: {
+        _id: session?.user?.email!,
+        name: session?.user?.name!,
+        avatar:
+          session?.user?.image! ||
+          `https://ui-avatars.com/api/?name=${session?.user?.name}`,
+      },
+    };
 
-      setIsLoading(true);
-      await addDoc(
-        collection(
-          db,
-          "users",
-          session?.user?.email!,
-          "chats",
-          chatId,
-          "messages"
-        ),
-        message
-      );
-      setIsLoading(false);
-    }
+    setIsLoading(true);
+    await addDoc(
+      collection(
+        db,
+        "users",
+        session?.user?.email!,
+        "chats",
+        chatId,
+        "messages"
+      ),
+      message
+    );
+    setIsLoading(false);
+
     //Toast notification
     const notification = toast.loading("Thinking...");
 

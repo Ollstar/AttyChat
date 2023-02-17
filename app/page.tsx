@@ -32,26 +32,15 @@ function HomePage() {
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-center flex-col items-center mb-5">
-                <BoltIcon className="h-8 w-8" />
-                <h2>Capabilities</h2>
-                <div className="space-y-2">
-                  <NewChatWithMessage messageText="Remembers what user said earlier in the conversation" />
-                  <NewChatWithMessage messageText="Distinguishes between different entities and their attributes" />
-                  <NewChatWithMessage messageText="Generates human-like responses" />
-                </div>
-              </div>
-            </div>
 
             <div>
               <div className="flex justify-center flex-col items-center mb-5">
                 <ExclamationTriangleIcon className="h-8 w-8" />
                 <h2>Limitations</h2>
                 <div className="space-y-2">
-                  <NewChatWithMessage messageText="Remembers what user said earlier in the conversation" />
-                  <NewChatWithMessage messageText="Distinguishes between different entities and their attributes" />
-                  <NewChatWithMessage messageText="Generates human-like responses" />
+                  <NewChatWithMessage messageText="What can Atty Chat do?" />
+                  <NewChatWithMessage messageText="How do I use Atty Chat?" />
+                  <NewChatWithMessage messageText="Who are your customers?" />
                 </div>
               </div>
             </div>
