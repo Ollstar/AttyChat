@@ -12,11 +12,10 @@ const mySwrConfig: SWRConfiguration = {
   dedupingInterval: 60000,
   // set a global `onError` handler to handle SWR errors
   onError: (err, key) => {
-    console.error(`SWR error for ${key}: ${err}`);
     toast.error(`Error fetching ${key}: ${err}`);
   },
   onSuccess: (data, key, config) => {
-      toast.success(`Successful ${key} operation`);
+
     },
 
 
