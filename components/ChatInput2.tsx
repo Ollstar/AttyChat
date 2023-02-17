@@ -65,6 +65,13 @@ function ChatInput2({ chatId }: Props) {
     }
     return Promise.resolve([]);
   });
+  function formatMessages(messages: any[]) {
+    return messages.map((message) => {
+      const author = message.user.name || message.user._id;
+      return `${author}: ${message.text}`;
+    }).join('\n');
+  }
+  
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,8 +79,11 @@ function ChatInput2({ chatId }: Props) {
 
     let input = prompt.trim();
     setPrompt("");
-
-    console.log("input: ", input);
+    let conversationString = "";
+if (messages) {
+  console.log("input: ", input, "model: ", model, "primer: ", primer, "messages: ", formatMessages(messages));
+  conversationString = formatMessages(messages);
+}
     const message: Message2 = {
       text: input,
       createdAt: serverTimestamp(),
@@ -118,7 +128,7 @@ function ChatInput2({ chatId }: Props) {
         chatId,
         model,
         primer: primerValue,
-        messages: messages?.map((message) => message.text) || [],
+        messages: conversationString,
         session,
       }),
     }).then(() => {
@@ -183,10 +193,10 @@ function ChatInput2({ chatId }: Props) {
           align="center"
         >
           {"Powered by "}
-          <Link color="inherit" href="https://rivaltech.com/">
-            Rival
+          <Link color="inherit" href="https://atty.chat/">
+            AttyChat
           </Link>{" "}
-          {new Date().getFullYear()}
+          {new Date().getFullYear()}  
           {"."}
         </Typography>
       </footer>

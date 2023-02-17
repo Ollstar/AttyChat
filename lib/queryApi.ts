@@ -1,8 +1,7 @@
 import openai from "./chatgpt";
 
-const generatePrompt = (prompt: string, primer: string, messages: string[]): string => {
-  const conversation = messages.join("\n");
-  return `${primer} You are ChatGPT in this conversation Conversation: ${conversation} Now imagine someone asks: \n${prompt}`;
+const generatePrompt = (prompt: string, primer: string, messages: string): string => {
+  return `${primer} Conversation:${messages}\n${prompt} Response:`;
 };
 
 const query = async (
@@ -10,9 +9,10 @@ const query = async (
   chatId: string,
   model: string,
   primer: string,
-  messages: string[]
+  messages: string
 ) => {
   const fullPrompt = generatePrompt(prompt, primer, messages);
+  console.log(fullPrompt);
 
   const res = await openai
     .createCompletion({
