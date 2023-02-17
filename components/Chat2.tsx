@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDownCircleIcon } from "@heroicons/react/24/solid";
 import { query, collection, orderBy } from "firebase/firestore";
 import { useSession } from "next-auth/react";
@@ -9,12 +9,22 @@ import Message from "./Message";
 import { Box, Avatar, Typography } from "@mui/material";
 import DrawerSpacer from './DrawerSpacer';
 import Message2 from './Message2';
+import useSWR from "swr";
+import toast from "react-hot-toast";
+
 
 type Props = {
   chatId: string;
 };
 
-function Chat2({ chatId }: Props) {
+function Chat2({ chatId }: Props) {    
+    const { data: model } = useSWR("model", {
+        fallbackData: "text-davinci-003",
+      });
+      const { data: primer } = useSWR("primer", {
+        fallbackData:
+          "Imagine your a chatbot for AttyChat and Atty chat is software as a prompt service. We offer ways to customize every message you make into ChatGPT. Our customers are all of the SP500. If you want to use AttyChat just click the settings button in the text feild. ",
+      });
   const { data: session } = useSession();
   const [messages, loading, error] = useCollection(
     session &&
@@ -31,6 +41,31 @@ function Chat2({ chatId }: Props) {
       )
   );
 
+  async function askQuestion(
+  ) {
+    
+    const notification = toast.loading("Thinking...");
+    await fetch("/api/askQuestion", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: messages?.docs[0].data().text,
+          chatId,
+          model,
+          primer: primer,
+          messages: [],
+          session,
+        }),
+      }).then(() => {
+        toast.success("My thoughts on this", {
+          id: notification,
+        });
+      });
+  }
+  
+
   const containerRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -38,9 +73,17 @@ function Chat2({ chatId }: Props) {
       containerRef.current.scrollTop =
         containerRef.current.scrollHeight;
     }
-  
+    if (messages && messages.docs.length === 1 && messages.docs[0].data().user._id === session?.user?.email!) {
+        askQuestion();
+    }
 
   }, [messages]);
+
+  useEffect(() => {
+    if (messages && messages?.docs[0].data().user._id === session?.user?.email!) {
+        askQuestion();
+    }
+    }, []);
 
   return (
 
