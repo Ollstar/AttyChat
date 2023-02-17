@@ -40,8 +40,14 @@ function Chat2({ chatId }: Props) {
   );
 
   async function askQuestion() {
-    const notification = toast.loading("Thinking...");
-    await fetch("/api/askQuestion", {
+    const notification = toast.loading("Thinking...", {
+      position: "top-center",
+      style: {
+        border: "1px solid white",
+        padding: "16px",
+      },
+    });
+        await fetch("/api/askQuestion", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -57,6 +63,7 @@ function Chat2({ chatId }: Props) {
     }).then(() => {
       toast.success("My thoughts on this", {
         id: notification,
+        duration: 2000,
       });
     });
   }

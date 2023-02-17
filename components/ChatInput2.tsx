@@ -139,7 +139,7 @@ if (messages) {
         session,
       }),
     }).then(() => {
-      toast.success("Here are my thoughts.", {
+      toast.success("My thoughts on this", {
         id: notification,
         duration: 2000
       });
