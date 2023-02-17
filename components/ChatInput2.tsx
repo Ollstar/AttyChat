@@ -76,7 +76,6 @@ function ChatInput2({ chatId }: Props) {
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!prompt) return;
-
     let input = prompt.trim();
     setPrompt("");
     let conversationString = "";
@@ -111,12 +110,13 @@ if (messages) {
     setIsLoading(false);
 
     //Toast notification
-    const notification = toast.loading("Thinking...");
 
     let primerValue = "default"; // default primer value
     if (primer) {
       primerValue = primer.text || "defo";
     }
+    if (messages?.length === 0) return;
+    const notification = toast.loading("Thinking...");
 
     await fetch("/api/askQuestion", {
       method: "POST",

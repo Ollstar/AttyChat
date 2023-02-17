@@ -62,6 +62,7 @@ function Chat2({ chatId }: Props) {
   }
 
   const containerRef = useRef<HTMLInputElement>(null);
+  const askQuestionCalled = useRef(false);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -70,20 +71,15 @@ function Chat2({ chatId }: Props) {
     if (
       messages &&
       messages.docs.length === 1 &&
-      messages.docs[0].data().user._id === session?.user?.email!
+      messages.docs[0].data().user._id === session?.user?.email! &&
+      !askQuestionCalled.current
+
     ) {
       askQuestion();
+      askQuestionCalled.current = true;
+
     }
   }, [messages]);
-
-  useEffect(() => {
-    if (
-      messages &&
-      messages?.docs[0].data().user._id === session?.user?.email!
-    ) {
-      askQuestion();
-    }
-  }, []);
 
   return (
     <Box
