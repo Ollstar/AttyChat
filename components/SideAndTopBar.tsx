@@ -28,6 +28,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import NewChatWithMessage from "./NewChatWithMessage";
 import { useMediaQuery } from "@mui/material";
+import NewBot from "./NewBot";
 
 const drawerWidth = 240;
 
@@ -105,7 +106,7 @@ export default function PersistentDrawerLeft(this: any) {
       >
         <DrawerHeader>
           <NewChat />
-          <NewChatWithMessage messageText="Hello"/>
+          <NewBot />
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />

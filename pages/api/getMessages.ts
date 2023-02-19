@@ -11,14 +11,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const session = await getSession({ req });
-
-  if (!session || !session.user || !session.user.email) {
-    return res.status(401).end();
-  }
+  const { chatId, session } = req.body;
 
   const messagesQuery = query(
-    collection(db, 'users', session.user.email, 'chats', req.body.chatId, 'messages'),
+    collection(db, 'users', session.user.email, 'chats', chatId, 'messages'),
     orderBy('createdAt', 'asc')
   );
   const messagesSnapshot = await getDocs(messagesQuery);

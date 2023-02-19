@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import Login from "../components/Login";
 import ClientProvider from "../components/ClientProvider";
-import Drawer from "../components/SideAndTopBar";
+import PersistentDrawerLeft from "../components/SideAndTopBar";
 
 
 export default async function RootLayout({
@@ -25,7 +25,7 @@ export default async function RootLayout({
             <Login />
           ) : (
             <div>
-              <Drawer />
+              <PersistentDrawerLeft />
               <ClientProvider />
               <div>{children}</div>
             </div>

@@ -46,7 +46,7 @@ function ChatInput2({ chatId }: Props) {
     fallbackData:
     "Imagine your a chatbot for AttyChat and Atty chat is software as a prompt service. We offer ways to customize every message you make into ChatGPT. Our customers are all of the SP500. If you want to use AttyChat just click the settings button in the text feild. ",
 });
-  const { data: messages } = useSWR("messages", () => {
+  const { data: messages, mutate: setMessages } = useSWR("messages", () => {
     if (session && session.user && session.user.email) {
       const messagesQuery = query(
         collection(
@@ -108,6 +108,7 @@ if (messages) {
       message
     );
     setIsLoading(false);
+    setMessages();
 
     //Toast notification
 
