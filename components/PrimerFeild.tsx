@@ -18,9 +18,14 @@ import useSWR from "swr";
 import { useSession } from "next-auth/react";
 import mySwrConfig from "../lib/swr-config";
 import toast from "react-hot-toast";
+import { Session } from "next-auth";
 
-const fetchPrimer = (session: any) =>
-  fetch("/api/getPrimer", {
+const fetchPrimer = async (session: Session) => {
+  if (!session) {
+    return Promise.resolve({});
+  }
+
+  return fetch("/api/getPrimer", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -29,6 +34,8 @@ const fetchPrimer = (session: any) =>
       session: { user: { email: session?.user?.email! } },
     }),
   }).then((res) => res.json());
+};
+
 
 function PrimerField() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,15 +45,17 @@ function PrimerField() {
     session ? () => fetchPrimer(session) : null,
     {
       ...mySwrConfig,
-      revalidateOnMount: true,
+      revalidateOnMount: false,
     }
   );
   const [text, setText] = useState(primer?.text || "");
 
   const handleOpen = async () => {
     setIsOpen(true);
-    const data = await fetchPrimer(session);
-    setText(data.text);
+    if (!primer && session) {
+      const data = await fetchPrimer(session!);
+      setText(data.text);
+    }
   };
 
   const handleClose = () => {
