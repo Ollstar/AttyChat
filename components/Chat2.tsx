@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowDownCircleIcon } from "@heroicons/react/24/solid";
-import { query, collection, orderBy } from "firebase/firestore";
+import { query, collection, orderBy, limit } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { db } from "../firebase";
@@ -14,9 +14,10 @@ import toast from "react-hot-toast";
 
 type Props = {
   chatId: string;
+  pageid?: string;
 };
 
-function Chat2({ chatId }: Props) {
+function Chat2({ chatId, pageid }: Props) {
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
   });
@@ -40,6 +41,11 @@ function Chat2({ chatId }: Props) {
   );
 
   async function askQuestion() {
+    if (!session) return;
+    const author = session?.user?.name!;
+    let msg = messages?.docs[0].data().text;
+    msg = `${author}: ${msg}`;
+
     const notification = toast.loading("Thinking...", {
       position: "top-center",
       style: {
@@ -47,13 +53,13 @@ function Chat2({ chatId }: Props) {
         padding: "16px",
       },
     });
-        await fetch("/api/askQuestion", {
+    await fetch("/api/askQuestion", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        prompt: messages?.docs[0].data().text,
+        prompt: msg,
         chatId,
         model,
         primer: primer,
@@ -80,11 +86,9 @@ function Chat2({ chatId }: Props) {
       messages.docs.length === 1 &&
       messages.docs[0].data().user._id === session?.user?.email! &&
       !askQuestionCalled.current
-
     ) {
       askQuestion();
       askQuestionCalled.current = true;
-
     }
   }, [messages]);
 
@@ -107,16 +111,17 @@ function Chat2({ chatId }: Props) {
     >
       <DrawerSpacer />
       {messages?.empty && (
-        <>
+        <Box color="#397EF7">
           <Typography
+            fontFamily={"Poppins"}
             variant="subtitle1"
             align="center"
-            className="mt-10 text-black"
+            className="mt-10 text-[#397EF7]"
           >
             Type a prompt in below to get started!
           </Typography>
-          <ArrowDownCircleIcon className="h-10 w-10 mx-auto mt-5 text-black animate-bounce" />
-        </>
+          <ArrowDownCircleIcon className="h-10 w-10 mx-auto mt-5 animate-bounce" />
+        </Box>
       )}
       {messages?.docs.map((message) => (
         <Box
