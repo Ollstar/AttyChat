@@ -3,6 +3,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
+import mySwrConfig from "../lib/swr-config";
+import useSWR from "swr";
 
 interface NewChatWithMessageProps {
   messageText: string;
@@ -11,7 +13,10 @@ interface NewChatWithMessageProps {
 function NewChatWithMessage({ messageText }: NewChatWithMessageProps) {
   const router = useRouter();
   const { data: session } = useSession();
-
+  const { data: primer } = useSWR("primer", {
+    fallbackData:
+    "",
+});
   const createNewChatWithMessage = async () => {
     // create new chat
     const chatDoc = await addDoc(
@@ -19,11 +24,17 @@ function NewChatWithMessage({ messageText }: NewChatWithMessageProps) {
       {
         userId: session?.user?.email!,
         createdAt: serverTimestamp(),
+        bot: {
+          _id: "AttyBot",
+          name: "AttyBot",
+          primer: "",
+        },
       }
     );
     const message: Message2 = {
       text: messageText,
       createdAt: serverTimestamp(),
+      userPrimer: primer!,
       user: {
         _id: session?.user?.email!,
         name: session?.user?.name!,

@@ -13,7 +13,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const session = await getSession({ req });
+  const session = req.body.session;
 
   if (!session || !session.user || !session.user.email) {
     return res.status(401).end();

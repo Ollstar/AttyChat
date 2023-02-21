@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { ArrowDownCircleIcon } from "@heroicons/react/24/solid";
 import { query, collection, orderBy, limit } from "firebase/firestore";
 import { useSession } from "next-auth/react";
-import { useCollection } from "react-firebase-hooks/firestore";
+import { useCollection, useDocument } from "react-firebase-hooks/firestore";
 import { db } from "../firebase";
 import Message from "./Message";
 import { Box, Avatar, Typography } from "@mui/material";
@@ -11,20 +11,48 @@ import DrawerSpacer from "./DrawerSpacer";
 import Message2 from "./Message2";
 import useSWR from "swr";
 import toast from "react-hot-toast";
+import { Session } from "next-auth";
+import mySwrConfig from "../lib/swr-config";
 
 type Props = {
   chatId: string;
-  pageid?: string;
+  botid?: string;
 };
 
-function Chat2({ chatId, pageid }: Props) {
+const fetchPrimer = async (session: Session) => {
+  if (!session) {
+    return Promise.resolve({});
+  }
+
+  return fetch("/api/getPrimer", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      session: { user: { email: session?.user?.email! } },
+    }),
+  }).then((res) => res.json());
+};
+
+function Chat2({ chatId, botid }: Props) {
+  const [lastMessageIsCurrentUser, setLastMessageIsCurrentUser] =
+    useState(false);
+
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
   });
-  const primer: string =
-    "Imagine your a chatbot for AttyChat and Atty chat is software as a prompt service. You representing Atty Chat in a conversation with someone who has just came to the website. Atty Chat lets you customize your messages into ChatGPT eliminating needless boilerplate. Atty Chat also lets you control the brain in every message. Make ChatGPT work for you. Tell peopple who ask anything about how to use AttyChat that if they want to use AttyChat they click the settings button in the text feild. Use lots of emojis.";
-
   const { data: session } = useSession();
+
+  const { data: primer, mutate: setPrimer } = useSWR(
+    "primer",
+    session ? () => fetchPrimer(session) : null,
+    {
+      ...mySwrConfig,
+      fallbackData: "Fallback data",
+      revalidateOnFocus: false,
+    }
+  );
   const [messages, loading, error] = useCollection(
     session &&
       query(
@@ -41,10 +69,18 @@ function Chat2({ chatId, pageid }: Props) {
   );
 
   async function askQuestion() {
+
     if (!session) return;
+
     const author = session?.user?.name!;
-    let msg = messages?.docs[0].data().text;
+    if (!messages) return;
+    if (messages.docs[messages.docs.length - 1].data().user.name !== author) return;
+    let msg = messages.docs[messages.docs.length - 1].data().text;
     msg = `${author}: ${msg}`;
+
+    await setPrimer();
+
+    if (!primer.text) return;
 
     const notification = toast.loading("Thinking...", {
       position: "top-center",
@@ -53,6 +89,7 @@ function Chat2({ chatId, pageid }: Props) {
         padding: "16px",
       },
     });
+
     await fetch("/api/askQuestion", {
       method: "POST",
       headers: {
@@ -62,11 +99,20 @@ function Chat2({ chatId, pageid }: Props) {
         prompt: msg,
         chatId,
         model,
-        primer: primer,
-        messages: [],
+        primer: primer?.text,
+        //map each message so that it displays author: text
+        //then join them with a new line
+        messages: messages.docs
+          .map((doc) => {
+            const data = doc.data();
+            return `${data.user.name}: ${data.text}\n`;
+          })
+          .join(""),
+
         session,
       }),
     }).then(() => {
+      setLastMessageIsCurrentUser(false);
       toast.success("My thoughts on this", {
         id: notification,
         duration: 2000,
@@ -75,20 +121,20 @@ function Chat2({ chatId, pageid }: Props) {
   }
 
   const containerRef = useRef<HTMLInputElement>(null);
-  const askQuestionCalled = useRef(false);
 
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-    if (
-      messages &&
-      messages.docs.length === 1 &&
-      messages.docs[0].data().user._id === session?.user?.email! &&
-      !askQuestionCalled.current
-    ) {
-      askQuestion();
-      askQuestionCalled.current = true;
+    if (messages && messages.docs.length > 0) {
+      const lastMessageAuthor =
+        messages.docs[messages.docs.length - 1].data().user.name;
+      if (lastMessageAuthor === session?.user?.name && !lastMessageIsCurrentUser) {
+        setLastMessageIsCurrentUser(true);
+
+        askQuestion();
+
+      }
     }
   }, [messages]);
 

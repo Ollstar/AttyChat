@@ -8,15 +8,15 @@ import DrawerSpacer from '../../../../../components/DrawerSpacer';
 type Props = {
   params: {
     id: string;
-    botId: string;
+    botid: string;
   };
 };
-function ChatPage({ params: { id, botId } }: Props) {
+function ChatPage({ params: { id, botid } }: Props) {
   return (
     <>
     <div className="flex bg-red-500 flex-col overflow-x-hidden overflow-y-scroll">
-      <Chat2 chatId={id} />
-      <ChatInput2 chatId={id} />
+      <Chat2 chatId={id} botid={botid} />
+      <ChatInput2 chatId={id} botid={botid} />
 
     </div>
     <DrawerSpacer />

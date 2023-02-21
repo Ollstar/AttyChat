@@ -7,7 +7,6 @@ const mySwrConfig: SWRConfiguration = {
   revalidateOnFocus: false,
   errorRetryCount: 3,
   // set your custom fetcher function if needed
-  fetcher: (url: string) => fetch(url).then((res) => res.json()),
   // set your cache configuration if needed
   dedupingInterval: 60000,
   // set a global `onError` handler to handle SWR errors
@@ -15,6 +14,7 @@ const mySwrConfig: SWRConfiguration = {
     toast.error(`Error fetching ${key}: ${err}`);
   },
   onSuccess: (data, key, config) => {
+    toast.success(`Success fetching ${key}`);
 
     },
 

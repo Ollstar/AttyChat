@@ -16,6 +16,11 @@ function NewChat() {
       {
         userId: session?.user?.email!,
         createdAt: serverTimestamp(),
+        bot:
+        {_id: "AttyBot",
+        name: "AttyBot",
+        primer: ""
+          },
       }
     );
 

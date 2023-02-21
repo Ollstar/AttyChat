@@ -14,6 +14,12 @@ export default async function handler(
 ) {
   const { prompt, chatId, model, session, primer, messages } = req.body;
 
+  if (!primer) {
+    res.status(400).json({
+      answer: "Please provide a primer.",
+    });
+    return;
+  }
   if (!prompt) {
     res.status(400).json({
       answer: "Please provide a prompt.",
@@ -27,16 +33,23 @@ export default async function handler(
     });
     return;
   }
+  const chat = await adminDb
+    .collection("users")
+    .doc(session?.user?.email)
+    .collection("chats")
+    .doc(chatId)
+    .get();
 
   // ChatGpt Query
-  const response = await query(prompt, chatId, model, primer, messages);
+  const response = await query(prompt, chatId, model, primer, messages, chat);
 
-  const message: Message2 = {
+  const message: Message2 = { 
     text: response || "Hmm, I may have to get out an encyclopedia!",
     createdAt: admin.firestore.Timestamp.now(),
+    userPrimer: primer,
     user: {
-      _id: "ChatGPT",
-      name: "ChatGPT",
+      _id: chat?.data()?.bot ? chat!.data()!.bot._id : "Atty Chat",
+      name: chat?.data()?.bot ? chat!.data()!.bot.name : "Atty Chat",
       avatar: "https://links.papareact.com/89k",
     },
   };

@@ -29,9 +29,11 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import NewChatWithMessage from "./NewChatWithMessage";
 import { useMediaQuery } from "@mui/material";
 import NewBot from "./NewBot";
+import useSWR from "swr";
+import mySwrConfig from "../lib/swr-config";
+import { Session } from "next-auth";
 
 const drawerWidth = 240;
-
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -67,7 +69,7 @@ export default function PersistentDrawerLeft(this: any) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const { data: session } = useSession();
-  const [primer, setPrimer] = React.useState("");
+
 
   const [chats, loading, error] = useCollection(
     session &&

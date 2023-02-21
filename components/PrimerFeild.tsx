@@ -45,17 +45,17 @@ function PrimerField() {
     session ? () => fetchPrimer(session) : null,
     {
       ...mySwrConfig,
-      revalidateOnMount: false,
+      fallbackData: "Fallback data",
     }
   );
   const [text, setText] = useState(primer?.text || "");
 
   const handleOpen = async () => {
     setIsOpen(true);
-    if (!primer && session) {
-      const data = await fetchPrimer(session!);
-      setText(data.text);
-    }
+    setPrimer();
+    setText(primer?.text || "");
+
+
   };
 
   const handleClose = () => {

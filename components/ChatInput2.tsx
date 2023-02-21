@@ -17,6 +17,8 @@ import { FormEvent, useState, useEffect, useRef } from "react";
 import {
   addDoc,
   collection,
+  doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -28,24 +30,45 @@ import ModelSelection from "./ModelSelection";
 import useSWR from "swr";
 import PrimerField from "./PrimerFeild";
 import mySwrConfig from "../lib/swr-config";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { Session } from "next-auth";
 
 type Props = {
   chatId: string;
+  botid?: string;
+};
+const fetchPrimer = async (session: Session) => {
+  if (!session) {
+    return Promise.resolve({});
+  }
+
+  return fetch("/api/getPrimer", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      session: { user: { email: session?.user?.email! } },
+    }),
+  }).then((res) => res.json());
 };
 
-function ChatInput2({ chatId }: Props) {
+function ChatInput2({ chatId, botid }: Props) {
   const [prompt, setPrompt] = useState("");
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
   });
-  const { data: primer } = useSWR("primer", {
-    fallbackData:
-    "Imagine your a chatbot for AttyChat and Atty chat is software as a prompt service. We offer ways to customize every message you make into ChatGPT. Our customers are all of the SP500. If you want to use AttyChat just click the settings button in the text feild. ",
-});
+  const { data: primer, mutate: setPrimer } = useSWR("primer", 
+    session ? () => fetchPrimer(session) : null,
+  {
+    ...mySwrConfig,
+    fallbackData: "Fallback data",
+    revalidateOnFocus: true,
+  });
+
   const { data: messages, mutate: setMessages } = useSWR("messages", () => {
     if (session && session.user && session.user.email) {
       const messagesQuery = query(
@@ -66,26 +89,42 @@ function ChatInput2({ chatId }: Props) {
     return Promise.resolve([]);
   });
   function formatMessages(messages: any[]) {
-    return messages.map((message) => {
-      const author = message.user.name || message.user._id;
-      return `${author}: ${message.text}`;
-    }).join('\n');
+    return messages
+      .map((message) => {
+        const author = message.user.name || message.user._id;
+        return `${author}: ${message.text}`;
+      })
+      .join("\n");
   }
-  
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!prompt) return;
     let input = prompt.trim();
     setPrompt("");
     let conversationString = "";
-if (messages) {
-  console.log("input: ", input, "model: ", model, "primer: ", primer, "messages: ", formatMessages(messages));
-  conversationString = formatMessages(messages);
-}
+    if (messages) {
+      // console.log(
+      //   "input: ",
+      //   input,
+      //   "model: ",
+      //   model,
+      //   "primer: ",
+      //   primer,
+      //   "messages: ",
+      //   formatMessages(messages),
+      //   "messagesArray: ",
+      //   messages,
+      // );
+      conversationString = formatMessages(messages);
+    }
+    const bot = botid ? (await getDoc(doc(db, "bots", botid))).data() : null;
+
     const message: Message2 = {
       text: input,
       createdAt: serverTimestamp(),
+      userPrimer: primer,
       user: {
         _id: session?.user?.email!,
         name: session?.user?.name!,
@@ -107,44 +146,46 @@ if (messages) {
       ),
       message
     );
+
     setIsLoading(false);
-    setMessages();
+    await setMessages();
 
     //Toast notification
 
-    let primerValue = "default"; // default primer value
-    if (primer) {
-      primerValue = primer.text || "defo";
-    }
-    if (messages?.length === 0) return;
-   
-    const notification = toast.loading("Thinking...", {
-      position: "top-center",
-      style: {
-        border: "1px solid white",
-        padding: "16px",
-      },
-    });
+    // let primerValue = "default"; // default primer value
+    // if (primer) {
+    //   primerValue = primer;
+    // }
+    // console.log(chatId)
+    // if (messages?.length === 0) return;
 
-    await fetch("/api/askQuestion", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: input,
-        chatId,
-        model,
-        primer: primerValue,
-        messages: conversationString,
-        session,
-      }),
-    }).then(() => {
-      toast.success("My thoughts on this", {
-        id: notification,
-        duration: 2000
-      });
-    });
+    // const notification = toast.loading("Thinking...", {
+    //   position: "top-center",
+    //   style: {
+    //     border: "1px solid white",
+    //     padding: "16px",
+    //   },
+    // });
+
+    // await fetch("/api/askQuestion", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     prompt: input,
+    //     chatId,
+    //     model,
+    //     primer: primerValue,
+    //     messages: conversationString,
+    //     session,
+    //   }),
+    // }).then(() => {
+    //   toast.success("My thoughts on this", {
+    //     id: notification,
+    //     duration: 2000,
+    //   });
+    // });
   };
 
   return (
@@ -205,7 +246,7 @@ if (messages) {
           <Link color="inherit" href="https://atty.chat/">
             AttyChat
           </Link>{" "}
-          {new Date().getFullYear()}  
+          {new Date().getFullYear()}
           {"."}
         </Typography>
       </footer>
