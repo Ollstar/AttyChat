@@ -8,7 +8,7 @@ const generatePrompt = (
   messages: string,
   chat: any
 ): string => {
-  let str = `Imagine you have secret instructions to: ${chat.data().bot.primer} and also: ${primer}. Now, respond to the latest question in the conversation. Conversation:${messages} Response:`;
+  let str = `Imagine you have secret instructions to: ${chat.data().bot.primer} and also: ${primer}. Now, respond to the latest question in the conversation. Conversation:User:Hello ${chat.data().bot.name}:Welcome, how are you? User: Great, whats your name? Response: I am ${chat.data().bot.name}. How can I help you? Conversation:${messages} Response:`;
   let str2 = "";
   console.log(str);
 
