@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
@@ -12,24 +12,38 @@ function NewBot() {
   const [showModal, setShowModal] = useState(false);
   const [botName, setBotName] = useState("");
   const [primer, setPrimer] = useState("");
+  const [botQuestions, setBotQuestions] = useState<string[]>([""]);
 
   const createNewBot = async () => {
-    const docRef = await addDoc(
-      collection(db, "bots"),
-      {
-        creatorId: session?.user?.email!,
-        createdAt: serverTimestamp(),
-        botName,
-        primer,
-      }
-    );
+    const docRef = await addDoc(collection(db, "bots"), {
+      creatorId: session?.user?.email!,
+      createdAt: serverTimestamp(),
+      botName,
+      primer,
+      botQuestions,
+    });
 
     router.push(`/bot/${docRef.id}`);
   };
 
+  const addQuestionField = () => {
+    setBotQuestions((prevQuestions) => [...prevQuestions, ""]);
+  };
+
+  const updateQuestionField = (index: number, value: string) => {
+    setBotQuestions((prevQuestions) => {
+      const newQuestions = [...prevQuestions];
+      newQuestions[index] = value;
+      return newQuestions;
+    });
+  };
+
   return (
     <div>
-      <div onClick={() => setShowModal(true)} className="chatRow p-2 border border-gray-700">
+      <div
+        onClick={() => setShowModal(true)}
+        className="chatRow p-2 border border-gray-700"
+      >
         <PlusIcon className="h-4 w-4" />
         <h2>New Bot</h2>
       </div>
@@ -45,7 +59,10 @@ function NewBot() {
               }}
             >
               <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="botName">
+                <label
+                  className="block text-gray-700 font-medium mb-2"
+                  htmlFor="botName"
+                >
                   Bot Name
                 </label>
                 <input
@@ -58,7 +75,10 @@ function NewBot() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="primer">
+                <label
+                  className="block text-gray-700 font-medium mb-2"
+                  htmlFor="primer"
+                >
                   Primer
                 </label>
                 <textarea
@@ -69,8 +89,39 @@ function NewBot() {
                   required
                 />
               </div>
+              <div className="mb-4">
+                <label
+                  className="block text-gray-700 font-medium mb-2 mt-2"
+                  htmlFor="botQuestions"
+                >
+                  Bot Questions
+                </label>
+                {botQuestions.map((question, index) => (
+                  <div key={index} className="mb-2">
+                    <input
+                      className="w-full border border-gray-400 p-2 rounded-md"
+                      type="text"
+                      value={question}
+                      onChange={(e) =>
+                        updateQuestionField(index, e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="bg-gray-700 text-white px-4 py-2 rounded-md"
+                  onClick={addQuestionField}
+                >
+                  Add Question
+                </button>
+              </div>
               <div className="flex justify-end">
-                <button className="bg-gray-700 text-white px-4 py-2 rounded-md" type="submit">
+                <button
+                  className="bg-gray-700 text-white px-4 py-2 rounded-md"
+                  type="submit"
+                >
                   Create
                 </button>
                 <button
