@@ -14,7 +14,6 @@ const mySwrConfig: SWRConfiguration = {
     toast.error(`Error fetching ${key}: ${err}`);
   },
   onSuccess: (data, key, config) => {
-    toast.success(`Success fetching ${key}`);
 
     },
 
