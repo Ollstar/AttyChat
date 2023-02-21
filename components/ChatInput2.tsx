@@ -87,15 +87,14 @@ function ChatInput2({ chatId, botid }: Props) {
       );
     }
     return Promise.resolve([]);
-  });
-  function formatMessages(messages: any[]) {
-    return messages
-      .map((message) => {
-        const author = message.user.name || message.user._id;
-        return `${author}: ${message.text}`;
-      })
-      .join("\n");
-  }
+  }, 
+  {
+    ...mySwrConfig,
+    fallbackData: [],
+    revalidateOnFocus: true,
+    revalidateOnMount: true,
+    });
+  
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,7 +116,6 @@ function ChatInput2({ chatId, botid }: Props) {
       //   "messagesArray: ",
       //   messages,
       // );
-      conversationString = formatMessages(messages);
     }
     const bot = botid ? (await getDoc(doc(db, "bots", botid))).data() : null;
 
