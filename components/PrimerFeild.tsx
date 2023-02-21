@@ -52,7 +52,7 @@ function PrimerField() {
 
   const handleOpen = async () => {
     setIsOpen(true);
-    setPrimer();
+    await setPrimer();
     setText(primer?.text || "");
 
 

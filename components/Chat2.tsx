@@ -49,8 +49,9 @@ function Chat2({ chatId, botid }: Props) {
     session ? () => fetchPrimer(session) : null,
     {
       ...mySwrConfig,
-      fallbackData: "Fallback data",
-      revalidateOnFocus: false,
+      fallbackData: {text: "fallback data"},
+      revalidateOnFocus: true,
+      revalidateOnMount: true,
     }
   );
   const [messages, loading, error] = useCollection(
@@ -69,11 +70,13 @@ function Chat2({ chatId, botid }: Props) {
   );
 
   async function askQuestion() {
-
+    console.log("here1")
     if (!session) return;
 
     const author = session?.user?.name!;
     if (!messages) return;
+    console.log("here2")
+
     if (messages.docs[messages.docs.length - 1].data().user.name !== author) return;
     let msg = messages.docs[messages.docs.length - 1].data().text;
     msg = `${author}: ${msg}`;
@@ -81,6 +84,7 @@ function Chat2({ chatId, botid }: Props) {
     await setPrimer();
 
     if (!primer.text) return;
+    console.log("here3")
 
     const notification = toast.loading("Thinking...", {
       position: "top-center",
@@ -89,6 +93,7 @@ function Chat2({ chatId, botid }: Props) {
         padding: "16px",
       },
     });
+    console.log(primer?.text)
 
     await fetch("/api/askQuestion", {
       method: "POST",
@@ -112,7 +117,7 @@ function Chat2({ chatId, botid }: Props) {
         session,
       }),
     }).then(() => {
-      setLastMessageIsCurrentUser(false);
+      setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
       toast.success("My thoughts on this", {
         id: notification,
         duration: 2000,
@@ -126,14 +131,24 @@ function Chat2({ chatId, botid }: Props) {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-    if (messages && messages.docs.length > 0) {
-      const lastMessageAuthor = messages.docs[messages.docs.length - 1].data().user.name;
-      const currentUser = session?.user?.name!;
-      if (lastMessageAuthor === currentUser) {
-        askQuestion();
-        setLastMessageIsCurrentUser(true);
-      } else if (lastMessageAuthor !== currentUser) {
-        setLastMessageIsCurrentUser(false);
+  }, [messages]);
+
+  useEffect(() => {
+    console.log("lastMessageIsCurrentUser", lastMessageIsCurrentUser);
+    if (messages) {
+      const lastMessage = messages.docs[messages.docs.length - 1];
+      if (lastMessage) {
+        const lastMessageAuthor = lastMessage.data().user.name;
+        const currentUser = session?.user?.name!;
+        console.log("lastMessageAuthor", lastMessageAuthor);
+        console.log("currentUser", currentUser);
+        if (lastMessageAuthor === currentUser && !lastMessageIsCurrentUser) {
+          console.log("here")
+          askQuestion();
+          setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
+        } else {
+          setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
+        }
       }
     }
   }, [messages]);
