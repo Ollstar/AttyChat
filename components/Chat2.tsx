@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowDownCircleIcon } from "@heroicons/react/24/solid";
-import { query, collection, orderBy, limit, getDocs } from "firebase/firestore";
+import { query, collection, orderBy, limit } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import { useCollection, useDocument } from "react-firebase-hooks/firestore";
 import { db } from "../firebase";
@@ -50,29 +50,23 @@ function Chat2({ chatId, botid }: Props) {
     {
       ...mySwrConfig,
       fallbackData: "Fallback data",
-      revalidateOnFocus: true,
-      revalidateOnMount: true,
+      revalidateOnFocus: false,
     }
   );
-  const { data: messages, mutate: setMessages } = useSWR("messages", () => {
-    if (session && session.user && session.user.email) {
-      const messagesQuery = query(
+  const [messages, loading, error] = useCollection(
+    session &&
+      query(
         collection(
           db,
           "users",
-          session.user.email,
+          session?.user?.email!,
           "chats",
           chatId,
           "messages"
         ),
         orderBy("createdAt", "asc")
-      );
-      return getDocs(messagesQuery).then((querySnapshot) =>
-        querySnapshot.docs
-      );
-    }
-    return Promise.resolve([]);
-  });
+      )
+  );
 
   async function askQuestion() {
 
@@ -80,8 +74,8 @@ function Chat2({ chatId, botid }: Props) {
 
     const author = session?.user?.name!;
     if (!messages) return;
-    if (messages[messages.length - 1].data().user.name !== author) return;
-    let msg = messages[messages.length - 1].data().text;
+    if (messages.docs[messages.docs.length - 1].data().user.name !== author) return;
+    let msg = messages.docs[messages.docs.length - 1].data().text;
     msg = `${author}: ${msg}`;
 
     await setPrimer();
@@ -108,7 +102,7 @@ function Chat2({ chatId, botid }: Props) {
         primer: primer?.text,
         //map each message so that it displays author: text
         //then join them with a new line
-        messages: messages
+        messages: messages.docs
           .map((doc) => {
             const data = doc.data();
             return `${data.user.name}: ${data.text}\n`;
@@ -119,7 +113,6 @@ function Chat2({ chatId, botid }: Props) {
       }),
     }).then(() => {
       setLastMessageIsCurrentUser(false);
-      setMessages();
       toast.success("My thoughts on this", {
         id: notification,
         duration: 2000,
@@ -133,17 +126,18 @@ function Chat2({ chatId, botid }: Props) {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-    if (messages && messages.length > 0) {
-      const lastMessageAuthor =
-        messages[messages.length - 1].data().user.name;
-      if (lastMessageAuthor === session?.user?.name && !lastMessageIsCurrentUser) {
-        setLastMessageIsCurrentUser(true);
-
+    if (messages && messages.docs.length > 0) {
+      const lastMessageAuthor = messages.docs[messages.docs.length - 1].data().user.name;
+      const currentUser = session?.user?.name!;
+      if (lastMessageAuthor === currentUser) {
         askQuestion();
-
+        setLastMessageIsCurrentUser(true);
+      } else if (lastMessageAuthor !== currentUser) {
+        setLastMessageIsCurrentUser(false);
       }
     }
   }, [messages]);
+  
 
   return (
     <Box
@@ -163,7 +157,7 @@ function Chat2({ chatId, botid }: Props) {
       }}
     >
       <DrawerSpacer />
-      {messages?.length === 0 && (
+      {messages?.empty && (
         <Box color="#397EF7">
           <Typography
             fontFamily={"Poppins"}
@@ -176,7 +170,7 @@ function Chat2({ chatId, botid }: Props) {
           <ArrowDownCircleIcon className="h-10 w-10 mx-auto mt-5 animate-bounce" />
         </Box>
       )}
-      {messages?.map((message: any) => (
+      {messages?.docs.map((message) => (
         <Box
           key={message.id}
           sx={{ marginBottom: "20px", width: "100%", backgroundColor: "white" }}
