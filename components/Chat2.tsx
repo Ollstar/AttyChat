@@ -70,12 +70,10 @@ function Chat2({ chatId, botid }: Props) {
   );
 
   async function askQuestion() {
-    console.log("here1")
     if (!session) return;
 
     const author = session?.user?.name!;
     if (!messages) return;
-    console.log("here2")
 
     if (messages.docs[messages.docs.length - 1].data().user.name !== author) return;
     let msg = messages.docs[messages.docs.length - 1].data().text;
@@ -84,7 +82,6 @@ function Chat2({ chatId, botid }: Props) {
     await setPrimer();
 
     if (!primer.text) return;
-    console.log("here3")
 
     const notification = toast.loading("Thinking...", {
       position: "top-center",
@@ -93,7 +90,6 @@ function Chat2({ chatId, botid }: Props) {
         padding: "16px",
       },
     });
-    console.log(primer?.text)
 
     await fetch("/api/askQuestion", {
       method: "POST",
@@ -134,16 +130,12 @@ function Chat2({ chatId, botid }: Props) {
   }, [messages]);
 
   useEffect(() => {
-    console.log("lastMessageIsCurrentUser", lastMessageIsCurrentUser);
     if (messages) {
       const lastMessage = messages.docs[messages.docs.length - 1];
       if (lastMessage) {
         const lastMessageAuthor = lastMessage.data().user.name;
         const currentUser = session?.user?.name!;
-        console.log("lastMessageAuthor", lastMessageAuthor);
-        console.log("currentUser", currentUser);
         if (lastMessageAuthor === currentUser && !lastMessageIsCurrentUser) {
-          console.log("here")
           askQuestion();
           setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
         } else {
