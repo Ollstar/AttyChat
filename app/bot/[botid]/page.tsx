@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 
 type Bot = {
   botName: string;
-  botQuestions: string[];
+  botQuestions: string | string[];
 };
 
 type Props = {
@@ -51,10 +51,15 @@ function BotPage({ params: { botid } }: Props) {
           <h1 className="text-3xl font-bold mb-10">Quick Questions</h1>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center">
-            {bot.botQuestions.map((question, index) => (
-              <NewChatWithBot key={index} messageText={question} botid={botid} />
-            ))}
-          </div>
+  {Array.isArray(bot.botQuestions) ? (
+    bot.botQuestions.map((question, index) => (
+      <NewChatWithBot key={index} messageText={question} botid={botid} />
+    ))
+  ) : (
+    <NewChatWithBot messageText={bot.botQuestions} botid={botid} />
+  )}
+</div>
+
         </div>
       </Box>
       </div>

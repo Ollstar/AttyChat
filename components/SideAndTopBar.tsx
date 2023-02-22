@@ -168,12 +168,13 @@ export default function PersistentDrawerLeft(this: any) {
             </Typography>
 
           <Box sx={{ flexGrow: 1 }} />
-          <img
-       onClick={() => signOut()}
-       src={session?.user?.image!}
+          {session && (
+        <img
+          src={session?.user?.image!}
           alt="Profile picture"
-          className="h-12 w-12 rounded-full cursor-pointer hover:opacity-50">
-            </img>       </Toolbar>
+          className="h-12 w-12 rounded-full cursor-pointer hover:opacity-50"
+        />
+      )}      </Toolbar>
       </AppBar>
     </Box>
   );

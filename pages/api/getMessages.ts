@@ -13,6 +13,10 @@ export default async function handler(
 ) {
   const { chatId, session } = req.body;
 
+  if (!session) {
+    res.status(401).json({ messages: [] });
+    return;
+  }
   const messagesQuery = query(
     collection(db, 'users', session.user.email, 'chats', chatId, 'messages'),
     orderBy('createdAt', 'asc')
