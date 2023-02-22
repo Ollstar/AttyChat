@@ -79,8 +79,9 @@ function NewBot() {
         open={showModal}
         onClose={handleClose}
         aria-labelledby="modal-title"
+        sx={{ "& .MuiDialog-paper": { fontFamily:"poppins", width: "100%", maxWidth: "600px" } }}
       >
-        <DialogTitle id="modal-title">New Bot</DialogTitle>
+        <DialogTitle id="modal-title" >New Bot</DialogTitle>
         <DialogContent>
           <Box sx={{ mb: 2, mt: 2 }}>
             <form onSubmit={handleSubmit}>
@@ -88,9 +89,12 @@ function NewBot() {
                 fullWidth
                 label="Bot Name"
                 variant="outlined"
+                InputProps={{ sx: { fontFamily: "poppins" } }}
+
                 value={botName}
                 onChange={(e) => setBotName(e.target.value)}
                 sx={{ mb: 2 }}
+                InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
                 required
               />
               <TextField
@@ -101,7 +105,7 @@ function NewBot() {
                 onChange={(e) => setPrimer(e.target.value)}
                 multiline
                 rows={4}
-                InputLabelProps={{ shrink: true }}
+                InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
                 InputProps={{ sx: { fontFamily: "poppins" } }}
                 required
               />
@@ -109,15 +113,17 @@ function NewBot() {
                 sx={{ mt: 2, mb: 1, fontFamily: "poppins" }}
                 component="div"
               >
-                Bot Questions
+                Quick Questions
               </ListSubheader>
               {botQuestions.map((question, index) => (
                 <Box key={index} sx={{ display: "flex", mb: 2 }}>
                   <TextField
                     key={index}
                     fullWidth
-                    label={`question ${index + 1}`}
+                    label={`Question ${index + 1}`}
                     variant="outlined"
+                    InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
+                    InputProps={{ sx: { fontFamily: "poppins" } }}
                     value={question}
                     onChange={(e) => updateQuestionField(index, e.target.value)}
                     sx={{ mr: 2 }}
@@ -150,6 +156,7 @@ function NewBot() {
             </form>
           </Box>
         </DialogContent>
+
       </Dialog>
     </>
   );
