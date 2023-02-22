@@ -27,11 +27,12 @@ import { db } from "../firebase";
 import { signOut, useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import NewChatWithMessage from "./NewChatWithMessage";
-import { useMediaQuery } from "@mui/material";
+import { Button, useMediaQuery } from "@mui/material";
 import NewBot from "./NewBot";
 import useSWR from "swr";
 import mySwrConfig from "../lib/swr-config";
 import { Session } from "next-auth";
+import { useRouter } from "next/navigation";
 
 const drawerWidth = 240;
 
@@ -66,10 +67,10 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 export default function PersistentDrawerLeft(this: any) {
+  const router = useRouter();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const { data: session } = useSession();
-
 
   const [chats, loading, error] = useCollection(
     session &&
@@ -86,14 +87,16 @@ export default function PersistentDrawerLeft(this: any) {
     setOpen(false);
   };
 
+  const handleTitleClick = () => {
+    router.push("/");
+  };
 
   return (
     <Box>
       <CssBaseline />
       <Drawer
         ModalProps={{ onBackdropClick: handleDrawerClose }}
-
-      id="drawer"
+        id="drawer"
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -138,7 +141,6 @@ export default function PersistentDrawerLeft(this: any) {
       <AppBar
         position="fixed"
         sx={{
-          
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: "rgb(240,240,240)",
         }}
@@ -154,27 +156,22 @@ export default function PersistentDrawerLeft(this: any) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography
-          className= {open ? "hidden sm:inline" : "block"}
-            variant="h6"
-            fontFamily={"poppins"}
-            color="black"
-            overflow={"hidden"}
-            component="div"
-            sx={{ flexGrow: 1
-            }}
+          <ListItemButton
+            onClick={handleTitleClick}
+            sx={{ color: "black", fontFamily: "Poppins" }}
           >
-            Atty Chat          
-            </Typography>
+            Atty Chat
+          </ListItemButton>
 
           <Box sx={{ flexGrow: 1 }} />
           {session && (
-        <img
-          src={session?.user?.image!}
-          alt="Profile picture"
-          className="h-12 w-12 rounded-full cursor-pointer hover:opacity-50"
-        />
-      )}      </Toolbar>
+            <img
+              src={session?.user?.image!}
+              alt="Profile picture"
+              className="h-12 w-12 rounded-full cursor-pointer hover:opacity-50"
+            />
+          )}
+        </Toolbar>
       </AppBar>
     </Box>
   );

@@ -1,23 +1,33 @@
-"use client"
+"use client";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { useCollection } from "react-firebase-hooks/firestore";
 import useSWR from "swr";
 interface NewChatWithBotProps {
   messageText: string;
   botid: string;
+  useClient?: boolean;
 }
 
-function NewChatWithBot({ messageText, botid }: NewChatWithBotProps) {
+function NewChatWithBot({
+  messageText,
+  botid,
+  useClient,
+}: NewChatWithBotProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const { data: primer } = useSWR("primer", {
-    fallbackData:
-    "",
-});
+    fallbackData: "",
+  });
   const createNewChatWithBot = async () => {
     const bot = (await getDoc(doc(db, "bots", botid))).data();
 
@@ -28,26 +38,27 @@ function NewChatWithBot({ messageText, botid }: NewChatWithBotProps) {
         userId: session?.user?.email!,
         createdAt: serverTimestamp(),
         bot: {
-            _id: bot!.creatorId,
-            name: bot!.botName,
-            primer: bot!.primer
-        }
+          _id: bot!.creatorId,
+          name: bot!.botName,
+          primer: bot!.primer,
+        },
       }
     );
-    const message: Message2 = {
-      text: messageText,
-      createdAt: serverTimestamp(),
-      userPrimer: primer!,
-      user: {
-        _id: session?.user?.email!,
-        name: session?.user?.name!,
-        avatar:
-          session?.user?.image! ||
-          `https://ui-avatars.com/api/?name=${session?.user?.name}`,
-      },
-    };
-    // add message to new chat
-    await addDoc(
+    if (!useClient) {
+      const message: Message2 = {
+        text: messageText,
+        createdAt: serverTimestamp(),
+        userPrimer: primer!,
+        user: {
+          _id: session?.user?.email!,
+          name: session?.user?.name!,
+          avatar:
+            session?.user?.image! ||
+            `https://ui-avatars.com/api/?name=${session?.user?.name}`,
+        },
+      };
+      // add message to new chat
+      await addDoc(
         collection(
           db,
           "users",
@@ -58,8 +69,10 @@ function NewChatWithBot({ messageText, botid }: NewChatWithBotProps) {
         ),
         message
       );
+    }
+    const path = useClient ? `bot/${botid}` : `bot/${botid}/chat/${chatDoc.id}`;
 
-    router.push(`bot/${botid}/chat/${chatDoc.id}`);
+    router.push(path);
   };
 
   return (
@@ -67,7 +80,6 @@ function NewChatWithBot({ messageText, botid }: NewChatWithBotProps) {
       onClick={createNewChatWithBot}
       className="chatRow p-2 border border-gray-700"
     >
-      <PlusIcon className="h-4 w-4" />
       <h2>{messageText}</h2>
     </div>
   );

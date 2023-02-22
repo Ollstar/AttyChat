@@ -64,7 +64,6 @@ function NewChatWithMessage({ messageText }: NewChatWithMessageProps) {
       onClick={createNewChatWithMessage}
       className="chatRow p-2 border border-gray-700"
     >
-      <PlusIcon className="h-4 w-4" />
       <h2>{messageText}</h2>
     </div>
   );
