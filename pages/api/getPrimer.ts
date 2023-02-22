@@ -15,7 +15,7 @@ export default async function handler(
 ) {
   const session = req.body.session;
 
-  if (!session || !session.user || !session.user.email) {
+  if (!session) {
     return res.status(401).end();
   }
 
