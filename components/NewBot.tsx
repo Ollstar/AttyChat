@@ -81,7 +81,7 @@ function NewBot() {
         aria-labelledby="modal-title"
         sx={{ "& .MuiDialog-paper": { fontFamily:"poppins", width: "100%", maxWidth: "600px" } }}
       >
-        <DialogTitle id="modal-title" >New Bot</DialogTitle>
+        <DialogTitle id="modal-title" sx={{fontFamily:"poppins"}} >New Bot</DialogTitle>
         <DialogContent>
           <Box sx={{ mb: 2, mt: 2 }}>
             <form onSubmit={handleSubmit}>
