@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
@@ -15,8 +15,16 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { addDoc, collection, serverTimestamp, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import { db } from "../firebase";
+import toast from "react-hot-toast";
 
 type Bot = {
   botName: string;
@@ -36,7 +44,9 @@ function NewBot({ bot, botid }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [botName, setBotName] = useState(bot?.botName ?? "");
   const [primer, setPrimer] = useState(bot?.primer ?? "");
-  const [botQuestions, setBotQuestions] = useState<string[]>(bot?.botQuestions ?? [""]);
+  const [botQuestions, setBotQuestions] = useState<string[]>(
+    bot?.botQuestions ?? [""]
+  );
 
   const createNewBot = async () => {
     const docRef = await addDoc(collection(db, "bots"), {
@@ -58,7 +68,14 @@ function NewBot({ bot, botid }: Props) {
       primer,
       botQuestions,
     });
-
+    toast.success("Bot edited!", {
+      duration: 2000,
+      position: "top-center",
+      style: {
+        border: "1px solid white",
+        padding: "16px",
+      },
+    }),
     router.replace(`/bot/${botid}`);
   };
 
@@ -66,8 +83,15 @@ function NewBot({ bot, botid }: Props) {
     if (!botid) return;
 
     await deleteDoc(doc(db, "bots", botid));
-
-    router.replace("/");
+    toast.success("Bot deleted!", {
+      duration: 2000,
+      position: "top-center",
+      style: {
+        border: "1px solid white",
+        padding: "16px",
+      },
+    }),
+      router.replace("/");
   };
 
   const addQuestionField = () => {
@@ -108,105 +132,128 @@ function NewBot({ bot, botid }: Props) {
 
   return (
     <>
-        <Box fontFamily="poppins" fontSize="lg" color="black">
-
-      <div onClick={handleOpen} className="chatRow text-black p-2 border ml-2 text-center border-black">
-        <h2>{bot ? "Edit Bot" : "New Bot"}</h2>
-      </div>
+      <Box fontFamily="poppins" fontSize="lg" color="black">
+        <div
+          onClick={handleOpen}
+          className="chatRow text-black p-2 border ml-2 text-center border-black"
+        >
+          <h2>{bot ? "Edit Bot" : "New Bot"}</h2>
+        </div>
       </Box>
 
       <Dialog
         open={showModal}
         onClose={handleClose}
         aria-labelledby="modal-title"
-        sx={{ "& .MuiDialog-paper": { fontFamily:"poppins", width: "100%", maxWidth: "600px" } }}
-     
+        sx={{
+          "& .MuiDialog-paper": {
+            fontFamily: "poppins",
+            width: "100%",
+            maxWidth: "600px",
+          },
+        }}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
-        <DialogTitle id="modal-title" sx={{fontFamily:"poppins"}}>{bot ? "Edit Bot" : "New Bot"}</DialogTitle>
-        {bot && bot.creatorId === session?.user?.email && (
-              <Button onClick={deleteBot} sx={{ fontFamily: "poppins", color: "red" }}>
-                Delete
-              </Button>
-            )}
+          <DialogTitle id="modal-title" sx={{ fontFamily: "poppins" }}>
+            {bot ? "Edit Bot" : "New Bot"}
+          </DialogTitle>
+          {bot && bot.creatorId === session?.user?.email && (
+            <Button
+              onClick={deleteBot}
+              sx={{ fontFamily: "poppins", color: "red" }}
+            >
+              Delete
+            </Button>
+          )}
         </Toolbar>
-    <DialogContent>
-      <Box sx={{ mb: 2, mt: 2 }}>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            label="Bot Name"
-            variant="outlined"
-            InputProps={{ sx: { fontFamily: "poppins" } }}
-            value={botName}
-            onChange={(e) => setBotName(e.target.value)}
-            sx={{ mb: 2 }}
-            InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
-            required
-          />
-          <TextField
-            fullWidth
-            label="Primer"
-            variant="outlined"
-            value={primer}
-            onChange={(e) => setPrimer(e.target.value)}
-            multiline
-            rows={10}
-            InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
-            InputProps={{ sx: { fontFamily: "poppins" } }}
-            required
-          />
-          <ListSubheader
-            sx={{ mt: 2, mb: 1, fontFamily: "poppins" }}
-            component="div"
-          >
-            Quick Questions
-          </ListSubheader>
-          {botQuestions.map((question, index) => (
-            <Box key={index} sx={{ display: "flex", mb: 2 }}>
+        <DialogContent>
+          <Box sx={{ mb: 2, mt: 2 }}>
+            <form onSubmit={handleSubmit}>
               <TextField
-                key={index}
                 fullWidth
-                label={`Question ${index + 1}`}
+                label="Bot Name"
                 variant="outlined"
-                InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
                 InputProps={{ sx: { fontFamily: "poppins" } }}
-                value={question}
-                onChange={(e) => updateQuestionField(index, e.target.value)}
-                sx={{ mr: 2 }}
+                value={botName}
+                onChange={(e) => setBotName(e.target.value)}
+                sx={{ mb: 2 }}
+                InputLabelProps={{
+                  shrink: true,
+                  sx: { fontFamily: "poppins" },
+                }}
                 required
               />
+              <TextField
+                fullWidth
+                label="Primer"
+                variant="outlined"
+                value={primer}
+                onChange={(e) => setPrimer(e.target.value)}
+                multiline
+                rows={10}
+                InputLabelProps={{
+                  shrink: true,
+                  sx: { fontFamily: "poppins" },
+                }}
+                InputProps={{ sx: { fontFamily: "poppins" } }}
+                required
+              />
+              <ListSubheader
+                sx={{ mt: 2, mb: 1, fontFamily: "poppins" }}
+                component="div"
+              >
+                Quick Questions
+              </ListSubheader>
+              {botQuestions.map((question, index) => (
+                <Box key={index} sx={{ display: "flex", mb: 2 }}>
+                  <TextField
+                    key={index}
+                    fullWidth
+                    label={`Question ${index + 1}`}
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true,
+                      sx: { fontFamily: "poppins" },
+                    }}
+                    InputProps={{ sx: { fontFamily: "poppins" } }}
+                    value={question}
+                    onChange={(e) => updateQuestionField(index, e.target.value)}
+                    sx={{ mr: 2 }}
+                    required
+                  />
+                  <Button
+                    variant="outlined"
+                    onClick={() => removeQuestionField(index)}
+                    sx={{ fontFamily: "poppins" }}
+                  >
+                    Remove
+                  </Button>
+                </Box>
+              ))}
               <Button
                 variant="outlined"
-                onClick={() => removeQuestionField(index)}
+                onClick={addQuestionField}
                 sx={{ fontFamily: "poppins" }}
               >
-                Remove
+                Add Question
               </Button>
-            </Box>
-          ))}
-          <Button
-            variant="outlined"
-            onClick={addQuestionField}
-            sx={{ fontFamily: "poppins" }}
-          >
-            Add Question
-          </Button>
-          <Toolbar sx={{ justifyContent: "flex-end" }}>
-            <Button type="submit" variant="outlined" sx={{ fontFamily: "poppins" }}>
-              {bot ? "Save Changes" : "Create"}
-            </Button>
-            <Button onClick={handleClose} sx={{ fontFamily: "poppins" }}>
-              Cancel
-            </Button>
-          </Toolbar>
-        </form>
-      </Box>
-    </DialogContent>
-
-  </Dialog>
-</>
-
+              <Toolbar sx={{ justifyContent: "flex-end" }}>
+                <Button
+                  type="submit"
+                  variant="outlined"
+                  sx={{ fontFamily: "poppins" }}
+                >
+                  {bot ? "Save Changes" : "Create"}
+                </Button>
+                <Button onClick={handleClose} sx={{ fontFamily: "poppins" }}>
+                  Cancel
+                </Button>
+              </Toolbar>
+            </form>
+          </Box>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
