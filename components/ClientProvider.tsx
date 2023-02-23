@@ -6,10 +6,10 @@ import { alignProperty } from '@mui/material/styles/cssUtils';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#f50057',
+      main: '#397EF7',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#397EF7',
     },
   },
   typography: {

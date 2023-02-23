@@ -30,10 +30,10 @@ function HomePage() {
   // Number of items per page
   return (
     <>
-      <Box fontFamily="poppins" className="bg-[#397EF7] h-screen w-screen">
+      <Box fontFamily="poppins" className="bg-[#397EF7]">
         <DrawerSpacer />
 
-        <div className="text-white flex flex-col px-2 items-center justify-center">
+        <div className="text-white flex flex-col px-2 items-center justify-center bg-[#397EF7]">
           <h1 className="text-3xl font-bold mb-2">Bot Chats</h1>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 w-2/3 mb-2 text-center">
@@ -56,21 +56,18 @@ function HomePage() {
           />
           <h1 className="text-3xl font-bold mb-2">Quick Questions</h1>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 w-2/3 text-center">
-        
-                  <NewChatWithMessage messageText="What can Atty Chat do?" />
-                  <NewChatWithMessage messageText="How do I use Atty Chat?" />
-                  <NewChatWithMessage messageText="Who should use Atty Chat?" />
-                  <NewChatWithMessage messageText="What is ChatGPT?" />
-                  <NewChatWithMessage messageText="Can you pretend to be like Elvis for the rest of our conversation?" />
-                  <NewChatWithMessage messageText="Can you use lots of emojis in the rest of our conversation?" />
-                  <NewChatWithMessage messageText="Can you imagine yourself as the president of the USA for the rest of the conversation?" />
-                  <NewChatWithMessage messageText="Can you write in exclamation for the rest of our conversation?" />
-                  <NewChatWithMessage messageText="Will you pretend to be my freind?" />
-
-              </div>
-            </div>
-     
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 w-2/3 mb-2 text-center">
+            <NewChatWithMessage messageText="What can Atty Chat do?" />
+            <NewChatWithMessage messageText="How do I use Atty Chat?" />
+            <NewChatWithMessage messageText="Who should use Atty Chat?" />
+            <NewChatWithMessage messageText="What is ChatGPT?" />
+            <NewChatWithMessage messageText="Can you pretend to be like Elvis for the rest of our conversation?" />
+            <NewChatWithMessage messageText="Can you use lots of emojis in the rest of our conversation?" />
+            <NewChatWithMessage messageText="Can you imagine yourself as the president of the USA for the rest of the conversation?" />
+            <NewChatWithMessage messageText="Can you write in exclamation for the rest of our conversation?" />
+            <NewChatWithMessage messageText="Will you pretend to be my freind?" />
+          </div>
+        </div>
       </Box>
     </>
   );
