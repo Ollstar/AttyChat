@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -22,17 +21,24 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import NewChat from "./NewChat";
 import ChatRow from "./ChatRow";
-import { collection, orderBy, query } from "firebase/firestore";
+import { collection, orderBy, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { signOut, useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import NewChatWithMessage from "./NewChatWithMessage";
-import { Button, useMediaQuery } from "@mui/material";
+import {
+  Button,
+  useMediaQuery,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+} from "@mui/material";
 import NewBot from "./NewBot";
 import useSWR from "swr";
 import mySwrConfig from "../lib/swr-config";
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
+import DrawerSpacer from "./DrawerSpacer";
 
 const drawerWidth = 240;
 
@@ -71,6 +77,15 @@ export default function PersistentDrawerLeft(this: any) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const { data: session } = useSession();
+  const [selectedBot, setSelectedBot] = React.useState("root");
+
+  const [bots] = useCollection(
+    session &&
+      query(
+        collection(db, "bots"),
+        where("creatorId", "==", session?.user?.email)
+      )
+  );
 
   const [chats, loading, error] = useCollection(
     session &&
@@ -87,8 +102,11 @@ export default function PersistentDrawerLeft(this: any) {
     setOpen(false);
   };
 
-  const handleTitleClick = () => {
-    router.push("/");
+  const handleBotSelect = (event: SelectChangeEvent) => {
+    setSelectedBot(event.target.value as string);
+    if (event.target.value === "root") {
+      router.push("/");
+    } else router.push(`/bot/${event.target.value}`);
   };
 
   return (
@@ -109,33 +127,33 @@ export default function PersistentDrawerLeft(this: any) {
         anchor="left"
         open={open}
       >
-        <DrawerHeader>
-          <NewChat />
-          <NewBot />
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "ltr" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <div>
-          <div className="hidden sm:inline"></div>
+        <Box className="bg-[rgb(240,240,240)]">
+          <DrawerHeader className="p-2">
+            <NewChat />
+            <NewBot />
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === "ltr" ? (
+                <ChevronLeftIcon />
+              ) : (
+                <ChevronRightIcon />
+              )}
+            </IconButton>
+          </DrawerHeader>
+          <div>
+            <div className="flex flex-col space-y-2 my-2 mb-10">
+              {loading && (
+                <div className="animate-pulse text-center text-white">
+                </div>
+              )}
 
-          <div className="flex flex-col space-y-2 my-2">
-            {loading && (
-              <div className="animate-pulse text-center text-white">
-                <p>Loading...</p>
-              </div>
-            )}
-
-            {/* Map through the ChatRows */}
-            {chats?.docs.map((chat) => (
-              <ChatRow key={chat.id} id={chat.id} />
-            ))}
+              {/* Map through the ChatRows */}
+              {chats?.docs.map((chat) => (
+                <ChatRow key={chat.id} id={chat.id} />
+              ))}
+            </div>
           </div>
-        </div>
+          <DrawerSpacer />
+        </Box>
       </Drawer>
       <DrawerHeader />
       <AppBar
@@ -156,19 +174,42 @@ export default function PersistentDrawerLeft(this: any) {
           >
             <MenuIcon />
           </IconButton>
-          <ListItemButton
-            onClick={handleTitleClick}
-            sx={{ color: "black", fontFamily: "Poppins" }}
+
+          <Select
+            className="mt-2 mb-2"
+            defaultValue="root"
+            sx={{ fontFamily: "poppins", borderRadius: "10px" }}
+            value={selectedBot}
+            onChange={(e) => handleBotSelect(e)}
           >
-            Atty Chat
-          </ListItemButton>
+            <MenuItem
+              sx={{ fontFamily: "poppins" }}
+              key={"root"}
+              value={"root"}
+            >
+              AttyChat
+            </MenuItem>
+
+            {bots?.docs.map((bot) => (
+              <MenuItem
+                sx={{ fontFamily: "poppins" }}
+                key={bot.id}
+                value={bot.id}
+              >
+                {bot.data().botName}
+              </MenuItem>
+            ))}
+          </Select>
 
           <Box sx={{ flexGrow: 1 }} />
+
           {session && (
             <img
               src={session?.user?.image!}
               alt="Profile picture"
-              className="h-12 w-12 rounded-full cursor-pointer hover:opacity-50"
+              className={`h-12 w-12 rounded-full cursor-pointer hover:opacity-50 ${
+                open ? " sm:hidden" : ""
+              }`}
             />
           )}
         </Toolbar>

@@ -39,7 +39,7 @@ type Props = {
 };
 const fetchPrimer = async (session: Session) => {
   if (!session) {
-    return Promise.resolve({});
+    return 
   }
 
   return fetch("/api/getPrimer", {
@@ -50,7 +50,10 @@ const fetchPrimer = async (session: Session) => {
     body: JSON.stringify({
       session: { user: { email: session?.user?.email! } },
     }),
-  }).then((res) => res.json());
+  }).then((res) => res.json()).catch((err) => {
+    console.log(err);
+    return {text: "fallback data"};
+  });
 };
 
 function ChatInput2({ chatId, botid }: Props) {
@@ -84,17 +87,20 @@ function ChatInput2({ chatId, botid }: Props) {
       );
       return getDocs(messagesQuery).then((querySnapshot) =>
         querySnapshot.docs.map((doc) => doc.data())
-      );
-    }
+      ).then((data) => {
+        console.log("data: ", data);
+        return data;
+      }).catch((error) => {
+        console.log("Error getting documents: ", error);
+        throw error; // rethrow the error to be caught by the useSWR hook
+      });
+    
+    } 
     return Promise.resolve([]);
-  }, 
-  {
+  }, {
     ...mySwrConfig,
     fallbackData: [],
-    revalidateOnFocus: true,
-    revalidateOnMount: true,
-    });
-  
+  });
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

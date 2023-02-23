@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
+import { Box } from "@mui/material";
 
 function NewChat() {
   const router = useRouter();
@@ -28,10 +29,11 @@ function NewChat() {
   };
 
   return (
-    <div onClick={createNewChat} className="chatRow p-2 border text-black border-gray-700">
-      <PlusIcon className="h-4 w-4" />
+    <Box fontFamily="poppins" fontSize="lg" color="black">
+    <div onClick={createNewChat} className="chatRow p-2 border text-black text-center border-black">
       <h2>New Chat</h2>
     </div>
+    </Box>
   );
 }
 

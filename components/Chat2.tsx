@@ -20,9 +20,11 @@ type Props = {
 };
 
 const fetchPrimer = async (session: Session) => {
+
   if (!session) {
-    return Promise.resolve({});
+    return
   }
+
 
   return fetch("/api/getPrimer", {
     method: "POST",
@@ -32,7 +34,10 @@ const fetchPrimer = async (session: Session) => {
     body: JSON.stringify({
       session: { user: { email: session?.user?.email! } },
     }),
-  }).then((res) => res.json());
+  }).then((res) => res.json()).catch((err) => {
+    console.log(err);
+    return {text: "fallback data"};
+  });
 };
 
 function Chat2({ chatId, botid }: Props) {
@@ -50,8 +55,6 @@ function Chat2({ chatId, botid }: Props) {
     {
       ...mySwrConfig,
       fallbackData: {text: "fallback data"},
-      revalidateOnFocus: true,
-      revalidateOnMount: true,
     }
   );
   const [messages, loading, error] = useCollection(
@@ -75,8 +78,8 @@ function Chat2({ chatId, botid }: Props) {
     const author = session?.user?.name!;
     if (!messages) return;
 
-    if (messages.docs[messages.docs.length - 1].data().user.name !== author) return;
-    let msg = messages.docs[messages.docs.length - 1].data().text;
+    if (messages?.docs[messages?.docs.length - 1].data().user.name !== author) return;
+    let msg = messages?.docs[messages?.docs.length - 1].data().text;
     msg = `${author}: ${msg}`;
 
     await setPrimer();
@@ -103,7 +106,7 @@ function Chat2({ chatId, botid }: Props) {
         primer: primer?.text,
         //map each message so that it displays author: text
         //then join them with a new line
-        messages: messages.docs
+        messages: messages?.docs
           .map((doc) => {
             const data = doc.data();
             return `${data.user.name}: ${data.text}\n`;
@@ -118,7 +121,13 @@ function Chat2({ chatId, botid }: Props) {
         id: notification,
         duration: 2000,
       });
-    });
+    }).catch((err) => {
+      toast.error("Something went wrong", {
+        id: notification,
+        duration: 2000,
+      });
+    }
+    );
   }
 
   const containerRef = useRef<HTMLInputElement>(null);
@@ -131,7 +140,7 @@ function Chat2({ chatId, botid }: Props) {
 
   useEffect(() => {
     if (messages) {
-      const lastMessage = messages.docs[messages.docs.length - 1];
+      const lastMessage = messages?.docs[messages?.docs.length - 1];
       if (lastMessage) {
         const lastMessageAuthor = lastMessage.data().user.name;
         const currentUser = session?.user?.name!;

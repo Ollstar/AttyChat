@@ -21,9 +21,6 @@ import toast from "react-hot-toast";
 import { Session } from "next-auth";
 
 const fetchPrimer = async (session: Session) => {
-  if (!session) {
-    return Promise.resolve({});
-  }
 
   return fetch("/api/getPrimer", {
     method: "POST",
@@ -33,7 +30,10 @@ const fetchPrimer = async (session: Session) => {
     body: JSON.stringify({
       session: { user: { email: session?.user?.email! } },
     }),
-  }).then((res) => res.json());
+  }).then((res) => res.json()).catch((err) => {
+    console.log(err);
+    return {text: "fallback data"};
+  });
 };
 
 
@@ -73,7 +73,12 @@ function PrimerField() {
         session: { user: { email: session?.user?.email! } },
         text,
       }),
-    });
+    }).then((res) => res.json()).catch((err) => {
+      console.log(err);
+    })
+
+
+
 
 
     const data = await response.json();

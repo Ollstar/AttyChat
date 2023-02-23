@@ -78,7 +78,7 @@ function NewChatWithBot({
   return (
     <div
       onClick={createNewChatWithBot}
-      className="chatRow p-2 border border-gray-700"
+      className="chatRow p-4 border border-white"
     >
       <h2>{messageText}</h2>
     </div>

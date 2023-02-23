@@ -62,7 +62,7 @@ function NewChatWithMessage({ messageText }: NewChatWithMessageProps) {
   return (
     <div
       onClick={createNewChatWithMessage}
-      className="chatRow p-2 border border-gray-700"
+      className="chatRow p-2 border border-white"
     >
       <h2>{messageText}</h2>
     </div>

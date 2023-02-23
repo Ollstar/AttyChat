@@ -15,11 +15,11 @@ export default async function handler(
 ) {
   const session = req.body.session;
 
-  if (!session) {
+  if (!session || !session.user || !session.user.email) {
     return res.status(401).end();
   }
 
-  const primerDoc = doc(db, 'users', session.user.email, 'primer', session.user.email);
+  const primerDoc = doc(db, 'users', session?.user?.email!, 'primer', session?.user?.email!);
   const primerSnapshot = await getDoc(primerDoc);
   const primerData = primerSnapshot.data();
 

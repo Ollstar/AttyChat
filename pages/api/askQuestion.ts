@@ -33,6 +33,25 @@ export default async function handler(
     });
     return;
   }
+  if (!messages) {
+    res.status(400).json({
+      answer: "Please provide a messages.",
+    });
+    return;
+  }
+  if (!session) {
+    res.status(400).json({
+      answer: "Please provide a session.",
+    });
+    return;
+  }
+  if (!model) {
+    res.status(400).json({
+      answer: "Please provide a model.",
+    });
+    return;
+  }
+  
   const chat = await adminDb
     .collection("users")
     .doc(session?.user?.email)

@@ -70,10 +70,12 @@ function NewBot() {
 
   return (
     <>
-      <div onClick={handleOpen} className="chatRow text-black p-2 border border-gray-700">
-        <PlusIcon className="h-4 w-4" />
+        <Box fontFamily="poppins" fontSize="lg" color="black">
+
+      <div onClick={handleOpen} className="chatRow text-black p-2 border ml-2 text-center border-black">
         <h2>New Bot</h2>
       </div>
+      </Box>
 
       <Dialog
         open={showModal}
