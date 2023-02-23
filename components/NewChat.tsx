@@ -27,7 +27,7 @@ function NewChat() {
           userId: session?.user?.email!,
           createdAt: serverTimestamp(),
           bot: {
-            _id: bot!.creatorId,
+            _id: botid,
             name: bot!.botName,
             primer: bot!.primer,
           },

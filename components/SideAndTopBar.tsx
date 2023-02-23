@@ -103,7 +103,7 @@ const pathname  = usePathname();
   };
 
   const handleBotSelect = (event: SelectChangeEvent) => {
-    setSelectedBot(event.target.value as string);
+    setSelectedBot(event.target.value);
     if (event.target.value === "root") {
       router.push("/");
     } else router.push(`/bot/${event.target.value}`);
@@ -111,16 +111,23 @@ const pathname  = usePathname();
 
 
   useEffect(() => {
+
+    console.log(`pathname: ${pathname}`)
     if (!pathname) return
     // Get the current path and extract the bot ID from it in a function 
     // that can be called on every route change
+    if (pathname.includes("bot")) {
+      const botId = pathname?.split("/")[2];
+      setSelectedBot(botId);
+    } else if (pathname.includes("chat")) {
     const chatId = pathname?.split("/")[2];
     const chat = chats?.docs?.find((chat) => chat.id === chatId);
-    if (chat?.data().bot!.name === "AttyBot") {
-      setSelectedBot("root");
-    } else {
-      setSelectedBot(chat?.data().bot!.name);
+    if (chat?.data().bot!._id === "AttyBot") {
+      setSelectedBot(`root`)
     }
+  } else {
+    setSelectedBot(`root`)
+  }
 
   
 
@@ -215,8 +222,8 @@ const pathname  = usePathname();
             {bots?.docs.map((bot) => (
               <MenuItem
                 sx={{ fontFamily: "poppins" }}
-                key={bot.data().botName}
-                value={bot.data().botName}
+                key={bot.id}
+                value={bot.id}
               >
                 {bot.data().botName}
               </MenuItem>
