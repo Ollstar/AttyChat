@@ -105,6 +105,7 @@ export default function PersistentDrawerLeft(this: any) {
       console.log(`pathname includes chat`);
       const chatId = pathname?.split("/")[2];
       const chat = chats?.docs?.find((chat) => chat.id === chatId);
+      if (!chat?.data()) return;
       console.log(`botid: ${chat?.data().bot!._id} \n botname: ${chat?.data().bot?.name}`);
       const botid = chat?.data().bot!._id
       if (!botid) return;
@@ -122,7 +123,7 @@ export default function PersistentDrawerLeft(this: any) {
   // Declare a ref for the selected bot
 const selectedBotRef = React.useRef<string | null>("root");
 // Update the selected bot ref when the bot is changed
-const handleBotSelect = (event: SelectChangeEvent) => {
+const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
   selectedBotRef.current = event.target.value;
   if (selectedBotRef.current === "root") {
     router.push("/");
@@ -134,9 +135,7 @@ useEffect(() => {
   isPathnameBotChatOrRoot();
   router.refresh();
 }, [pathname, chats]);
-useEffect(() => {
-  isPathnameBotChatOrRoot();
-}, []);
+
 
 
 
@@ -210,7 +209,7 @@ useEffect(() => {
 
           <Select
             size="small"
-            className="mt-4 mb-4"
+            className={`mt-4 mb-4 flex-1 ${open ? "min-w-full" : "" }  inline-flex truncate`}
             defaultValue="root"
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             value={selectedBotRef.current}
