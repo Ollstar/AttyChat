@@ -206,11 +206,10 @@ export default function PersistentDrawerLeft(this: any) {
 
           {session && (
             <img
+            onClick={() => signOut()}
               src={session?.user?.image!}
               alt="Profile picture"
-              className={`h-12 w-12 rounded-full cursor-pointer hover:opacity-50 ${
-                open ? " sm:hidden" : ""
-              }`}
+              className={`h-12 w-12 rounded-full cursor-pointer hover:opacity-50`}
             />
           )}
         </Toolbar>
