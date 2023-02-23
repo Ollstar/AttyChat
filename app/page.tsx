@@ -34,13 +34,13 @@ function HomePage() {
         <DrawerSpacer />
 
         <div className="text-white flex flex-col px-2 items-center justify-center bg-[#397EF7]">
-          <h1 className="text-3xl font-bold mb-2">Bot Chats</h1>
+          <h1 className="text-3xl font-bold mb-2">Bot List</h1>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-xl mb-2 text-center">
             {paginatedBots?.map((doc) => (
               <NewChatWithBot
                 key={doc.id}
-                messageText={`Chat with ${doc.data().botName}`}
+                messageText={`${doc.data().botName}`}
                 botid={doc.id}
                 useClient={true}
               />

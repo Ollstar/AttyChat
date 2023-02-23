@@ -25,7 +25,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import toast from "react-hot-toast";
-
+import SettingsIcon from '@mui/icons-material/Settings';
 type Bot = {
   botName: string;
   primer: string;
@@ -135,9 +135,13 @@ function NewBot({ bot, botid }: Props) {
       <Box fontFamily="poppins" fontSize="lg" color="black">
         <div
           onClick={handleOpen}
-          className="chatRow text-black p-2 border ml-2 text-center border-black"
+          className={`chatRow text-white p-2 ml-2 text-center ${!bot ? "border border-black" : ""} `}
         >
-          <h2>{bot ? "Edit Bot" : "New Bot"}</h2>
+          {bot ? (
+            <SettingsIcon />
+          ) : (
+            <h2 className="text-black ">New Bot</h2>
+          )}
         </div>
       </Box>
 

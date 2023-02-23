@@ -36,9 +36,10 @@ import {
 import useSWR from "swr";
 import mySwrConfig from "../lib/swr-config";
 import { Session } from "next-auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import DrawerSpacer from "./DrawerSpacer";
 import NewBot from "./NewBot";
+import { useEffect, useState } from "react";
 
 const drawerWidth = 240;
 
@@ -75,15 +76,14 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 export default function PersistentDrawerLeft(this: any) {
   const router = useRouter();
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const { data: session } = useSession();
-  const [selectedBot, setSelectedBot] = React.useState("root");
-
+  const [selectedBot, setSelectedBot] = useState("root");
+const pathname  = usePathname();
   const [bots] = useCollection(
     session &&
       query(
         collection(db, "bots"),
-        where("creatorId", "==", session?.user?.email)
       )
   );
 
@@ -109,6 +109,25 @@ export default function PersistentDrawerLeft(this: any) {
     } else router.push(`/bot/${event.target.value}`);
   };
 
+
+  useEffect(() => {
+    if (!pathname) return
+    // Get the current path and extract the bot ID from it in a function 
+    // that can be called on every route change
+    const chatId = pathname?.split("/")[2];
+    const chat = chats?.docs?.find((chat) => chat.id === chatId);
+    if (chat?.data().bot!.name === "AttyBot") {
+      setSelectedBot("root");
+    } else {
+      setSelectedBot(chat?.data().bot!.name);
+    }
+
+  
+
+
+
+  }, [pathname]);
+
   return (
     <Box sx={{backgroundColor:"rgb(240,240,240)"}}>
       <CssBaseline />
@@ -127,8 +146,8 @@ export default function PersistentDrawerLeft(this: any) {
         anchor="left"
         open={open}
       >
-        <Box className="bg-[rgb(240,240,240)]">
-          <DrawerHeader className="p-2">
+        <Box className="bg-[rgb(240,240,240)] h-screen">
+          <DrawerHeader className="p-2 mt-2">
             <NewChat />
             <NewBot />
             <IconButton onClick={handleDrawerClose}>
@@ -138,6 +157,7 @@ export default function PersistentDrawerLeft(this: any) {
                 <ChevronRightIcon />
               )}
             </IconButton>
+
           </DrawerHeader>
           <div>
             <div className="flex flex-col space-y-2 my-2 mb-10">
@@ -177,7 +197,8 @@ export default function PersistentDrawerLeft(this: any) {
           </IconButton>
 
           <Select
-            className="mt-2 mb-2"
+          size="small"
+            className="mt-4 mb-4"
             defaultValue="root"
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             value={selectedBot}
@@ -194,8 +215,8 @@ export default function PersistentDrawerLeft(this: any) {
             {bots?.docs.map((bot) => (
               <MenuItem
                 sx={{ fontFamily: "poppins" }}
-                key={bot.id}
-                value={bot.id}
+                key={bot.data().botName}
+                value={bot.data().botName}
               >
                 {bot.data().botName}
               </MenuItem>
@@ -214,6 +235,7 @@ export default function PersistentDrawerLeft(this: any) {
           )}
         </Toolbar>
       </AppBar>
+
     </Box>
   );
 }

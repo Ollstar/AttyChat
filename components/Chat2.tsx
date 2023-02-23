@@ -167,7 +167,7 @@ function Chat2({ chatId, botid }: Props) {
         flexDirection: "column",
         backgroundColor: "white",
         overflow: "scroll",
-        marginTop: "10px",
+        marginTop: "16px",
 
         bottom: "0",
         top: "0",

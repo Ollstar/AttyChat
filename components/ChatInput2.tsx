@@ -88,7 +88,6 @@ function ChatInput2({ chatId, botid }: Props) {
       return getDocs(messagesQuery).then((querySnapshot) =>
         querySnapshot.docs.map((doc) => doc.data())
       ).then((data) => {
-        console.log("data: ", data);
         return data;
       }).catch((error) => {
         console.log("Error getting documents: ", error);
