@@ -30,7 +30,7 @@ function HomePage() {
   // Number of items per page
   return (
     <>
-      <Box fontFamily="poppins" className="bg-[#397EF7]">
+      <Box fontFamily="poppins" className="bg-[#397EF7] h-screen w-screen">
         <DrawerSpacer />
 
         <div className="text-white flex flex-col px-2 items-center justify-center bg-[#397EF7]">
