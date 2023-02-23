@@ -9,5 +9,8 @@ type Props = {
 };
 
 export function SessionProvider({ children, session }: Props){
+    if (session == null) {
+        return null
+    }
     return <Provider session={session}>{children}</Provider>    
 }

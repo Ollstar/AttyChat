@@ -78,15 +78,8 @@ export default function PersistentDrawerLeft(this: any) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
-  const [selectedBot, setSelectedBot] = useState("root");
-const pathname  = usePathname();
-  const [bots] = useCollection(
-    session &&
-      query(
-        collection(db, "bots"),
-      )
-  );
-
+  const pathname = usePathname();
+  const [bots] = useCollection(session && query(collection(db, "bots")));
   const [chats, loading, error] = useCollection(
     session &&
       query(
@@ -94,6 +87,7 @@ const pathname  = usePathname();
         orderBy("createdAt", "asc")
       )
   );
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -101,42 +95,55 @@ const pathname  = usePathname();
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
-  const handleBotSelect = (event: SelectChangeEvent) => {
-    setSelectedBot(event.target.value);
-    if (event.target.value === "root") {
-      router.push("/");
-    } else router.push(`/bot/${event.target.value}`);
+  const isPathnameBotChatOrRoot = () => {
+    if (!pathname) return
+    if (pathname.includes("bot")) {
+      console.log(`pathname includes bot`);
+      const botId = pathname?.split("/")[2];
+      selectedBotRef.current = botId;
+    } else if (pathname.includes("chat")) {
+      console.log(`pathname includes chat`);
+      const chatId = pathname?.split("/")[2];
+      const chat = chats?.docs?.find((chat) => chat.id === chatId);
+      console.log(`botid: ${chat?.data().bot!._id} \n botname: ${chat?.data().bot?.name}`);
+      const botid = chat?.data().bot!._id
+      if (!botid) return;
+      if (botid === "AttyBot") {
+        selectedBotRef.current = `root`;
+      } else {
+        selectedBotRef.current = botid;
+      }
+    } else {
+      selectedBotRef.current = `root`;
+    }
   };
 
 
-  useEffect(() => {
+  // Declare a ref for the selected bot
+const selectedBotRef = React.useRef<string | null>("root");
+// Update the selected bot ref when the bot is changed
+const handleBotSelect = (event: SelectChangeEvent) => {
+  selectedBotRef.current = event.target.value;
+  if (selectedBotRef.current === "root") {
+    router.push("/");
+  } else router.push(`/bot/${selectedBotRef.current}`);
+};
 
-    console.log(`pathname: ${pathname}`)
-    if (!pathname) return
-    // Get the current path and extract the bot ID from it in a function 
-    // that can be called on every route change
-    if (pathname.includes("bot")) {
-      const botId = pathname?.split("/")[2];
-      setSelectedBot(botId);
-    } else if (pathname.includes("chat")) {
-    const chatId = pathname?.split("/")[2];
-    const chat = chats?.docs?.find((chat) => chat.id === chatId);
-    if (chat?.data().bot!._id === "AttyBot") {
-      setSelectedBot(`root`)
-    }
-  } else {
-    setSelectedBot(`root`)
-  }
-
-  
+// Update the selected bot ref when the pathname changes
+useEffect(() => {
+  isPathnameBotChatOrRoot();
+  router.refresh();
+}, [pathname, chats]);
+useEffect(() => {
+  isPathnameBotChatOrRoot();
+}, []);
 
 
 
-  }, [pathname]);
+
 
   return (
-    <Box sx={{backgroundColor:"rgb(240,240,240)"}}>
+    <Box sx={{ backgroundColor: "rgb(240,240,240)" }}>
       <CssBaseline />
       <Drawer
         ModalProps={{ onBackdropClick: handleDrawerClose }}
@@ -164,13 +171,11 @@ const pathname  = usePathname();
                 <ChevronRightIcon />
               )}
             </IconButton>
-
           </DrawerHeader>
           <div>
             <div className="flex flex-col space-y-2 my-2 mb-10">
               {loading && (
-                <div className="animate-pulse text-center text-white">
-                </div>
+                <div className="animate-pulse text-center text-white"></div>
               )}
 
               {/* Map through the ChatRows */}
@@ -194,21 +199,21 @@ const pathname  = usePathname();
       >
         <Toolbar>
           <IconButton
-          className={`${open ? "hidden" : "block"}`}
+            className={`${open ? "hidden" : "block"}`}
             aria-label="open drawer"
             onClick={open ? handleDrawerClose : handleDrawerOpen}
             edge="start"
-            sx={{ display: open ? "none": "block" , mr: 2}}
+            sx={{ display: open ? "none" : "block", mr: 2 }}
           >
             <MenuIcon />
           </IconButton>
 
           <Select
-          size="small"
+            size="small"
             className="mt-4 mb-4"
             defaultValue="root"
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
-            value={selectedBot}
+            value={selectedBotRef.current}
             onChange={(e) => handleBotSelect(e)}
           >
             <MenuItem
@@ -234,7 +239,7 @@ const pathname  = usePathname();
 
           {session && (
             <img
-            onClick={() => signOut()}
+              onClick={() => signOut()}
               src={session?.user?.image!}
               alt="Profile picture"
               className={`h-12 w-12 rounded-full cursor-pointer hover:opacity-50`}
@@ -242,7 +247,6 @@ const pathname  = usePathname();
           )}
         </Toolbar>
       </AppBar>
-
     </Box>
   );
 }
