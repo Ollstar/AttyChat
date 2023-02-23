@@ -64,6 +64,9 @@ function PrimerField() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!session) {
+      return;
+    }
     const response = await fetch("/api/setPrimer", {
       method: "POST",
       headers: {
@@ -73,9 +76,7 @@ function PrimerField() {
         session: { user: { email: session?.user?.email! } },
         text,
       }),
-    }).then((res) => res.json()).catch((err) => {
-      console.log(err);
-    })
+    });
 
 
 
