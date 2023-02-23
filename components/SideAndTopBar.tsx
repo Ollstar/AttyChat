@@ -167,10 +167,11 @@ export default function PersistentDrawerLeft(this: any) {
       >
         <Toolbar>
           <IconButton
+          className={`${open ? "hidden" : "block"}`}
             aria-label="open drawer"
             onClick={open ? handleDrawerClose : handleDrawerOpen}
             edge="start"
-            sx={{ mr: 2 }}
+            sx={{ mr: 2}}
           >
             <MenuIcon />
           </IconButton>
