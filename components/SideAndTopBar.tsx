@@ -33,12 +33,12 @@ import {
   MenuItem,
   SelectChangeEvent,
 } from "@mui/material";
-import NewBot from "./NewBot";
 import useSWR from "swr";
 import mySwrConfig from "../lib/swr-config";
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
 import DrawerSpacer from "./DrawerSpacer";
+import NewBot from "./NewBot";
 
 const drawerWidth = 240;
 

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { useState } from "react";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
@@ -15,16 +15,28 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
-function NewBot() {
+type Bot = {
+  botName: string;
+  primer: string;
+  botQuestions: string[];
+  creatorId: string;
+};
+
+type Props = {
+  bot?: Bot;
+  botid?: string;
+};
+
+function NewBot({ bot, botid }: Props) {
   const router = useRouter();
   const { data: session } = useSession();
   const [showModal, setShowModal] = useState(false);
-  const [botName, setBotName] = useState("");
-  const [primer, setPrimer] = useState("");
-  const [botQuestions, setBotQuestions] = useState<string[]>([""]);
+  const [botName, setBotName] = useState(bot?.botName ?? "");
+  const [primer, setPrimer] = useState(bot?.primer ?? "");
+  const [botQuestions, setBotQuestions] = useState<string[]>(bot?.botQuestions ?? [""]);
 
   const createNewBot = async () => {
     const docRef = await addDoc(collection(db, "bots"), {
@@ -36,6 +48,26 @@ function NewBot() {
     });
 
     router.push(`/bot/${docRef.id}`);
+  };
+
+  const editBot = async () => {
+    if (!botid) return;
+
+    await updateDoc(doc(db, "bots", botid), {
+      botName,
+      primer,
+      botQuestions,
+    });
+
+    router.replace(`/bot/${botid}`);
+  };
+
+  const deleteBot = async () => {
+    if (!botid) return;
+
+    await deleteDoc(doc(db, "bots", botid));
+
+    router.replace("/");
   };
 
   const addQuestionField = () => {
@@ -64,7 +96,13 @@ function NewBot() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createNewBot();
+
+    if (bot) {
+      editBot();
+    } else {
+      createNewBot();
+    }
+
     handleClose();
   };
 
@@ -73,7 +111,7 @@ function NewBot() {
         <Box fontFamily="poppins" fontSize="lg" color="black">
 
       <div onClick={handleOpen} className="chatRow text-black p-2 border ml-2 text-center border-black">
-        <h2>New Bot</h2>
+        <h2>{bot ? "Edit Bot" : "New Bot"}</h2>
       </div>
       </Box>
 
@@ -82,85 +120,93 @@ function NewBot() {
         onClose={handleClose}
         aria-labelledby="modal-title"
         sx={{ "& .MuiDialog-paper": { fontFamily:"poppins", width: "100%", maxWidth: "600px" } }}
+     
       >
-        <DialogTitle id="modal-title" sx={{fontFamily:"poppins"}} >New Bot</DialogTitle>
-        <DialogContent>
-          <Box sx={{ mb: 2, mt: 2 }}>
-            <form onSubmit={handleSubmit}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+        <DialogTitle id="modal-title" sx={{fontFamily:"poppins"}}>{bot ? "Edit Bot" : "New Bot"}</DialogTitle>
+        {bot && bot.creatorId === session?.user?.email && (
+              <Button onClick={deleteBot} sx={{ fontFamily: "poppins", color: "red" }}>
+                Delete
+              </Button>
+            )}
+        </Toolbar>
+    <DialogContent>
+      <Box sx={{ mb: 2, mt: 2 }}>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="Bot Name"
+            variant="outlined"
+            InputProps={{ sx: { fontFamily: "poppins" } }}
+            value={botName}
+            onChange={(e) => setBotName(e.target.value)}
+            sx={{ mb: 2 }}
+            InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Primer"
+            variant="outlined"
+            value={primer}
+            onChange={(e) => setPrimer(e.target.value)}
+            multiline
+            rows={10}
+            InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
+            InputProps={{ sx: { fontFamily: "poppins" } }}
+            required
+          />
+          <ListSubheader
+            sx={{ mt: 2, mb: 1, fontFamily: "poppins" }}
+            component="div"
+          >
+            Quick Questions
+          </ListSubheader>
+          {botQuestions.map((question, index) => (
+            <Box key={index} sx={{ display: "flex", mb: 2 }}>
               <TextField
+                key={index}
                 fullWidth
-                label="Bot Name"
+                label={`Question ${index + 1}`}
                 variant="outlined"
-                InputProps={{ sx: { fontFamily: "poppins" } }}
-
-                value={botName}
-                onChange={(e) => setBotName(e.target.value)}
-                sx={{ mb: 2 }}
                 InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
+                InputProps={{ sx: { fontFamily: "poppins" } }}
+                value={question}
+                onChange={(e) => updateQuestionField(index, e.target.value)}
+                sx={{ mr: 2 }}
                 required
               />
-              <TextField
-                fullWidth
-                label="Primer"
-                variant="outlined"
-                value={primer}
-                onChange={(e) => setPrimer(e.target.value)}
-                multiline
-                rows={4}
-                InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
-                InputProps={{ sx: { fontFamily: "poppins" } }}
-                required
-              />
-              <ListSubheader
-                sx={{ mt: 2, mb: 1, fontFamily: "poppins" }}
-                component="div"
-              >
-                Quick Questions
-              </ListSubheader>
-              {botQuestions.map((question, index) => (
-                <Box key={index} sx={{ display: "flex", mb: 2 }}>
-                  <TextField
-                    key={index}
-                    fullWidth
-                    label={`Question ${index + 1}`}
-                    variant="outlined"
-                    InputLabelProps={{ shrink: true, sx: { fontFamily: "poppins" } }}
-                    InputProps={{ sx: { fontFamily: "poppins" } }}
-                    value={question}
-                    onChange={(e) => updateQuestionField(index, e.target.value)}
-                    sx={{ mr: 2 }}
-                    required
-                  />
-                  <Button
-                    variant="outlined"
-                    onClick={() => removeQuestionField(index)}
-                    sx={{ fontFamily: "poppins" }}
-                  >
-                    Remove
-                  </Button>
-                </Box>
-              ))}
               <Button
                 variant="outlined"
-                onClick={addQuestionField}
+                onClick={() => removeQuestionField(index)}
                 sx={{ fontFamily: "poppins" }}
               >
-                Add Question
+                Remove
               </Button>
-              <Toolbar sx={{ justifyContent: "flex-end" }}>
-                <Button type="submit" variant="outlined" sx={{ fontFamily: "poppins" }}>
-                  Create
-                </Button>
-                <Button onClick={handleClose} sx={{ fontFamily: "poppins" }}>
-                  Cancel
-                </Button>
-              </Toolbar>
-            </form>
-          </Box>
-        </DialogContent>
+            </Box>
+          ))}
+          <Button
+            variant="outlined"
+            onClick={addQuestionField}
+            sx={{ fontFamily: "poppins" }}
+          >
+            Add Question
+          </Button>
+          <Toolbar sx={{ justifyContent: "flex-end" }}>
+            <Button type="submit" variant="outlined" sx={{ fontFamily: "poppins" }}>
+              {bot ? "Save Changes" : "Create"}
+            </Button>
+            <Button onClick={handleClose} sx={{ fontFamily: "poppins" }}>
+              Cancel
+            </Button>
+          </Toolbar>
+        </form>
+      </Box>
+    </DialogContent>
 
-      </Dialog>
-    </>
+  </Dialog>
+</>
+
   );
 }
 
