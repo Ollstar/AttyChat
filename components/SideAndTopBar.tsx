@@ -110,7 +110,7 @@ export default function PersistentDrawerLeft(this: any) {
   };
 
   return (
-    <Box>
+    <Box sx={{backgroundColor:"rgb(240,240,240)"}}>
       <CssBaseline />
       <Drawer
         ModalProps={{ onBackdropClick: handleDrawerClose }}
