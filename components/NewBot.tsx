@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { TwitterPicker } from "react-color";
+
 import {
   Box,
   Button,
@@ -25,12 +27,13 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import toast from "react-hot-toast";
-import SettingsIcon from '@mui/icons-material/Settings';
+import SettingsIcon from "@mui/icons-material/Settings";
 type Bot = {
   botName: string;
   primer: string;
   botQuestions: string[];
   creatorId: string;
+  botColor: string;
 };
 
 type Props = {
@@ -44,9 +47,14 @@ function NewBot({ bot, botid }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [botName, setBotName] = useState(bot?.botName ?? "");
   const [primer, setPrimer] = useState(bot?.primer ?? "");
+  //useRef for botColor
+  const botColor = useRef(bot?.botColor ?? "#000000");
   const [botQuestions, setBotQuestions] = useState<string[]>(
     bot?.botQuestions ?? [""]
   );
+  useEffect(() => {
+    router.refresh();
+  }, [botQuestions]);
 
   const createNewBot = async () => {
     const docRef = await addDoc(collection(db, "bots"), {
@@ -55,6 +63,7 @@ function NewBot({ bot, botid }: Props) {
       botName,
       primer,
       botQuestions,
+      botColor: botColor.current,
     });
 
     router.push(`/bot/${docRef.id}`);
@@ -67,6 +76,7 @@ function NewBot({ bot, botid }: Props) {
       botName,
       primer,
       botQuestions,
+      botColor: botColor.current,
     });
     toast.success("Bot edited!", {
       duration: 2000,
@@ -76,11 +86,14 @@ function NewBot({ bot, botid }: Props) {
         padding: "16px",
       },
     }),
-    router.replace(`/bot/${botid}`);
+      router.replace(`/bot/${botid}`);
   };
 
   const deleteBot = async () => {
     if (!botid) return;
+    // ask the user if they are sure to delete if no return
+    const isSure = confirm("Are you sure you want to delete this bot?");
+    if (!isSure) return;
 
     await deleteDoc(doc(db, "bots", botid));
     toast.success("Bot deleted!", {
@@ -114,6 +127,10 @@ function NewBot({ bot, botid }: Props) {
     });
   };
 
+  const handleColorChange = (color: any) => {
+    botColor.current = color.hex;
+  };
+
   const handleOpen = () => setShowModal(true);
 
   const handleClose = () => setShowModal(false);
@@ -123,6 +140,7 @@ function NewBot({ bot, botid }: Props) {
 
     if (bot) {
       editBot();
+      router.refresh();
     } else {
       createNewBot();
     }
@@ -135,13 +153,11 @@ function NewBot({ bot, botid }: Props) {
       <Box fontFamily="poppins" fontSize="lg" color="black">
         <div
           onClick={handleOpen}
-          className={`chatRow text-white p-2 ml-2 text-center ${!bot ? "border border-black" : ""} `}
+          className={`chatRow text-white p-2 ml-2 text-center ${
+            !bot ? "border border-black" : ""
+          } `}
         >
-          {bot ? (
-            <SettingsIcon />
-          ) : (
-            <h2 className="text-black ">New Bot</h2>
-          )}
+          {bot ? <SettingsIcon /> : <h2 className="text-black ">New Bot</h2>}
         </div>
       </Box>
 
@@ -202,12 +218,18 @@ function NewBot({ bot, botid }: Props) {
                 InputProps={{ sx: { fontFamily: "poppins" } }}
                 required
               />
-              <ListSubheader
-                sx={{ mt: 2, mb: 1, fontFamily: "poppins" }}
-                component="div"
-              >
+              <Box sx={{ mt: 2, mb: 2, fontFamily: "poppins" }} component="div">
+                Color Picker
+              </Box>
+              <TwitterPicker
+                color={botColor.current}
+                onChange={handleColorChange}
+                onChangeComplete={handleColorChange}
+                className="mb-2"
+              />
+              <Box sx={{ mt: 2, mb: 2, fontFamily: "poppins" }} component="div">
                 Quick Questions
-              </ListSubheader>
+              </Box>
               {botQuestions.map((question, index) => (
                 <Box key={index} sx={{ display: "flex", mb: 2 }}>
                   <TextField

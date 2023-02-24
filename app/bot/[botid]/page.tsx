@@ -7,12 +7,15 @@ import { doc, getDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import NewBot from "../../../components/NewBot";
 import { useSession } from "next-auth/react";
+import { Height } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
 
 type Bot = {
   creatorId: string;
   primer: string;
   botName: string;
   botQuestions: string[];
+  botColor: string;
 };
 
 type Props = {
@@ -23,6 +26,7 @@ type Props = {
 
 function BotPage({ params: { botid } }: Props) {
   const { data: session } = useSession();
+  const router = useRouter(); 
   const [bot, setBot] = useState<Bot | null>(null);
 
   useEffect(() => {
@@ -39,16 +43,24 @@ function BotPage({ params: { botid } }: Props) {
     };
 
     getBot();
-  }, [botid]);
+    router.refresh();
+  }, [botid,router]);
 
   if (!bot) {
     return <div className="bg-[#397EF7] h-screen w-screen text-white "></div>;
   }
+  if (!bot.botColor) {
+    console.log("no color");
+    setBot({ ...bot, botColor: "#397EF7" });
+
+
+  } else {
+    console.log(bot!.botColor);
+  }
 
   return (
     <>
-      <div className="bg-[#397EF7] h-screen w-screen">
-        <Box fontFamily="poppins" className="bg-[#397EF7]">
+        <Box fontFamily="poppins" sx={{backgroundColor:bot!.botColor, paddingBottom:"14px", height:"100%",width:"100%"}}>
           <DrawerSpacer />
           <div className="text-white flex flex-col px-2 items-center justify-center">
             <div className="flex flex-row">
@@ -71,7 +83,6 @@ function BotPage({ params: { botid } }: Props) {
             </div>
           </div>
         </Box>
-      </div>
     </>
   );
 }
