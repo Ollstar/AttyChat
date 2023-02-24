@@ -4,6 +4,7 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { TwitterPicker } from "react-color";
+import ClearIcon from '@mui/icons-material/Clear';
 
 import {
   Box,
@@ -16,6 +17,11 @@ import {
   ListSubheader,
   Toolbar,
   Typography,
+  InputAdornment,
+  IconButton,
+  List,
+  ListItem,
+  Paper,
 } from "@mui/material";
 import {
   addDoc,
@@ -173,6 +179,7 @@ function NewBot({ bot, botid }: Props) {
           },
         }}
       >
+
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <DialogTitle id="modal-title" sx={{ fontFamily: "poppins" }}>
             {bot ? "Edit Bot" : "New Bot"}
@@ -186,9 +193,12 @@ function NewBot({ bot, botid }: Props) {
             </Button>
           )}
         </Toolbar>
-        <DialogContent>
+
+        <form onSubmit={handleSubmit}>
+
           <Box sx={{ mb: 2, mt: 2 }}>
-            <form onSubmit={handleSubmit}>
+          <DialogContent>
+
               <TextField
                 fullWidth
                 label="Bot Name"
@@ -241,19 +251,28 @@ function NewBot({ bot, botid }: Props) {
                       shrink: true,
                       sx: { fontFamily: "poppins" },
                     }}
-                    InputProps={{ sx: { fontFamily: "poppins" } }}
+                    InputProps={
+                      {
+
+                      endAdornment: (
+                        <InputAdornment position="end">
+                    <IconButton
+                    onClick={() => removeQuestionField(index)}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
+                    }
                     value={question}
                     onChange={(e) => updateQuestionField(index, e.target.value)}
                     sx={{ mr: 2 }}
+                    
                     required
                   />
-                  <Button
-                    variant="outlined"
-                    onClick={() => removeQuestionField(index)}
-                    sx={{ fontFamily: "poppins" }}
-                  >
-                    Remove
-                  </Button>
+
+                  
                 </Box>
               ))}
               <Button
@@ -263,6 +282,10 @@ function NewBot({ bot, botid }: Props) {
               >
                 Add Question
               </Button>
+              </DialogContent>
+
+          </Box>
+
               <Toolbar sx={{ justifyContent: "flex-end" }}>
                 <Button
                   type="submit"
@@ -275,10 +298,10 @@ function NewBot({ bot, botid }: Props) {
                   Cancel
                 </Button>
               </Toolbar>
-            </form>
-          </Box>
-        </DialogContent>
+        </form>
+
       </Dialog>
+      
     </>
   );
 }

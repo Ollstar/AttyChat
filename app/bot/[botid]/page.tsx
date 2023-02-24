@@ -7,7 +7,6 @@ import { doc, getDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import NewBot from "../../../components/NewBot";
 import { useSession } from "next-auth/react";
-import { Height } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
 type Bot = {
@@ -44,7 +43,7 @@ function BotPage({ params: { botid } }: Props) {
 
     getBot();
     router.refresh();
-  }, [botid,router]);
+  }, [botid]);
 
   if (!bot) {
     return <div className="bg-[#397EF7] h-screen w-screen text-white "></div>;
