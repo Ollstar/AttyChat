@@ -14,6 +14,7 @@ function NewChatWithMessage({ messageText }: NewChatWithMessageProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const { data: primer } = useSWR("primer", {
+    ...mySwrConfig,
     fallbackData:
     "",
 });

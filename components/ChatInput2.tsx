@@ -72,34 +72,7 @@ function ChatInput2({ chatId, botid }: Props) {
     revalidateOnFocus: true,
   });
 
-  const { data: messages, mutate: setMessages } = useSWR("messages", () => {
-    if (session && session.user && session.user.email) {
-      const messagesQuery = query(
-        collection(
-          db,
-          "users",
-          session.user.email,
-          "chats",
-          chatId,
-          "messages"
-        ),
-        orderBy("createdAt", "asc")
-      );
-      return getDocs(messagesQuery).then((querySnapshot) =>
-        querySnapshot.docs.map((doc) => doc.data())
-      ).then((data) => {
-        return data;
-      }).catch((error) => {
-        console.log("Error getting documents: ", error);
-        throw error; // rethrow the error to be caught by the useSWR hook
-      });
-    
-    } 
-    return Promise.resolve([]);
-  }, {
-    ...mySwrConfig,
-    fallbackData: [],
-  });
+  
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -108,7 +81,7 @@ function ChatInput2({ chatId, botid }: Props) {
     let input = prompt.trim();
     setPrompt("");
     let conversationString = "";
-    if (messages) {
+    // if (messages) {
       // console.log(
       //   "input: ",
       //   input,
@@ -121,7 +94,7 @@ function ChatInput2({ chatId, botid }: Props) {
       //   "messagesArray: ",
       //   messages,
       // );
-    }
+    // }
     const bot = botid ? (await getDoc(doc(db, "bots", botid))).data() : null;
 
     const message: Message2 = {
@@ -151,7 +124,6 @@ function ChatInput2({ chatId, botid }: Props) {
     );
 
     setIsLoading(false);
-    await setMessages();
 
     //Toast notification
 
@@ -204,6 +176,7 @@ function ChatInput2({ chatId, botid }: Props) {
     >
       <Toolbar>
         <Box sx={{ width: "100%" }}>
+          
           <form ref={formRef} onSubmit={sendMessage}>
             <TextField
               id="outlined-basic"

@@ -209,7 +209,7 @@ useEffect(() => {
 
           <Select
             size="small"
-            className={`mt-4 mb-4 flex-1 ${open ? "min-w-full" : "" }  inline-flex truncate`}
+            className={`mt-4 mb-4 flex-1 ${open ? "" : "" }  inline-flex truncate`}
             defaultValue="root"
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             value={selectedBotRef.current}

@@ -40,6 +40,7 @@ type Bot = {
   botQuestions: string[];
   creatorId: string;
   botColor: string;
+  show: boolean;
 };
 
 type Props = {
@@ -53,8 +54,9 @@ function NewBot({ bot, botid }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [botName, setBotName] = useState(bot?.botName ?? "");
   const [primer, setPrimer] = useState(bot?.primer ?? "");
+  const [show, setShow] = useState(bot?.show ?? false);
   //useRef for botColor
-  const botColor = useRef(bot?.botColor ?? "#000000");
+  const[botColor, setBotColor] = useState(bot?.botColor ?? "#397EF7");
   const [botQuestions, setBotQuestions] = useState<string[]>(
     bot?.botQuestions ?? [""]
   );
@@ -68,8 +70,9 @@ function NewBot({ bot, botid }: Props) {
       createdAt: serverTimestamp(),
       botName,
       primer,
+      show,
       botQuestions,
-      botColor: botColor.current,
+      botColor: botColor
     });
 
     router.push(`/bot/${docRef.id}`);
@@ -77,12 +80,13 @@ function NewBot({ bot, botid }: Props) {
 
   const editBot = async () => {
     if (!botid) return;
-
+    router.replace(`/bot/${botid}`);
     await updateDoc(doc(db, "bots", botid), {
       botName,
       primer,
       botQuestions,
-      botColor: botColor.current,
+      show,
+      botColor
     });
     toast.success("Bot edited!", {
       duration: 2000,
@@ -91,8 +95,7 @@ function NewBot({ bot, botid }: Props) {
         border: "1px solid white",
         padding: "16px",
       },
-    }),
-      router.replace(`/bot/${botid}`);
+    });
   };
 
   const deleteBot = async () => {
@@ -133,9 +136,6 @@ function NewBot({ bot, botid }: Props) {
     });
   };
 
-  const handleColorChange = (color: any) => {
-    botColor.current = color.hex;
-  };
 
   const handleOpen = () => setShowModal(true);
 
@@ -179,6 +179,7 @@ function NewBot({ bot, botid }: Props) {
           },
         }}
       >
+      <form onSubmit={handleSubmit}>
 
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <DialogTitle id="modal-title" sx={{ fontFamily: "poppins" }}>
@@ -194,10 +195,10 @@ function NewBot({ bot, botid }: Props) {
           )}
         </Toolbar>
 
-        <form onSubmit={handleSubmit}>
 
           <Box sx={{ mb: 2, mt: 2 }}>
           <DialogContent>
+          <Box sx={{mb: 2 }}>
 
               <TextField
                 fullWidth
@@ -232,27 +233,27 @@ function NewBot({ bot, botid }: Props) {
                 Color Picker
               </Box>
               <TwitterPicker
-                color={botColor.current}
-                onChange={handleColorChange}
-                onChangeComplete={handleColorChange}
+          color={botColor}
+          onChange={(color) => setBotColor(color.hex)}
                 className="mb-2"
               />
               <Box sx={{ mt: 2, mb: 2, fontFamily: "poppins" }} component="div">
                 Quick Questions
               </Box>
               {botQuestions.map((question, index) => (
-                <Box key={index} sx={{ display: "flex", mb: 2 }}>
                   <TextField
                     key={index}
+                    multiline
                     fullWidth
                     label={`Question ${index + 1}`}
                     variant="outlined"
                     InputLabelProps={{
                       shrink: true,
-                      sx: { fontFamily: "poppins" },
+                      sx: { fontFamily: "poppins"},
                     }}
                     InputProps={
                       {
+                        sx: { mb:"1rem" },
 
                       endAdornment: (
                         <InputAdornment position="end">
@@ -273,7 +274,6 @@ function NewBot({ bot, botid }: Props) {
                   />
 
                   
-                </Box>
               ))}
               <Button
                 variant="outlined"
@@ -282,10 +282,11 @@ function NewBot({ bot, botid }: Props) {
               >
                 Add Question
               </Button>
+              </Box>
+
               </DialogContent>
 
           </Box>
-
               <Toolbar sx={{ justifyContent: "flex-end" }}>
                 <Button
                   type="submit"
@@ -298,10 +299,10 @@ function NewBot({ bot, botid }: Props) {
                   Cancel
                 </Button>
               </Toolbar>
-        </form>
+              </form>
 
       </Dialog>
-      
+
     </>
   );
 }

@@ -15,6 +15,7 @@ type Bot = {
   botName: string;
   botQuestions: string[];
   botColor: string;
+  show: boolean;
 };
 
 type Props = {

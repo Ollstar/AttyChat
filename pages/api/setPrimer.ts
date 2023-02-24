@@ -19,6 +19,7 @@ export default async function handler(
   await setDoc(primerDoc, { text });
 
   res.status(200).json({
-    text,
+    text: text,
   });
+
 }

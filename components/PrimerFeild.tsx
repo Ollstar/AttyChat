@@ -64,10 +64,7 @@ function PrimerField() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!session) {
-      return;
-    }
-    const response = await fetch("/api/setPrimer", {
+    const data = await fetch("/api/setPrimer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,15 +73,12 @@ function PrimerField() {
         session: { user: { email: session?.user?.email! } },
         text,
       }),
+    }).then((res) => res.json()).catch((err) => {
+      console.log(err);
+      return {text: "fallback data"};
     });
 
-
-
-
-
-    const data = await response.json();
-    setPrimer(data.text);
-    setText(data.text);
+    setPrimer(text);
     setIsOpen(false);
   
     // Display custom toast with animation
@@ -94,10 +88,8 @@ function PrimerField() {
       style: {
         border: "1px solid white",
         padding: "16px",
-      },
+      }
     });
-    
-  
   };
   
 

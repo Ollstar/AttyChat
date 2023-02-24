@@ -23,7 +23,7 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           {!session ? (
             <Login />
-          ) : (
+                    ) : (
             <div>
               <PersistentDrawerLeft />
               <ClientProvider />
