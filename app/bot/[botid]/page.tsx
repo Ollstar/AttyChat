@@ -60,6 +60,7 @@ function BotPage({ params: { botid } }: Props) {
   return (
     <>
         <Box fontFamily="poppins" sx={{backgroundColor:bot!.botColor, paddingBottom:"14px", height:"100%",width:"100%"}}>
+          <div className = "h-screen w-screen">
           <DrawerSpacer />
           <div className="text-white flex flex-col px-2 items-center justify-center">
             <div className="flex flex-row">
@@ -80,6 +81,7 @@ function BotPage({ params: { botid } }: Props) {
                 <NewChatWithBot messageText={bot.botQuestions} botid={botid} />
               )}
             </div>
+          </div>
           </div>
         </Box>
     </>
