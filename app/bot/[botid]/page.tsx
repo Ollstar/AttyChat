@@ -16,6 +16,7 @@ type Bot = {
   botQuestions: string[];
   botColor: string;
   show: boolean;
+  avatar: string;
 };
 
 type Props = {
@@ -30,6 +31,8 @@ function BotPage({ params: { botid } }: Props) {
   const [bot, setBot] = useState<Bot | null>(null);
 
   useEffect(() => {
+    if (!session) return;
+    if (!botid) return;
     const getBot = async () => {
       const docRef = doc(db, "bots", botid);
       const docSnap = await getDoc(docRef);
@@ -52,10 +55,6 @@ function BotPage({ params: { botid } }: Props) {
   if (!bot.botColor) {
     console.log("no color");
     setBot({ ...bot, botColor: "#397EF7" });
-
-
-  } else {
-    console.log(bot!.botColor);
   }
 
   return (

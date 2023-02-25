@@ -3,26 +3,66 @@
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../firebase";
-import { Box } from "@mui/material";
+import { Box, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { useEffect, useState } from "react";
+import NewChatWithBot from "./NewChatWithBot";
+
+type Bot = {
+  botName: string;
+  primer: string;
+  botQuestions: string[];
+  creatorId: string;
+  botColor: string;
+  show: boolean;
+  avatar: string;
+};
 
 function NewChat() {
   const router = useRouter();
   const { data: session } = useSession();
   const pathname = usePathname();
+  const [bot, setBot] = useState<Bot>();
+  const [botQuestions, setBotQuestions] = useState<string[]>(
+    bot?.botQuestions ?? ["Test"]
+  );
+  const [botid, setBotid] = useState<string>("AttyChat");
+  useEffect(() => {
+    if (botid) {
+      getDoc(doc(db, "bots", botid)).then((doc) => {
+        setBot(doc.data() as Bot);
+      });
+    }
+    if (bot) {
+      setBotQuestions(bot.botQuestions);
+    }
+    if (pathname?.includes("/bot")) {
+      setBotid(pathname.split("/")[2]);
+      getDoc(doc(db, "bots", botid)).then((doc) => {
+        setBot(doc.data() as Bot);
+      });
+    }
+  }, [pathname,botid]);
 
   const createNewChat = async () => {
+
     if (!session) {
       return;
     }
     if (pathname?.includes("/bot")) {
-      const botid = pathname.split("/")[2];
-      const bot = (await getDoc(doc(db, "bots", botid))).data();
+      const botInPath = (await getDoc(doc(db, "bots", botid))).data();
+      setBot(botInPath as Bot);
 
       // create new chat
       const docRef = await addDoc(
-        collection(db, "users", session?.user!.email!, "chats"),
+        collection(db, "users", session?.user?.email!, "chats"),
         {
           userId: session?.user?.email!,
           createdAt: serverTimestamp(),
@@ -46,15 +86,36 @@ function NewChat() {
       router.push(`/chat/${docRef.id}`);
     }
   };
+  const handleChatSelect = (e: SelectChangeEvent) => {
+console.log(e)
+  };
 
   return (
     <Box fontFamily="poppins" fontSize="lg" color="black">
-      <div
-        onClick={createNewChat}
-        className="chatRow p-2 border text-black text-center border-black"
+      <Select
+      size="small"
+        defaultValue="New Chat"
+        sx={{ fontFamily: "poppins", borderRadius: "10px" }}
+        value={"New Chat"}
+        onChange={(e) => handleChatSelect(e)}
       >
-        <h2>New Chat</h2>
-      </div>
+        <MenuItem
+          sx={{ fontFamily: "poppins" }}
+          key={"New Chat"}
+          value={"New Chat"}
+          onClick={createNewChat}
+        >
+          New Chat
+        </MenuItem>
+
+        {botQuestions.map((question) => (
+          <NewChatWithBot
+            messageText={question}
+            botid={botid}
+            useClient={true}
+          />
+        ))}
+      </Select>
     </Box>
   );
 }

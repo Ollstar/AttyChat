@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { FormEvent, useState, useEffect, useRef } from "react";
 import {
   addDoc,
@@ -32,6 +32,7 @@ import PrimerField from "./PrimerFeild";
 import mySwrConfig from "../lib/swr-config";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { Session } from "next-auth";
+import { margin } from "@mui/system";
 
 type Props = {
   chatId: string;
@@ -39,7 +40,7 @@ type Props = {
 };
 const fetchPrimer = async (session: Session) => {
   if (!session) {
-    return 
+    return;
   }
 
   return fetch("/api/getPrimer", {
@@ -50,10 +51,12 @@ const fetchPrimer = async (session: Session) => {
     body: JSON.stringify({
       session: { user: { email: session?.user?.email! } },
     }),
-  }).then((res) => res.json()).catch((err) => {
-    console.log(err);
-    return {text: "fallback data"};
-  });
+  })
+    .then((res) => res.json())
+    .catch((err) => {
+      console.log(err);
+      return { text: "fallback data" };
+    });
 };
 
 function ChatInput2({ chatId, botid }: Props) {
@@ -64,15 +67,15 @@ function ChatInput2({ chatId, botid }: Props) {
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
   });
-  const { data: primer, mutate: setPrimer } = useSWR("primer", 
+  const { data: primer, mutate: setPrimer } = useSWR(
+    "primer",
     session ? () => fetchPrimer(session) : null,
-  {
-    ...mySwrConfig,
-    fallbackData: "Fallback data",
-    revalidateOnFocus: true,
-  });
-
-  
+    {
+      ...mySwrConfig,
+      fallbackData: "Fallback data",
+      revalidateOnFocus: true,
+    }
+  );
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,21 +83,7 @@ function ChatInput2({ chatId, botid }: Props) {
     if (!prompt) return;
     let input = prompt.trim();
     setPrompt("");
-    let conversationString = "";
-    // if (messages) {
-      // console.log(
-      //   "input: ",
-      //   input,
-      //   "model: ",
-      //   model,
-      //   "primer: ",
-      //   primer,
-      //   "messages: ",
-      //   formatMessages(messages),
-      //   "messagesArray: ",
-      //   messages,
-      // );
-    // }
+
     const bot = botid ? (await getDoc(doc(db, "bots", botid))).data() : null;
 
     const message: Message2 = {
@@ -124,43 +113,6 @@ function ChatInput2({ chatId, botid }: Props) {
     );
 
     setIsLoading(false);
-
-    //Toast notification
-
-    // let primerValue = "default"; // default primer value
-    // if (primer) {
-    //   primerValue = primer;
-    // }
-    // console.log(chatId)
-    // if (messages?.length === 0) return;
-
-    // const notification = toast.loading("Thinking...", {
-    //   position: "top-center",
-    //   style: {
-    //     border: "1px solid white",
-    //     padding: "16px",
-    //   },
-    // });
-
-    // await fetch("/api/askQuestion", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     prompt: input,
-    //     chatId,
-    //     model,
-    //     primer: primerValue,
-    //     messages: conversationString,
-    //     session,
-    //   }),
-    // }).then(() => {
-    //   toast.success("My thoughts on this", {
-    //     id: notification,
-    //     duration: 2000,
-    //   });
-    // });
   };
 
   return (
@@ -174,11 +126,25 @@ function ChatInput2({ chatId, botid }: Props) {
         backgroundColor: "rgb(240,240,240)",
       }}
     >
-      <Toolbar>
-        <Box sx={{ width: "100%" }}>
-          
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
+        {session && (
+          <img
+            onClick={() => signOut()}
+            src={session?.user?.image!}
+            alt="Profile picture"
+            className={`h-10 w-10 ml-2 rounded-full cursor-pointer hover:opacity-50`}
+          />
+        )}
+        <Box sx={{ flexGrow: 1, paddingX:2 }}>
           <form ref={formRef} onSubmit={sendMessage}>
             <TextField
+              fullWidth
               id="outlined-basic"
               label="Enter message..."
               variant="outlined"
@@ -204,28 +170,13 @@ function ChatInput2({ chatId, botid }: Props) {
                   </InputAdornment>
                 ),
               }}
-              sx={{ width: "100%", backgroundColor: "white" }}
+              sx={{ backgroundColor: "white"}}
               onChange={(e) => setPrompt(e.target.value)}
             />
           </form>
         </Box>
-      </Toolbar>
-      <footer>
-        <Typography
-          variant="body2"
-          fontSize={8}
-          sx={{ fontFamily: "poppins" }}
-          color="text.secondary"
-          align="center"
-        >
-          {"Powered by "}
-          <Link color="inherit" href="https://atty.chat/">
-            AttyChat
-          </Link>{" "}
-          {new Date().getFullYear()}
-          {"."}
-        </Typography>
-      </footer>
+      </Box>
+      
     </AppBar>
   );
 }

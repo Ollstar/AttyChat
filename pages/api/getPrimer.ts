@@ -15,8 +15,9 @@ export default async function handler(
 ) {
   const session = req.body.session;
 
-  if (!session || !session.user || !session.user.email) {
-    return res.status(401).end();
+  if (!session) {
+    res.status(400).json({  text: 'Missing session.'  });
+    return;
   }
 
   const primerDoc = doc(db, 'users', session?.user?.email!, 'primer', session?.user?.email!);

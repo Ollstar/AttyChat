@@ -41,22 +41,23 @@ const fetchPrimer = async (session: Session) => {
 };
 
 function Chat2({ chatId, botid }: Props) {
+  const { data: session } = useSession();
+
   const [lastMessageIsCurrentUser, setLastMessageIsCurrentUser] =
     useState(false);
 
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
   });
-  const { data: session } = useSession();
 
   const { data: primer, mutate: setPrimer } = useSWR(
     "primer",
     session ? () => fetchPrimer(session) : null,
-    {
-      ...mySwrConfig,
-      fallbackData: {text: "fallback data"},
-    }
+    mySwrConfig
   );
+
+
+
   const [messages, loading, error] = useCollection(
     session &&
       query(

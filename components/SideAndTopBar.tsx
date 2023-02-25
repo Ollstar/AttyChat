@@ -13,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -23,7 +24,7 @@ import NewChat from "./NewChat";
 import ChatRow from "./ChatRow";
 import { collection, orderBy, query, where } from "firebase/firestore";
 import { db } from "../firebase";
-import { signOut, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import NewChatWithMessage from "./NewChatWithMessage";
 import {
@@ -87,6 +88,9 @@ export default function PersistentDrawerLeft(this: any) {
         orderBy("createdAt", "asc")
       )
   );
+  const selectedBotRef = React.useRef<string | null>("root");
+
+  const currentBot = bots?.docs?.find((bot) => bot.id === selectedBotRef.current);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -96,18 +100,16 @@ export default function PersistentDrawerLeft(this: any) {
     setOpen(false);
   };
   const isPathnameBotChatOrRoot = () => {
-    if (!pathname) return
+    if (!pathname) return;
     if (pathname.includes("bot")) {
-      console.log(`pathname includes bot`);
       const botId = pathname?.split("/")[2];
       selectedBotRef.current = botId;
     } else if (pathname.includes("chat")) {
-      console.log(`pathname includes chat`);
       const chatId = pathname?.split("/")[2];
       const chat = chats?.docs?.find((chat) => chat.id === chatId);
       if (!chat?.data()) return;
-      console.log(`botid: ${chat?.data().bot!._id} \n botname: ${chat?.data().bot?.name}`);
-      const botid = chat?.data().bot!._id
+
+      const botid = chat?.data().bot!._id;
       if (!botid) return;
       if (botid === "AttyBot") {
         selectedBotRef.current = `root`;
@@ -119,27 +121,20 @@ export default function PersistentDrawerLeft(this: any) {
     }
   };
 
-
   // Declare a ref for the selected bot
-const selectedBotRef = React.useRef<string | null>("root");
-// Update the selected bot ref when the bot is changed
-const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
-  selectedBotRef.current = event.target.value;
-  if (selectedBotRef.current === "root") {
-    router.push("/");
-  } else router.push(`/bot/${selectedBotRef.current}`);
-};
+  // Update the selected bot ref when the bot is changed
+  const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
+    selectedBotRef.current = event.target.value;
+    if (selectedBotRef.current === "root") {
+      router.push("/");
+    } else router.push(`/bot/${selectedBotRef.current}`);
+  };
 
-// Update the selected bot ref when the pathname changes
-useEffect(() => {
-  isPathnameBotChatOrRoot();
-  router.refresh();
-}, [pathname, chats]);
-
-
-
-
-
+  // Update the selected bot ref when the pathname changes
+  useEffect(() => {
+    isPathnameBotChatOrRoot();
+    router.refresh();
+  }, [pathname, chats]);
 
   return (
     <Box sx={{ backgroundColor: "rgb(240,240,240)" }}>
@@ -209,7 +204,9 @@ useEffect(() => {
 
           <Select
             size="small"
-            className={`mt-4 mb-4 flex-1 ${open ? "" : "" }  inline-flex truncate`}
+            className={`mt-4 mb-4 flex-1 ${
+              open ? "" : ""
+            }  inline-flex truncate`}
             defaultValue="root"
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             value={selectedBotRef.current}
@@ -235,13 +232,23 @@ useEffect(() => {
           </Select>
 
           <Box sx={{ flexGrow: 1 }} />
-
-          {session && (
+          {/* THREE DOT MENU  */}
+          <IconButton
+            size="large"
+            aria-label="show 4 new mails"
+            color="inherit"
+            className="hidden md:block"
+            sx={{ color:"black" } }
+          >
+            <MoreHorizIcon />
+          </IconButton>
+          {/* LOGO HOME BUTTON*/}
+          {currentBot && (
             <img
               onClick={() => signOut()}
-              src={session?.user?.image!}
+              src={currentBot?.data().avatar || `https://ui-avatars.com/api/?name=${currentBot?.data().botName}`}
               alt="Profile picture"
-              className={`h-12 w-12 rounded-full cursor-pointer hover:opacity-50`}
+              className={`h-10 w-10 rounded-full cursor-pointer hover:opacity-50`}
             />
           )}
         </Toolbar>
