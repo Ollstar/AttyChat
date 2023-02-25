@@ -64,11 +64,6 @@ function NewBot({ bot, botid }: Props) {
   );
   const [avatar, setAvatar] = useState(bot?.avatar ?? "");
 
-  useEffect(() => {
-    if (botQuestions.length === 0) return;
-    router.refresh();
-  }, [botQuestions]);
-
   const createNewBot = async () => {
     const docRef = await addDoc(collection(db, "bots"), {
       creatorId: session?.user?.email!,

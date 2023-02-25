@@ -1,78 +1,20 @@
 "use client";
 import * as React from "react";
-import { styled, useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import CssBaseline from "@mui/material/CssBaseline";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import NewChat from "./NewChat";
-import ChatRow from "./ChatRow";
 import { collection, orderBy, query, where } from "firebase/firestore";
 import { db } from "../firebase";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
-import NewChatWithMessage from "./NewChatWithMessage";
-import {
-  Button,
-  useMediaQuery,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-} from "@mui/material";
-import useSWR from "swr";
-import mySwrConfig from "../lib/swr-config";
-import { Session } from "next-auth";
+import { Select, MenuItem, SelectChangeEvent, AppBar } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import DrawerSpacer from "./DrawerSpacer";
-import NewBot from "./NewBot";
 import { useEffect, useState } from "react";
-
-const drawerWidth = 240;
-
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})<AppBarProps>(({ theme, open }) => ({
-  transition: theme.transitions.create(["margin", "width"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: "flex-end",
-}));
+import NewBot from "./NewBot";
 
 export default function PersistentDrawerLeft(this: any) {
   const router = useRouter();
@@ -89,15 +31,14 @@ export default function PersistentDrawerLeft(this: any) {
       )
   );
   const selectedBotRef = React.useRef<string | null>("root");
+  const [showNewBot, setShowNewBot] = useState(false); // Add state for controlling the visibility of the NewBot component
 
-  const currentBot = bots?.docs?.find((bot) => bot.id === selectedBotRef.current);
+  const currentBot = bots?.docs?.find(
+    (bot) => bot.id === selectedBotRef.current
+  );
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const handleBotClick = () => {
+    router.push(`/bot/${currentBot?.id}`);
   };
   const isPathnameBotChatOrRoot = () => {
     if (!pathname) return;
@@ -126,90 +67,32 @@ export default function PersistentDrawerLeft(this: any) {
   const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
     selectedBotRef.current = event.target.value;
     if (selectedBotRef.current === "root") {
-      router.push("/");
+      setShowNewBot(true); 
     } else router.push(`/bot/${selectedBotRef.current}`);
   };
 
   // Update the selected bot ref when the pathname changes
   useEffect(() => {
     isPathnameBotChatOrRoot();
-    router.refresh();
-  }, [pathname, chats]);
+  }, [pathname, chats,currentBot]);
 
   return (
-    <Box sx={{ backgroundColor: "rgb(240,240,240)" }}>
-      <CssBaseline />
-      <Drawer
-        ModalProps={{ onBackdropClick: handleDrawerClose }}
-        id="drawer"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-          },
-        }}
-        variant="temporary"
-        anchor="left"
-        open={open}
-      >
-        <Box className="bg-[rgb(240,240,240)] h-screen">
-          <DrawerHeader className="p-2 mt-2">
-            <NewChat />
-            <NewBot />
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === "ltr" ? (
-                <ChevronLeftIcon />
-              ) : (
-                <ChevronRightIcon />
-              )}
-            </IconButton>
-          </DrawerHeader>
-          <div>
-            <div className="flex flex-col space-y-2 my-2 mb-10">
-              {loading && (
-                <div className="animate-pulse text-center text-white"></div>
-              )}
-
-              {/* Map through the ChatRows */}
-              {chats?.docs.map((chat) => (
-                <ChatRow key={chat.id} id={chat.id} />
-              ))}
-            </div>
-          </div>
-          <DrawerSpacer />
-        </Box>
-      </Drawer>
-      <DrawerHeader />
+    <>
+      <DrawerSpacer />
       <AppBar
         position="fixed"
         sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: "rgb(240,240,240)",
         }}
-        open={open}
         elevation={2}
       >
         <Toolbar>
-          <IconButton
-            className={`${open ? "hidden" : "block"}`}
-            aria-label="open drawer"
-            onClick={open ? handleDrawerClose : handleDrawerOpen}
-            edge="start"
-            sx={{ display: open ? "none" : "block", mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-
+          <NewChat />
           <Select
             size="small"
-            className={`mt-4 mb-4 flex-1 ${
-              open ? "" : ""
-            }  inline-flex truncate`}
             defaultValue="root"
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
-            value={selectedBotRef.current}
+            value={"root"}
             onChange={(e) => handleBotSelect(e)}
           >
             <MenuItem
@@ -217,7 +100,7 @@ export default function PersistentDrawerLeft(this: any) {
               key={"root"}
               value={"root"}
             >
-              AttyChat
+              New Bot
             </MenuItem>
 
             {bots?.docs.map((bot) => (
@@ -232,27 +115,28 @@ export default function PersistentDrawerLeft(this: any) {
           </Select>
 
           <Box sx={{ flexGrow: 1 }} />
-          {/* THREE DOT MENU  */}
           <IconButton
             size="large"
             aria-label="show 4 new mails"
             color="inherit"
-            className="hidden md:block"
-            sx={{ color:"black" } }
+            sx={{ color: "black" }}
           >
             <MoreHorizIcon />
           </IconButton>
-          {/* LOGO HOME BUTTON*/}
           {currentBot && (
             <img
-              onClick={() => signOut()}
-              src={currentBot?.data().avatar || `https://ui-avatars.com/api/?name=${currentBot?.data().botName}`}
+              onClick={handleBotClick}
+              src={
+                currentBot?.data().avatar ||
+                `https://ui-avatars.com/api/?name=${currentBot?.data().botName}`
+              }
               alt="Profile picture"
-              className={`h-10 w-10 rounded-full cursor-pointer hover:opacity-50`}
+              className={`h-12 w-12 rounded-full cursor-pointer hover:opacity-50`}
             />
           )}
         </Toolbar>
       </AppBar>
-    </Box>
+      {showNewBot && <NewBot />}
+    </>
   );
 }

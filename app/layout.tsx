@@ -5,7 +5,8 @@ import { authOptions } from "../pages/api/auth/[...nextauth]";
 import Login from "../components/Login";
 import ClientProvider from "../components/ClientProvider";
 import PersistentDrawerLeft from "../components/SideAndTopBar";
-
+import Account from "../components/Account";
+import HomeAccount from "../components/HomeAccount";
 
 export default async function RootLayout({
   children,
@@ -16,21 +17,24 @@ export default async function RootLayout({
 
   return (
     <html>
-      <head/>
+      <head />
 
       <body>
-        <div style={{display:"flex"}}>
-        <SessionProvider session={session}>
-          {!session ? (
-            <Login />
-                    ) : (
-            <div>
-              <PersistentDrawerLeft />
-              <ClientProvider />
-              <div>{children}</div>
-            </div>
-          )}
-        </SessionProvider>
+        <div style={{ display: "flex" }}>
+          <SessionProvider session={session}>
+            {!session ? (
+              <Login />
+            ) : (
+              <div>
+                <ClientProvider />
+                <PersistentDrawerLeft />
+                <div>{children}</div>
+
+                <HomeAccount />
+
+              </div>
+            )}
+          </SessionProvider>
         </div>
       </body>
     </html>

@@ -85,7 +85,6 @@ function Chat2({ chatId, botid }: Props) {
 
     await setPrimer();
 
-    if (!primer.text) return;
 
     const notification = toast.loading("Thinking...", {
       position: "top-center",
@@ -140,6 +139,7 @@ function Chat2({ chatId, botid }: Props) {
   }, [messages]);
 
   useEffect(() => {
+    if (!session) return
     if (messages) {
       const lastMessage = messages?.docs[messages?.docs.length - 1];
       if (lastMessage) {

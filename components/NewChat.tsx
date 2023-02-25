@@ -29,71 +29,85 @@ function NewChat() {
   const router = useRouter();
   const { data: session } = useSession();
   const pathname = usePathname();
-  const [bot, setBot] = useState<Bot>();
-  const [botQuestions, setBotQuestions] = useState<string[]>(
-    bot?.botQuestions ?? ["Test"]
-  );
+  const [botQuestions, setBotQuestions] = useState<string[]>(["Test"]);
   const [botid, setBotid] = useState<string>("AttyChat");
+  const [currentBot, setCurrentBot] = useState<Bot | undefined>(undefined);
   useEffect(() => {
-    if (botid) {
-      getDoc(doc(db, "bots", botid)).then((doc) => {
-        setBot(doc.data() as Bot);
-      });
-    }
-    if (bot) {
-      setBotQuestions(bot.botQuestions);
-    }
-    if (pathname?.includes("/bot")) {
+    if (!pathname) return;
+    if (!botid) return;
+
+    const getBot = async () => {
       setBotid(pathname.split("/")[2]);
-      getDoc(doc(db, "bots", botid)).then((doc) => {
-        setBot(doc.data() as Bot);
-      });
-    }
+      const docRef = doc(db, "bots", botid);
+      const docSnap = await getDoc(docRef);
+      console.log("pathname", pathname, "botid", botid);
+
+      setCurrentBot(docSnap.data() as Bot);
+      setBotQuestions(docSnap.data()?.botQuestions ?? []);
+    };
+    getBot();
   }, [pathname,botid]);
 
-  const createNewChat = async () => {
-
+  const createNewChat = async (e: any) => {
     if (!session) {
       return;
     }
-    if (pathname?.includes("/bot")) {
-      const botInPath = (await getDoc(doc(db, "bots", botid))).data();
-      setBot(botInPath as Bot);
+    const bot = currentBot;
 
-      // create new chat
-      const docRef = await addDoc(
-        collection(db, "users", session?.user?.email!, "chats"),
-        {
-          userId: session?.user?.email!,
-          createdAt: serverTimestamp(),
-          bot: {
-            _id: botid,
-            name: bot!.botName,
-            primer: bot!.primer,
-          },
-        }
+    // create new chat
+    const docRef = await addDoc(
+      collection(db, "users", session?.user?.email!, "chats"),
+      {
+        userId: session?.user?.email!,
+        createdAt: serverTimestamp(),
+        bot: {
+          _id: botid,
+          name: bot!.botName,
+          primer: bot!.primer,
+        },
+      }
+    );
+    if (e !== "New Chat") {
+      const message: Message2 = {
+        text: e.target.value,
+        createdAt: serverTimestamp(),
+        userPrimer: bot?.primer!,
+        user: {
+          _id: session?.user?.email!,
+          name: session?.user?.name!,
+          avatar:
+            session?.user?.image! ||
+            `https://ui-avatars.com/api/?name=${session?.user?.name}`,
+        },
+      };
+      // add message to new chat
+      await addDoc(
+        collection(
+          db,
+          "users",
+          session?.user?.email!,
+          "chats",
+          docRef.id,
+          "messages"
+        ),
+        message
       );
+    }
+    if (pathname?.includes("/bot")) {
       router.push(`${pathname}/chat/${docRef.id}`);
     } else {
-      const docRef = await addDoc(
-        collection(db, "users", session?.user?.email!, "chats"),
-        {
-          userId: session?.user?.email!,
-          createdAt: serverTimestamp(),
-          bot: { _id: "AttyBot", name: "AttyBot", primer: "" },
-        }
-      );
       router.push(`/chat/${docRef.id}`);
     }
   };
   const handleChatSelect = (e: SelectChangeEvent) => {
-console.log(e)
+    createNewChat(e);
+    console.log(e);
   };
 
   return (
     <Box fontFamily="poppins" fontSize="lg" color="black">
       <Select
-      size="small"
+        size="small"
         defaultValue="New Chat"
         sx={{ fontFamily: "poppins", borderRadius: "10px" }}
         value={"New Chat"}
@@ -103,17 +117,18 @@ console.log(e)
           sx={{ fontFamily: "poppins" }}
           key={"New Chat"}
           value={"New Chat"}
-          onClick={createNewChat}
         >
           New Chat
         </MenuItem>
 
         {botQuestions.map((question) => (
-          <NewChatWithBot
-            messageText={question}
-            botid={botid}
-            useClient={true}
-          />
+          <MenuItem
+            sx={{ fontFamily: "poppins" }}
+            key={question.concat(botid)}
+            value={question}
+          >
+            {question}
+          </MenuItem>
         ))}
       </Select>
     </Box>

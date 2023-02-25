@@ -33,6 +33,8 @@ import mySwrConfig from "../lib/swr-config";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { Session } from "next-auth";
 import { margin } from "@mui/system";
+import Account from "./Account";
+import { Padding } from "@mui/icons-material";
 
 type Props = {
   chatId: string;
@@ -58,6 +60,8 @@ const fetchPrimer = async (session: Session) => {
       return { text: "fallback data" };
     });
 };
+
+
 
 function ChatInput2({ chatId, botid }: Props) {
   const [prompt, setPrompt] = useState("");
@@ -134,14 +138,11 @@ function ChatInput2({ chatId, botid }: Props) {
         }}
       >
         {session && (
-          <img
-            onClick={() => signOut()}
-            src={session?.user?.image!}
-            alt="Profile picture"
-            className={`h-10 w-10 ml-2 rounded-full cursor-pointer hover:opacity-50`}
-          />
+          <div className="mr-1">
+          <Account />
+          </div>
         )}
-        <Box sx={{ flexGrow: 1, paddingX:2 }}>
+        <Box sx={{ flexGrow: 1 }}>
           <form ref={formRef} onSubmit={sendMessage}>
             <TextField
               fullWidth
@@ -170,7 +171,7 @@ function ChatInput2({ chatId, botid }: Props) {
                   </InputAdornment>
                 ),
               }}
-              sx={{ backgroundColor: "white"}}
+              sx={{  backgroundColor: "white"}}
               onChange={(e) => setPrompt(e.target.value)}
             />
           </form>

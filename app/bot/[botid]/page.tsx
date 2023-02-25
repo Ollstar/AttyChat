@@ -7,7 +7,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import NewBot from "../../../components/NewBot";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type Bot = {
   creatorId: string;
@@ -27,26 +27,18 @@ type Props = {
 
 function BotPage({ params: { botid } }: Props) {
   const { data: session } = useSession();
-  const router = useRouter(); 
-  const [bot, setBot] = useState<Bot | null>(null);
 
+  const [bot, setBot] = useState<Bot | null>(null);
   useEffect(() => {
     if (!session) return;
     if (!botid) return;
     const getBot = async () => {
       const docRef = doc(db, "bots", botid);
       const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        setBot(docSnap.data() as Bot);
-      } else {
-        console.log("No such document!");
-        setBot(null);
-      }
+      setBot(docSnap.data() as Bot);
     };
 
     getBot();
-    router.refresh();
   }, [botid]);
 
   if (!bot) {
@@ -59,10 +51,10 @@ function BotPage({ params: { botid } }: Props) {
 
   return (
     <>
-        <Box fontFamily="poppins" sx={{backgroundColor:bot!.botColor, paddingBottom:"14px", height:"100%",width:"100%"}}>
-          <div className = "h-screen w-screen">
-          <DrawerSpacer />
-          <div className="text-white flex flex-col px-2 items-center justify-center">
+        <Box fontFamily="poppins" sx={{backgroundColor:bot!.botColor, height:"100%",width:"100%"}}>
+          <div >
+          <DrawerSpacer/>
+          <div className="text-white flex flex-col px-2 pb-4 items-center h-screen w-screen">
             <div className="flex flex-row">
             <h1 className="text-5xl font-bold">{bot.botName}</h1>
             {session?.user?.email! === bot.creatorId && <NewBot bot={bot} botid={botid} />}

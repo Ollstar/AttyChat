@@ -13,7 +13,12 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const { prompt, chatId, model, session, primer, messages } = req.body;
-
+  if (!session) {
+    res.status(400).json({
+      answer: "Please provide a session.",
+    });
+    return;
+  }
   if (!primer) {
     res.status(400).json({
       answer: "Please provide a primer.",
@@ -39,19 +44,14 @@ export default async function handler(
     });
     return;
   }
-  if (!session) {
-    res.status(400).json({
-      answer: "Please provide a session.",
-    });
-    return;
-  }
+
   if (!model) {
     res.status(400).json({
       answer: "Please provide a model.",
     });
     return;
   }
-  
+
   const chat = await adminDb
     .collection("users")
     .doc(session?.user?.email)
