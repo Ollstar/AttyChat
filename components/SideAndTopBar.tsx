@@ -64,6 +64,7 @@ export default function PersistentDrawerLeft(this: any) {
     }
   };
   const handleCloseNewBot = () => {
+    console.log("handleCloseNewBot");
     setShowEdit(false);
   };
   
@@ -101,8 +102,10 @@ export default function PersistentDrawerLeft(this: any) {
           </Box>
           <Select
             defaultValue="root"
+            value="root"
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             onChange={(e) => handleBotSelect(e)}
+
           >
             <MenuItem
               sx={{ fontFamily: "poppins" }}
