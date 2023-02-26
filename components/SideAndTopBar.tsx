@@ -15,6 +15,8 @@ import { usePathname, useRouter } from "next/navigation";
 import DrawerSpacer from "./DrawerSpacer";
 import { useEffect, useState } from "react";
 import NewBot from "./NewBot";
+import { ChatBubbleLeftIcon } from "@heroicons/react/24/solid";
+import HomeAccount from "./HomeAccount";
 
 export default function PersistentDrawerLeft(this: any) {
   const router = useRouter();
@@ -41,6 +43,7 @@ export default function PersistentDrawerLeft(this: any) {
     router.push(`/bot/${currentBot?.id}`);
   };
   const isPathnameBotChatOrRoot = () => {
+    console.log("pathname", pathname);
     if (!pathname) return;
     if (pathname.includes("bot")) {
       const botId = pathname?.split("/")[2];
@@ -91,7 +94,7 @@ export default function PersistentDrawerLeft(this: any) {
           <Select
             size="small"
             defaultValue="root"
-            sx={{ fontFamily: "poppins", borderRadius: "10px" }}
+            sx={{fontFamily: "poppins", borderRadius: "10px" }}
             value={"root"}
             onChange={(e) => handleBotSelect(e)}
           >
@@ -137,6 +140,8 @@ export default function PersistentDrawerLeft(this: any) {
         </Toolbar>
       </AppBar>
       {showNewBot && <NewBot />}
+      <><HomeAccount /></>
+
     </>
   );
 }

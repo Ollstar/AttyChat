@@ -85,6 +85,8 @@ function Chat2({ chatId, botid }: Props) {
 
     await setPrimer();
 
+    if (!primer) return;
+
 
     const notification = toast.loading("Thinking...", {
       position: "top-center",

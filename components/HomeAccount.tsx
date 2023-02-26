@@ -11,12 +11,14 @@ export default function HomeAccount() {
 
   return (
     <>
+    {pathname?.includes("chat") ? "" : <div className="fixed bottom-2 left-2">
       <Fab
         className={`fixed bottom-2 left-2 ${pathname?.includes("chat") ? "hidden" : ""}`}
         color="primary"
       >
         <Account />
       </Fab>
+    </div>}
     </>
   );
 }

@@ -40,7 +40,6 @@ function NewChat() {
       setBotid(pathname.split("/")[2]);
       const docRef = doc(db, "bots", botid);
       const docSnap = await getDoc(docRef);
-      console.log("pathname", pathname, "botid", botid);
 
       setCurrentBot(docSnap.data() as Bot);
       setBotQuestions(docSnap.data()?.botQuestions ?? []);
@@ -93,15 +92,20 @@ function NewChat() {
         message
       );
     }
-    if (pathname?.includes("/bot")) {
+    if (pathname?.includes("/bot") && pathname?.includes("/chat")) {
+      const newPathname = pathname.substring(0, pathname.lastIndexOf("/") + 1);
+      router.push(`${newPathname}${docRef.id}`);
+    } else if (pathname?.includes("/bot") && !pathname?.includes("/chat")) {
       router.push(`${pathname}/chat/${docRef.id}`);
     } else {
       router.push(`/chat/${docRef.id}`);
     }
+
+    
+
   };
   const handleChatSelect = (e: SelectChangeEvent) => {
     createNewChat(e);
-    console.log(e);
   };
 
   return (
