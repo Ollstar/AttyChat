@@ -23,6 +23,7 @@ export default function PersistentDrawerLeft(this: any) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
+  const [showEdit, setShowEdit] = useState(false);
   const pathname = usePathname();
   const [bots] = useCollection(session && query(collection(db, "bots")));
   const [chats, loading, error] = useCollection(
@@ -37,7 +38,6 @@ export default function PersistentDrawerLeft(this: any) {
   const currentBot = bots?.docs?.find(
     (bot) => bot.id === selectedBotRef.current
   );
-
   const handleBotClick = () => {
     router.push(`/bot/${currentBot?.id}`);
   };
@@ -63,19 +63,26 @@ export default function PersistentDrawerLeft(this: any) {
       selectedBotRef.current = `root`;
     }
   };
-
+  const handleCloseNewBot = () => {
+    setShowEdit(false);
+  };
+  
   // Declare a ref for the selected bot
   // Update the selected bot ref when the bot is changed
   const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
     selectedBotRef.current = event.target.value;
+    console.log("event.target.value", event.target.value);
+    console.log("selectedBotRef.current", selectedBotRef.current);
     if (selectedBotRef.current === "root") {
+      console.log("root");
+      setShowEdit(true);
     } else router.push(`/bot/${selectedBotRef.current}`);
   };
 
   // Update the selected bot ref when the pathname changes
   useEffect(() => {
     isPathnameBotChatOrRoot();
-  }, [pathname, chats,currentBot]);
+  }, [pathname, chats, currentBot]);
 
   return (
     <>
@@ -83,19 +90,18 @@ export default function PersistentDrawerLeft(this: any) {
       <AppBar
         position="fixed"
         sx={{
+          padding: "10px 0px",
           backgroundColor: "rgb(240,240,240)",
         }}
         elevation={2}
       >
         <Toolbar>
           <Box className="mr-2">
-          <NewChat />
+            <NewChat />
           </Box>
           <Select
-            size="small"
             defaultValue="root"
-            sx={{fontFamily: "poppins", borderRadius: "10px" }}
-            value={"root"}
+            sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             onChange={(e) => handleBotSelect(e)}
           >
             <MenuItem
@@ -119,7 +125,6 @@ export default function PersistentDrawerLeft(this: any) {
 
           <Box sx={{ flexGrow: 1 }} />
           <IconButton
-            size="large"
             aria-label="show 4 new mails"
             color="inherit"
             sx={{ color: "black" }}
@@ -139,10 +144,13 @@ export default function PersistentDrawerLeft(this: any) {
           )}
         </Toolbar>
       </AppBar>
-      <><HomeAccount /></>
-      {/* {}
-      {session?.user?.email! === bot.creatorId && <NewBot bot={bot} botid={botid} />} */}
-
+      <>
+        <HomeAccount />
+      </>
+      {}
+      {showEdit &&
+        (console.log("showEdit", showEdit), (<NewBot autoOpen={true} onClose={handleCloseNewBot} />
+        ))}
     </>
   );
 }

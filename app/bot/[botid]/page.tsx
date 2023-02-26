@@ -42,7 +42,7 @@ function BotPage({ params: { botid } }: Props) {
   }, [botid]);
 
   if (!bot) {
-    return <div className="bg-[#397EF7] h-screen w-screen text-white "></div>;
+    return
   }
   if (!bot.botColor) {
     console.log("no color");

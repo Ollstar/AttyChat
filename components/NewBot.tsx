@@ -48,12 +48,14 @@ type Bot = {
 type Props = {
   bot?: Bot;
   botid?: string;
+  autoOpen?: boolean;
+  onClose?: () => void;
 };
 
-function NewBot({ bot, botid }: Props) {
+function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
   const router = useRouter();
   const { data: session } = useSession();
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(autoOpen || false);
   const [botName, setBotName] = useState(bot?.botName ?? "");
   const [primer, setPrimer] = useState(bot?.primer ?? "");
   const [show, setShow] = useState(bot?.show ?? false);
@@ -149,8 +151,13 @@ function NewBot({ bot, botid }: Props) {
 
   const handleOpen = () => setShowModal(true);
 
-  const handleClose = () => setShowModal(false);
-
+  const handleClose = () => {
+    setShowModal(false);
+    if (onClose) {
+      onClose();
+    }
+  };
+  
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -166,6 +173,7 @@ function NewBot({ bot, botid }: Props) {
 
   return (
     <>
+    {autoOpen ? ( "" ) : (  
       <Box fontFamily="poppins" fontSize="lg" color="black">
         <div
           onClick={handleOpen}
@@ -176,6 +184,7 @@ function NewBot({ bot, botid }: Props) {
           {bot ? <SettingsIcon /> : <h2 className="text-black ">New Bot</h2>}
         </div>
       </Box>
+    )}
 
       <Dialog
         open={showModal}
@@ -243,6 +252,7 @@ function NewBot({ bot, botid }: Props) {
                   Color Picker
                 </Box>
                 <TwitterPicker
+                      triangle="hide"
                   color={botColor}
                   onChange={(color) => setBotColor(color.hex)}
                   className="mb-2"

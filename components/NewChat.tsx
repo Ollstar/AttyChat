@@ -120,7 +120,6 @@ function NewChat() {
   return (
     <Box fontFamily="poppins" fontSize="lg" color="black">
       <Select
-        size="small"
         defaultValue="New Chat"
         sx={{ fontFamily: "poppins", borderRadius: "10px" }}
         value={"New Chat"}

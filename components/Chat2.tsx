@@ -74,6 +74,7 @@ function Chat2({ chatId, botid }: Props) {
   );
 
   async function askQuestion() {
+    console.log("askQuestion");
     if (!session) return;
 
     const author = session?.user?.name!;
@@ -142,11 +143,10 @@ function Chat2({ chatId, botid }: Props) {
 
   useEffect(() => {
     if (!session) return
-    if (messages) {
       const lastMessage = messages?.docs[messages?.docs.length - 1];
       if (lastMessage) {
         const lastMessageAuthor = lastMessage.data().user.name;
-        const currentUser = session?.user?.name!;
+        const currentUser = session.user?.name!;
         if (lastMessageAuthor === currentUser && !lastMessageIsCurrentUser) {
           askQuestion();
           setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
@@ -154,23 +154,8 @@ function Chat2({ chatId, botid }: Props) {
           setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
         }
       }
-    }
   }, [messages]);
-  useEffect(() => {
-    if (messages) {
-      const lastMessage = messages?.docs[messages?.docs.length - 1];
-      if (lastMessage) {
-        const lastMessageAuthor = lastMessage.data().user.name;
-        const currentUser = session?.user?.name!;
-        if (lastMessageAuthor === currentUser && !lastMessageIsCurrentUser) {
-          askQuestion();
-          setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
-        } else {
-          setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
-        }
-      }
-    }
-  }, []);
+
   
 
   return (
