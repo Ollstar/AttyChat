@@ -54,7 +54,7 @@ function BotPage({ params: { botid } }: Props) {
         <Box fontFamily="poppins" sx={{backgroundColor:bot!.botColor, height:"100vhw",width:"100vhw"}}>
           <div >
           <DrawerSpacer/>
-          <div className="text-white flex flex-col px-2 pb-4 items-center h-screen w-screen">
+          <div className="text-white flex flex-col px-2 pb-4 items-center">
             <div className="flex flex-row">
             <h1 className="text-5xl font-bold">{bot.botName}</h1>
             {session?.user?.email! === bot.creatorId && <NewBot bot={bot} botid={botid} />}
