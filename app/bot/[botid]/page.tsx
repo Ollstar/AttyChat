@@ -51,7 +51,7 @@ function BotPage({ params: { botid } }: Props) {
 
   return (
     <>
-        <Box fontFamily="poppins" sx={{backgroundColor:bot!.botColor, height:"100%",width:"100%"}}>
+        <Box fontFamily="poppins" sx={{backgroundColor:bot!.botColor, height:"100vhw",width:"100vhw"}}>
           <div >
           <DrawerSpacer/>
           <div className="text-white flex flex-col px-2 pb-4 items-center h-screen w-screen">
