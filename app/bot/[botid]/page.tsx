@@ -53,7 +53,9 @@ function BotPage({ params: { botid } }: Props) {
     <>
         <Box fontFamily="poppins" sx={{backgroundColor:bot!.botColor, height:"100vhw",width:"100vhw"}}>
           <div className={`h-screen w-screen bg-[${bot!.botColor}]`}>
-          <DrawerSpacer/>
+          <div className={`bg-[${bot!.botColor}]`}>
+          <DrawerSpacer />
+          </div>
           <div className="text-white flex flex-col px-2 pb-4 items-center">
             <div className="flex flex-row">
             <h1 className="text-5xl font-bold">{bot.botName}</h1>
