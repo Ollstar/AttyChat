@@ -23,48 +23,13 @@ const query = async (
   chat: any
 ) => {
   const fullPrompt = generatePrompt(prompt, primer, messages, chat);
-/**
-   * Stream OpenAI completion
-   * @param{string} prompt
-   * @param{any} parameters
-   */
-// async* streamCompletion(prompt: string,
-//   parameters: any): any {
-// const r = await fetch(`${openAiEndpoint}/${parameters.model}/completions`, {
-//   method: "POST",
-//   body: JSON.stringify({
-//     "prompt": prompt,
-//     "temperature": parameters.temperature,
-//     "max_tokens": parameters.maxTokens,
-//     "top_p": parameters.topP,
-//     "frequency_penalty": parameters.frequencyPenalty,
-//     "presence_penalty": parameters.presencePenalty,
-//     "stop": parameters.stop,
-//     "stream": true,
-//   }),
-//   headers: {
-//     "Content-Type": "application/json",
-//     "Accept": "application/json",
-//     "Authorization": `Bearer ${openAiKey}`,
-//   },
-// });
-// for await (const chunk of r.body) {
-//   console.log(chunk.toString());
-//   if (chunk.toString().includes("error")) throw Error(chunk.toString());
-//   if (chunk.toString().includes("DONE")) return;
-//   // Sometimes fail parsing JSON here :/
-//   const data = JSON.parse(chunk.toString().replace("data: ", ""));
-//   if (!data.choices || data.choices.length === 0) continue;
-//   yield data.choices[0].text;
-// }
-// }
+
   const res = await openai
     .createCompletion({
       model,
       prompt: fullPrompt,
       temperature: 0.0,
       max_tokens: 1000,
-      stream: true
 
     })
     .then((res) => res.data.choices[0].text)
