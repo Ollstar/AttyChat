@@ -44,7 +44,7 @@ export default function Account() {
   };
 
   return (
-    <div className="h-12 w-12">
+    <div >
 
       <Avatar
         src={session?.user?.image! || `https://ui-avatars.com/api/?name=${session?.user?.name!}`}

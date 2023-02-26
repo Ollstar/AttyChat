@@ -140,6 +140,8 @@ export default function PersistentDrawerLeft(this: any) {
         </Toolbar>
       </AppBar>
       <><HomeAccount /></>
+      {/* {}
+      {session?.user?.email! === bot.creatorId && <NewBot bot={bot} botid={botid} />} */}
 
     </>
   );

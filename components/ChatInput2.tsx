@@ -138,7 +138,7 @@ function ChatInput2({ chatId, botid }: Props) {
         }}
       >
         {session && (
-          <div className="mr-1">
+          <div className="h-14 w-14 mr-1">
           <Account />
           </div>
         )}
