@@ -103,7 +103,7 @@ function PrimerField() {
 
   return (
     <>
-      <IconButton color="primary" onClick={handleOpen}>
+      <IconButton sx={{color:"black"}} onClick={handleOpen}>
         <PsychologyIcon />
       </IconButton>
       <Dialog

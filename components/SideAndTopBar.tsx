@@ -33,7 +33,6 @@ export default function PersistentDrawerLeft(this: any) {
       )
   );
   const selectedBotRef = React.useRef<string | null>("root");
-  const [showNewBot, setShowNewBot] = useState(false); // Add state for controlling the visibility of the NewBot component
 
   const currentBot = bots?.docs?.find(
     (bot) => bot.id === selectedBotRef.current
@@ -70,7 +69,6 @@ export default function PersistentDrawerLeft(this: any) {
   const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
     selectedBotRef.current = event.target.value;
     if (selectedBotRef.current === "root") {
-      setShowNewBot(true); 
     } else router.push(`/bot/${selectedBotRef.current}`);
   };
 
@@ -90,7 +88,9 @@ export default function PersistentDrawerLeft(this: any) {
         elevation={2}
       >
         <Toolbar>
+          <Box className="mr-2">
           <NewChat />
+          </Box>
           <Select
             size="small"
             defaultValue="root"
@@ -139,7 +139,6 @@ export default function PersistentDrawerLeft(this: any) {
           )}
         </Toolbar>
       </AppBar>
-      {showNewBot && <NewBot />}
       <><HomeAccount /></>
 
     </>

@@ -31,7 +31,7 @@ function NewChat() {
   const pathname = usePathname();
   const [botQuestions, setBotQuestions] = useState<string[]>(["Test"]);
   const [botid, setBotid] = useState<string>("AttyChat");
-  const [currentBot, setCurrentBot] = useState<Bot | undefined>(undefined);
+  const [currentBot, setCurrentBot] = useState<Bot>();
   useEffect(() => {
     if (!pathname) return;
     if (!botid) return;
@@ -46,13 +46,21 @@ function NewChat() {
     };
     getBot();
   }, [pathname,botid]);
+  useEffect(() => {
+    if (!pathname) return;
+    setBotid("AttyChat")
+  }, []);
 
   const createNewChat = async (e: any) => {
     if (!session) {
       return;
     }
+    
     const bot = currentBot;
 
+    if (!bot) return;
+    if (!botid) return;
+    console.log("bot", bot, "botid", botid );
     // create new chat
     const docRef = await addDoc(
       collection(db, "users", session?.user?.email!, "chats"),
@@ -67,6 +75,7 @@ function NewChat() {
       }
     );
     if (e !== "New Chat") {
+      if (!bot) return;
       const message: Message2 = {
         text: e.target.value,
         createdAt: serverTimestamp(),

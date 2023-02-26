@@ -160,7 +160,7 @@ function ChatInput2({ chatId, botid }: Props) {
                     <IconButton
                       type="submit"
                       disabled={!session || isLoading}
-                      sx={{ color: "primary.main" }}
+                      sx={{ color: "black"}}
                     >
                       {isLoading ? (
                         <CircularProgress size={24} />
