@@ -44,7 +44,7 @@ function Chat2({ chatId, botid }: Props) {
   const { data: session } = useSession();
 
   const [lastMessageIsCurrentUser, setLastMessageIsCurrentUser] =
-    useState(false);
+    useState(true);
 
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
@@ -140,25 +140,26 @@ function Chat2({ chatId, botid }: Props) {
   const containerRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!session) return
+    if (!messages) return
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-  }, [messages]);
-
-  useEffect(() => {
-    if (!session) return
-    console.log("lastMessageIsCurrentUser: ", lastMessageIsCurrentUser);
       const lastMessage = messages?.docs[messages?.docs.length - 1];
       if (lastMessage) {
         const lastMessageAuthor = lastMessage.data().user.name;
         const currentUser = session.user?.name!;
-        if (lastMessageAuthor === currentUser && !lastMessageIsCurrentUser) {
+        if (lastMessageAuthor === currentUser && lastMessageIsCurrentUser) {
           askQuestion();
         } else {
           setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
         }
       }
   }, [messages]);
+
+  useEffect(() => {
+    console.log("Last message is current user? : ", lastMessageIsCurrentUser);
+  }, [lastMessageIsCurrentUser]);
 
   
 

@@ -45,22 +45,22 @@ function NewChat() {
       setBotQuestions(docSnap.data()?.botQuestions ?? []);
     };
     getBot();
-  }, [pathname,botid]);
+  }, [pathname, botid,session]);
   useEffect(() => {
     if (!pathname) return;
-    setBotid("AttyChat")
+    setBotid("AttyChat");
   }, []);
 
   const createNewChat = async (e: any) => {
     if (!session) {
       return;
     }
-    
+
     const bot = currentBot;
 
     if (!bot) return;
     if (!botid) return;
-    console.log("bot", bot, "botid", botid );
+    console.log("bot", bot, "botid", botid);
     // create new chat
     const docRef = await addDoc(
       collection(db, "users", session?.user?.email!, "chats"),
@@ -109,9 +109,6 @@ function NewChat() {
     } else {
       router.push(`/chat/${docRef.id}`);
     }
-
-    
-
   };
   const handleChatSelect = (e: SelectChangeEvent) => {
     createNewChat(e);

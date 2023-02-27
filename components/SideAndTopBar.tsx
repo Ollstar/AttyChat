@@ -42,7 +42,6 @@ export default function PersistentDrawerLeft(this: any) {
     router.push(`/bot/${currentBot?.id}`);
   };
   const isPathnameBotChatOrRoot = () => {
-    console.log("pathname", pathname);
     if (!pathname) return;
     if (pathname.includes("bot")) {
       const botId = pathname?.split("/")[2];
@@ -72,8 +71,6 @@ export default function PersistentDrawerLeft(this: any) {
   // Update the selected bot ref when the bot is changed
   const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
     selectedBotRef.current = event.target.value;
-    console.log("event.target.value", event.target.value);
-    console.log("selectedBotRef.current", selectedBotRef.current);
     if (selectedBotRef.current === "root") {
       console.log("root");
       setShowEdit(true);

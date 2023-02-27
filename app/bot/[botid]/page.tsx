@@ -29,17 +29,26 @@ function BotPage({ params: { botid } }: Props) {
   const { data: session } = useSession();
 
   const [bot, setBot] = useState<Bot | null>(null);
+  const [prevBotId, setPrevBotId] = useState("");
+
   useEffect(() => {
     if (!session) return;
+    console.log("prevBotId", prevBotId);
+
     if (!botid) return;
+    if (botid === prevBotId) return;
+    console.log("prevBotId", prevBotId);
+    console.log("botid", botid);
     const getBot = async () => {
+      
       const docRef = doc(db, "bots", botid);
       const docSnap = await getDoc(docRef);
       setBot(docSnap.data() as Bot);
     };
 
     getBot();
-  }, [botid]);
+    setPrevBotId(botid);
+  }, [botid, prevBotId, session]);
 
   if (!bot) {
     return
