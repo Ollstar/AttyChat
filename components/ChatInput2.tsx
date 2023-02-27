@@ -67,17 +67,14 @@ function ChatInput2({ chatId, botid }: Props) {
   const [prompt, setPrompt] = useState("");
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
-  const { data: model } = useSWR("model", {
-    fallbackData: "text-davinci-003",
-  });
   const { data: primer, mutate: setPrimer } = useSWR(
     "primer",
     session ? () => fetchPrimer(session) : null,
     {
       ...mySwrConfig,
       fallbackData: "Fallback data",
-      revalidateOnFocus: true,
+      revalidateOnMount: true,
+      revalidateOnFocus: false,
     }
   );
 
@@ -88,7 +85,6 @@ function ChatInput2({ chatId, botid }: Props) {
     let input = prompt.trim();
     setPrompt("");
 
-    const bot = botid ? (await getDoc(doc(db, "bots", botid))).data() : null;
 
     const message: Message2 = {
       text: input,
@@ -143,7 +139,7 @@ function ChatInput2({ chatId, botid }: Props) {
           </div>
         )}
         <Box sx={{ flexGrow: 1 }}>
-          <form ref={formRef} onSubmit={sendMessage}>
+          <form onSubmit={sendMessage}>
             <TextField
               fullWidth
               id="outlined-basic"

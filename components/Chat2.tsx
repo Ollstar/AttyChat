@@ -53,8 +53,12 @@ function Chat2({ chatId, botid }: Props) {
   const { data: primer, mutate: setPrimer } = useSWR(
     "primer",
     session ? () => fetchPrimer(session) : null,
-    mySwrConfig
-  );
+    {
+      ...mySwrConfig,
+      fallbackData: "Fallback data",
+      revalidateOnMount: true,
+      revalidateOnFocus: false,
+    }  );
 
 
 
@@ -171,6 +175,7 @@ function Chat2({ chatId, botid }: Props) {
         backgroundColor: "white",
         overflow: "scroll",
         marginTop: "16px",
+        scrollBehavior: "smooth",
 
         bottom: "0",
         top: "0",

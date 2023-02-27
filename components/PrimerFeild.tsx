@@ -46,13 +46,14 @@ function PrimerField() {
     {
       ...mySwrConfig,
       fallbackData: "Fallback data",
+      revalidateOnMount: true,
+      revalidateOnFocus: false,
     }
   );
   const [text, setText] = useState(primer?.text || "");
 
   const handleOpen = async () => {
     setIsOpen(true);
-    await setPrimer();
     setText(primer?.text || "");
 
 
@@ -64,6 +65,11 @@ function PrimerField() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Check if primer is the same as the current primer
+    if (text === primer?.text) {
+      setIsOpen(false);
+      return;
+    }
     const data = await fetch("/api/setPrimer", {
       method: "POST",
       headers: {
