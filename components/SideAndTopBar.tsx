@@ -6,7 +6,7 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import NewChat from "./NewChat";
-import { collection, orderBy, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, orderBy, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
@@ -17,6 +17,16 @@ import { useEffect, useState } from "react";
 import NewBot from "./NewBot";
 import { ChatBubbleLeftIcon } from "@heroicons/react/24/solid";
 import HomeAccount from "./HomeAccount";
+
+type Bot = {
+  botName: string;
+  primer: string;
+  botQuestions: string[];
+  creatorId: string;
+  botColor: string;
+  show: boolean;
+  avatar: string;
+};
 
 export default function PersistentDrawerLeft(this: any) {
   const router = useRouter();
@@ -35,11 +45,32 @@ export default function PersistentDrawerLeft(this: any) {
   );
   const selectedBotRef = React.useRef<string | null>("root");
 
-  const currentBot = bots?.docs?.find(
-    (bot) => bot.id === selectedBotRef.current
+  const [currentBot, setCurrentBot] = useState<Bot>(
+    {
+      botName: "AttyChat",
+      primer: "",
+      botQuestions: [],
+      creatorId: "",
+      botColor: "",
+      show: true,
+      avatar: "",
+    } as Bot
   );
+  useEffect(() => {
+    if (!pathname) return;
+    if (!selectedBotRef.current) return;
+
+    const botid = selectedBotRef.current;
+    const getBot = async () => {
+      const docRef = doc(db, "bots", botid);
+      const docSnap = await getDoc(docRef);
+
+      setCurrentBot(docSnap.data() as Bot);
+    };
+    getBot();
+  }, [pathname, selectedBotRef.current,session]);
   const handleBotClick = () => {
-    router.push(`/bot/${currentBot?.id}`);
+    router.push(`/bot/${selectedBotRef.current}`);
   };
   const isPathnameBotChatOrRoot = () => {
     if (!pathname) return;
@@ -50,23 +81,31 @@ export default function PersistentDrawerLeft(this: any) {
       const chatId = pathname?.split("/")[2];
       const chat = chats?.docs?.find((chat) => chat.id === chatId);
       if (!chat?.data()) return;
-
       const botid = chat?.data().bot!._id;
+      console.log("botid in chat", botid);
       if (!botid) return;
-      if (botid === "AttyBot") {
-        selectedBotRef.current = `root`;
+      if (botid === "AttyChat") {
+        selectedBotRef.current = `AttyChat`;
       } else {
         selectedBotRef.current = botid;
       }
     } else {
-      selectedBotRef.current = `root`;
+      selectedBotRef.current = `AttyChat`;
     }
+    console.log("selectedBotRef.current", selectedBotRef.current);
   };
+  useEffect(() => {
+    isPathnameBotChatOrRoot();
+  }, [pathname, chats, currentBot, session]);
+
+  useEffect(() => {
+    console.log("currentBotSideBar", currentBot);
+  }, [currentBot]);
   const handleCloseNewBot = () => {
     console.log("handleCloseNewBot");
     setShowEdit(false);
   };
-  
+
   // Declare a ref for the selected bot
   // Update the selected bot ref when the bot is changed
   const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
@@ -78,9 +117,6 @@ export default function PersistentDrawerLeft(this: any) {
   };
 
   // Update the selected bot ref when the pathname changes
-  useEffect(() => {
-    isPathnameBotChatOrRoot();
-  }, [pathname, chats, currentBot]);
 
   return (
     <>
@@ -95,22 +131,15 @@ export default function PersistentDrawerLeft(this: any) {
       >
         <Toolbar>
           <Box className="mr-2">
-            <NewChat />
+            {currentBot && (
+            <NewChat bot={currentBot} />
+            )}
           </Box>
           <Select
-            defaultValue="root"
-            value="root"
+            value={selectedBotRef.current}
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             onChange={(e) => handleBotSelect(e)}
-
           >
-            <MenuItem
-              sx={{ fontFamily: "poppins" }}
-              key={"root"}
-              value={"root"}
-            >
-              New Bot
-            </MenuItem>
 
             {bots?.docs.map((bot) => (
               <MenuItem
@@ -135,8 +164,8 @@ export default function PersistentDrawerLeft(this: any) {
             <img
               onClick={handleBotClick}
               src={
-                currentBot?.data().avatar ||
-                `https://ui-avatars.com/api/?name=${currentBot?.data().botName}`
+                currentBot?.avatar ||
+                `https://ui-avatars.com/api/?name=${currentBot?.botName}`
               }
               alt="Profile picture"
               className={`h-12 w-12 rounded-full cursor-pointer hover:opacity-50`}
@@ -145,12 +174,12 @@ export default function PersistentDrawerLeft(this: any) {
         </Toolbar>
       </AppBar>
       <>
-        <HomeAccount />
+        <HomeAccount bot={currentBot!} />
       </>
       {}
       {showEdit &&
-        (console.log("showEdit", showEdit), (<NewBot autoOpen={true} onClose={handleCloseNewBot} />
-        ))}
+        (console.log("showEdit", showEdit),
+        (<NewBot autoOpen={true} onClose={handleCloseNewBot} />))}
     </>
   );
 }

@@ -155,7 +155,7 @@ function Chat2({ chatId, botid }: Props) {
           setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
         }
       }
-  }, [messages]);
+  }, [messages,session]);
 
   useEffect(() => {
     console.log("Last message is current user? : ", lastMessageIsCurrentUser);

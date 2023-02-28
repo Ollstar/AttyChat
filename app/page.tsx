@@ -51,6 +51,9 @@ function HomePage({ params: { botid = "AttyChat" } }: Props) {
     setPrevBotId(botid);
   }, [botid, prevBotId, session]);
 
+  useEffect(() => {
+    console.log("bot", bot);
+  }, [bot]);
   if (!bot) {
     return <div className="bg-[#397EF7] h-screen w-screen text-white "></div>;
   }

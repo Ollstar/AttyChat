@@ -5,20 +5,33 @@ import { signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import Account from "./Account";
 
-export default function HomeAccount() {
+type Bot = {
+  botName: string;
+  primer: string;
+  botQuestions: string[];
+  creatorId: string;
+  botColor: string;
+  show: boolean;
+  avatar: string;
+};
+
+type HomeAccountProps = {
+  bot: Bot;
+}
+export default function HomeAccount(bot: HomeAccountProps) {
   const router = useRouter();
   const pathname = usePathname();
 
   return (
     <>
-    {pathname?.includes("chat") ? "" : <div className="fixed bottom-2 left-2">
+    <div className="fixed bottom-2 left-2">
       <Fab
-        className={`fixed h-12 w-12 bottom-2 left-2 ${pathname?.includes("chat") ? "hidden" : ""}`}
+        className={`fixed h-12 w-12 bottom-2 left-2 `}
         color="primary"
       >
         <Account />
       </Fab>
-    </div>}
+    </div>
     </>
   );
 }

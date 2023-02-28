@@ -12,9 +12,9 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { Box, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import NewChatWithBot from "./NewChatWithBot";
-
+import ChatIcon from '@mui/icons-material/Chat';
 type Bot = {
   botName: string;
   primer: string;
@@ -25,38 +25,31 @@ type Bot = {
   avatar: string;
 };
 
-function NewChat() {
+type NewChatProps = {
+  bot: Bot;
+}
+
+function NewChat({ bot }: NewChatProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const pathname = usePathname();
-  const [botQuestions, setBotQuestions] = useState<string[]>(["Test"]);
+  const [botQuestions, setBotQuestions] = useState<string[]>(bot.botQuestions);
   const [botid, setBotid] = useState<string>("AttyChat");
-  const [currentBot, setCurrentBot] = useState<Bot>();
-  useEffect(() => {
-    if (!pathname) return;
-    if (!botid) return;
 
-    const getBot = async () => {
-      setBotid(pathname.split("/")[2]);
-      const docRef = doc(db, "bots", botid);
-      const docSnap = await getDoc(docRef);
 
-      setCurrentBot(docSnap.data() as Bot);
-      setBotQuestions(docSnap.data()?.botQuestions ?? []);
-    };
-    getBot();
-  }, [pathname, botid,session]);
+
+
   useEffect(() => {
-    if (!pathname) return;
-    setBotid("AttyChat");
-  }, []);
+    console.log("botid", botid);
+    console.log("currentBot", bot);
+    setBotQuestions(bot.botQuestions);
+  }, [botid, bot]);
 
   const createNewChat = async (e: any) => {
     if (!session) {
       return;
     }
 
-    const bot = currentBot;
 
     if (!bot) return;
     if (!botid) return;
@@ -74,7 +67,7 @@ function NewChat() {
         },
       }
     );
-    if (e !== "New Chat") {
+    if (e.target.value !== "New Chat") {
       if (!bot) return;
       const message: Message2 = {
         text: e.target.value,
@@ -110,17 +103,18 @@ function NewChat() {
       router.push(`/chat/${docRef.id}`);
     }
   };
-  const handleChatSelect = (e: SelectChangeEvent) => {
+  const handleChatSelect = (e: any ) => {
     createNewChat(e);
   };
 
   return (
     <Box fontFamily="poppins" fontSize="lg" color="black">
       <Select
-        defaultValue="New Chat"
+      IconComponent={ChatIcon}
+      value={""}
+      inputProps={{ 'aria-label': 'Without label' }}
         sx={{ fontFamily: "poppins", borderRadius: "10px" }}
-        value={"New Chat"}
-        onChange={(e) => handleChatSelect(e)}
+        onChange={((e) => handleChatSelect(e))}
       >
         <MenuItem
           sx={{ fontFamily: "poppins" }}

@@ -40,7 +40,7 @@ function ChatRow({ id }: Props) {
     <Link
       href={`/chat/${id}`}
       className={`chatRow justify-center ${active && "bg-gray-700/50"}`}
-    >
+    shallow={true}  >
       <ChatBubbleLeftIcon className="h-5 w-5" />
       <p className="flex-1  inline-flex truncate">
         {messages?.docs[messages?.docs.length - 1]?.data().text || "New Chat"}  
