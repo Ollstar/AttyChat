@@ -110,8 +110,7 @@ function NewChat({ bot }: NewChatProps) {
   return (
     <Box fontFamily="poppins" fontSize="lg" color="black">
       <Select
-      IconComponent={ChatIcon}
-      value={""}
+      value={"New Chat"}
       inputProps={{ 'aria-label': 'Without label' }}
         sx={{ fontFamily: "poppins", borderRadius: "10px" }}
         onChange={((e) => handleChatSelect(e))}

@@ -43,7 +43,7 @@ export default function PersistentDrawerLeft(this: any) {
         orderBy("createdAt", "asc")
       )
   );
-  const selectedBotRef = React.useRef<string | null>("root");
+  const selectedBotRef = React.useRef<string | null>("AttyChat");
 
   const [currentBot, setCurrentBot] = useState<Bot>(
     {
@@ -110,10 +110,7 @@ export default function PersistentDrawerLeft(this: any) {
   // Update the selected bot ref when the bot is changed
   const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
     selectedBotRef.current = event.target.value;
-    if (selectedBotRef.current === "root") {
-      console.log("root");
-      setShowEdit(true);
-    } else router.push(`/bot/${selectedBotRef.current}`);
+    router.push(`/bot/${selectedBotRef.current}`);
   };
 
   // Update the selected bot ref when the pathname changes
@@ -158,8 +155,10 @@ export default function PersistentDrawerLeft(this: any) {
             color="inherit"
             sx={{ color: "black" }}
           >
-            <MoreHorizIcon />
-          </IconButton>
+            {session?.user?.email! === currentBot.creatorId && (
+              <NewBot bot={currentBot} botid={selectedBotRef.current!} />
+            )}
+                      </IconButton>
           {currentBot && (
             <img
               onClick={handleBotClick}

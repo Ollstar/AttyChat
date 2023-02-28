@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { TwitterPicker } from "react-color";
 import ClearIcon from "@mui/icons-material/Clear";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 import {
   Box,
@@ -35,6 +36,7 @@ import {
 import { db } from "../firebase";
 import toast from "react-hot-toast";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { MoreVert } from "@mui/icons-material";
 type Bot = {
   botName: string;
   primer: string;
@@ -181,7 +183,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
             !bot ? "border border-black" : ""
           } `}
         >
-          {bot ? <SettingsIcon /> : <h2 className="text-black ">New Bot</h2>}
+          {bot ? <IconButton sx={{color:"black"}}><MoreHorizIcon /></IconButton> : <h2 className="text-black ">New Bot</h2>}
         </div>
       </Box>
     )}

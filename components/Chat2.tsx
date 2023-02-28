@@ -44,7 +44,7 @@ function Chat2({ chatId, botid }: Props) {
   const { data: session } = useSession();
 
   const [lastMessageIsCurrentUser, setLastMessageIsCurrentUser] =
-    useState(true);
+    useState(Boolean);
 
   const { data: model } = useSWR("model", {
     fallbackData: "text-davinci-003",
@@ -123,7 +123,7 @@ function Chat2({ chatId, botid }: Props) {
         session,
       }),
     }).then(() => {
-      setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
+      setLastMessageIsCurrentUser(false);
       toast.success("My thoughts on this", {
         id: notification,
         duration: 2000,
@@ -147,19 +147,26 @@ function Chat2({ chatId, botid }: Props) {
     }
       const lastMessage = messages?.docs[messages?.docs.length - 1];
       if (lastMessage) {
+ 
         const lastMessageAuthor = lastMessage.data().user.name;
         const currentUser = session.user?.name!;
-        if (lastMessageAuthor === currentUser && lastMessageIsCurrentUser) {
-          askQuestion();
-        } else {
-          setLastMessageIsCurrentUser(!lastMessageIsCurrentUser);
+        if (lastMessageAuthor === currentUser && lastMessageIsCurrentUser === false || lastMessageIsCurrentUser === undefined) {
+          setLastMessageIsCurrentUser(true);
         }
+        if (lastMessageAuthor === currentUser && lastMessageIsCurrentUser) {
+          setLastMessageIsCurrentUser(false);
+        } 
       }
   }, [messages,session]);
 
+
+
   useEffect(() => {
+    if (!session) return
     console.log("Last message is current user? : ", lastMessageIsCurrentUser);
-  }, [lastMessageIsCurrentUser]);
+    if (!lastMessageIsCurrentUser) return;
+    askQuestion();
+  }, [session,lastMessageIsCurrentUser]);
 
   
 
