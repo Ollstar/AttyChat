@@ -35,6 +35,7 @@ import { Session } from "next-auth";
 import { margin } from "@mui/system";
 import Account from "./Account";
 import { Padding } from "@mui/icons-material";
+import { sign } from "crypto";
 
 type Props = {
   chatId: string;
@@ -61,8 +62,6 @@ const fetchPrimer = async (session: Session) => {
     });
 };
 
-
-
 function ChatInput2({ chatId, botid }: Props) {
   const [prompt, setPrompt] = useState("");
   const { data: session } = useSession();
@@ -81,10 +80,14 @@ function ChatInput2({ chatId, botid }: Props) {
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!session) {
+      toast.error("You must be signed in to send messages");
+
+      return signOut();
+    }
     if (!prompt) return;
     let input = prompt.trim();
     setPrompt("");
-
 
     const message: Message2 = {
       text: input,
@@ -135,7 +138,7 @@ function ChatInput2({ chatId, botid }: Props) {
       >
         {session && (
           <div className="h-12 w-12 mr-1">
-          <Account />
+            <Account />
           </div>
         )}
         <Box sx={{ flexGrow: 1 }}>
@@ -156,7 +159,7 @@ function ChatInput2({ chatId, botid }: Props) {
                     <IconButton
                       type="submit"
                       disabled={!session || isLoading}
-                      sx={{ color: "black"}}
+                      sx={{ color: "black" }}
                     >
                       {isLoading ? (
                         <CircularProgress size={24} />
@@ -167,13 +170,12 @@ function ChatInput2({ chatId, botid }: Props) {
                   </InputAdornment>
                 ),
               }}
-              sx={{  backgroundColor: "white"}}
+              sx={{ backgroundColor: "white" }}
               onChange={(e) => setPrompt(e.target.value)}
             />
           </form>
         </Box>
       </Box>
-      
     </AppBar>
   );
 }
