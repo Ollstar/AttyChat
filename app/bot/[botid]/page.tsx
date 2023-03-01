@@ -77,11 +77,11 @@ function BotPage({ params: { botid } }: Props) {
   return (
     <Box
       fontFamily="poppins"
-      sx={{ backgroundColor: bgcolor, color: textcolor }}
+      sx={{ backgroundColor: bgcolor, color: textcolor, height: "100%", width: "100%" }}
     >
       <DrawerSpacer />
       <div className="h-screen w-screen bottom-0">
-        <div className={`flex flex-col px-2 pb-4 items-center bg-[${bgcolor}]`}>
+        <div className={`flex flex-col px-2  items-center bg-[${bgcolor}]`}>
           <h1 className="text-5xl font-bold">{bot.botName}</h1>
           <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
           <div

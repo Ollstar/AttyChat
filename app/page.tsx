@@ -69,11 +69,11 @@ function HomePage({ params: { botid = "AttyChat" } }: Props) {
     <>
       <Box
         fontFamily="poppins"
-        sx={{ backgroundColor: bot!.botColor, height: "100%", width: "100%" }}
+        sx={{ backgroundColor: bot!.botColor }}
       >
         <div>
           <DrawerSpacer />
-          <div className="text-white flex flex-col px-2 pb-4 items-center h-screen w-screen">
+          <div className="text-white flex flex-col px-2 items-center h-screen w-screen">
             <div className="flex flex-row">
               <h1 className="text-5xl font-bold">{bot.botName}</h1>
               {session?.user?.email! === bot.creatorId && (
