@@ -108,7 +108,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
         },
       });
     });
-    router.replace(`/bot/${botid}`);
   };
 
   const deleteBot = async () => {
