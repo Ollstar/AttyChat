@@ -35,18 +35,17 @@ function BotPage({ params: { botid } }: Props) {
   const [textcolor, setTextcolor] = useState("white");
 
   useEffect(() => {
-    if(!bot) return;
+    if (!bot) return;
     setBgcolor(bot.botColor);
     setTextcolor(bot.textColor);
-  }, [bot])
-  useEffect (() => {
-    if (!router) return;
-  }, [router])
+  }, [bot]);
   useEffect(() => {
-    if (!session) 
-      {
-        getSession();
-      }
+    if (!router) return;
+  }, [router]);
+  useEffect(() => {
+    if (!session) {
+      getSession();
+    }
     // console.log("prevBotId", prevBotId);
 
     if (!botid) return;
@@ -68,43 +67,37 @@ function BotPage({ params: { botid } }: Props) {
   }
   if (!bot.botColor) {
     // console.log("no color");
-    setBot({ ...bot, botColor: "#397EF7"});
+    setBot({ ...bot, botColor: "#397EF7" });
   }
   if (!bot.textColor) {
     // console.log("no text color");
-    setBot({ ...bot, textColor: "white"});
+    setBot({ ...bot, textColor: "white" });
   }
 
   return (
     <Box
       fontFamily="poppins"
-      sx={{ backgroundColor: bgcolor, color:textcolor, height: "100vhw", width: "100vhw" }}
+      sx={{ backgroundColor: bgcolor, color: textcolor }}
     >
-
-
-      <div className={`text-[${textcolor}] h-screen w-screen bg-[${bgcolor}]`}>
-
-          <DrawerSpacer />
-        <div className={`flex flex-col px-2 pb-4 items-center bg-[${bgcolor}]`}>
-          <div className="flex flex-row">
-            <h1 className="text-5xl font-bold">{bot.botName}</h1>
-
-          </div>
-          <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
-          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center `}>
-            {Array.isArray(bot.botQuestions) ? (
-              bot.botQuestions.map((question, index) => (
-                <NewChatWithBot
-                  key={index}
-                  messageText={question}
-                  botid={botid}
-                />
-              ))
-            ) : (
-              <NewChatWithBot messageText={bot.botQuestions} botid={botid} />
-            )}
-          </div>
+      <DrawerSpacer />
+      <div className="h-screen w-screen">
+      <div className={`flex flex-col px-2 pb-4 items-center bg-[${bgcolor}]`}>
+        <div className="flex flex-row">
+          <h1 className="text-5xl font-bold">{bot.botName}</h1>
         </div>
+        <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center `}
+        >
+            {bot.botQuestions.map((question, index) => (
+              <NewChatWithBot
+                key={index}
+                messageText={question}
+                botid={botid}
+              />
+            ))}
+        </div>
+      </div>
       </div>
     </Box>
   );

@@ -126,6 +126,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       },
     }),
       router.replace("/");
+      router.refresh();
   };
 
   const addQuestionField = () => {

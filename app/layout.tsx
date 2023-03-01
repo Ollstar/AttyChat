@@ -20,7 +20,7 @@ export default async function RootLayout({
       <head />
 
       <body>
-        <div style={{ display: "flex" }}>
+        <div style={{ }}>
           <SessionProvider session={session}>
             {!session ? (
               <Login />
