@@ -54,7 +54,7 @@ function Chat2({ chatId, botid }: Props) {
     useState(Boolean);
 
   const { data: model } = useSWR("model", {
-    fallbackData: "text-davinci-003",
+    fallbackData: "gpt-3.5-turbo",
   });
 
   const fetcher = (url: string) => {
@@ -146,7 +146,7 @@ function Chat2({ chatId, botid }: Props) {
         messages: messages?.docs
           .map((doc) => {
             const data = doc.data();
-            return `${data.user.name}: ${data.text}\n`;
+            return `${data.user.name}: ${data.text}`;
           })
           .join(""),
 

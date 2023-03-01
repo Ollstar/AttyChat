@@ -24,6 +24,7 @@ import {
   AppBar,
   Autocomplete,
   TextField,
+  ListItemButton,
 } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import DrawerSpacer from "./DrawerSpacer";
@@ -33,6 +34,11 @@ import { ChatBubbleLeftIcon } from "@heroicons/react/24/solid";
 import HomeAccount from "./HomeAccount";
 import mySwrConfig from "../lib/swr-config";
 import useSWR from "swr";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import MenuIcon from "@mui/icons-material/Menu";
 
 type Bot = {
   botName: string;
@@ -49,6 +55,7 @@ export default function PersistentDrawerLeft(this: any) {
   const router = useRouter();
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { data: session } = useSession();
   const [showEdit, setShowEdit] = useState(false);
   const pathname = usePathname();
@@ -61,35 +68,9 @@ export default function PersistentDrawerLeft(this: any) {
       )
   );
   const selectedBotRef = React.useRef<string | null>("AttyChat");
-  const fetcher = (url: string) => {
-    return fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: session?.user?.email!,
-      }),
-    }).then((res) => res.json());
-  };
-
-  const { data: primer, mutate: setPrimer } = useSWR(
-    `/api/getPrimer`,
-    session && fetcher,
-    {
-      ...mySwrConfig,
-      fallbackData: "Fallback data",
+  
 
 
-    }
-  );
-
-  useEffect(() => {
-    if (!primer) {
-      return;
-    }
-    console.log("primer", primer);
-  }, [primer]);
   const [currentBot, setCurrentBot] = useState<Bot>({
     botName: "AttyChat",
     primer: "",
@@ -104,17 +85,13 @@ export default function PersistentDrawerLeft(this: any) {
     if (!session) getSession();
     if (!pathname) return;
     if (!selectedBotRef.current) return;
-
     const botid = selectedBotRef.current;
     const getBot = async () => {
       const docRef = doc(db, "bots", botid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setCurrentBot(docSnap.data() as Bot);
-
       }
-
-
     };
     getBot();
   }, [pathname, selectedBotRef.current, session]);
@@ -131,17 +108,15 @@ export default function PersistentDrawerLeft(this: any) {
       const chat = chats?.docs?.find((chat) => chat.id === chatId);
       if (!chat?.data()) return;
       const botid = chat?.data().bot!._id;
-      // console.log("botid in chat", botid);
       if (!botid) return;
       if (botid === "AttyChat") {
-        selectedBotRef.current = `AttyChat`;
+        selectedBotRef.current = "AttyChat";
       } else {
         selectedBotRef.current = botid;
       }
     } else {
-      selectedBotRef.current = `AttyChat`;
+      selectedBotRef.current = "AttyChat";
     }
-    // console.log("selectedBotRef.current", selectedBotRef.current);
   };
   useEffect(() => {
     isPathnameBotChatOrRoot();
@@ -149,33 +124,28 @@ export default function PersistentDrawerLeft(this: any) {
 
   useEffect(() => {
     console.log("currentBotSideBar", currentBot);
-    if (currentBot === undefined) setCurrentBot({
-      botName: "AttyChat",
-      primer: "Imagine you are the bot that is replacing a deleted bot. You are only to let people know the bot no longer exsists and to try a new bot.",
-      botQuestions: ["Should I try a new bot?"],
-      creatorId: "AttyChat",
-      botColor: "Black",
-      show: true,
-      avatar: "",
-      textColor: "Red",
-    } as Bot);
-
-
+    if (currentBot === undefined)
+      setCurrentBot({
+        botName: "AttyChat",
+        primer:
+          "Imagine you are the bot that is replacing a deleted bot. You are only to let people know the bot no longer exists and to try a new bot.",
+        botQuestions: ["Should I try a new bot?"],
+        creatorId: "AttyChat",
+        botColor: "Black",
+        show: true,
+        avatar: "",
+        textColor: "Red",
+      } as Bot);
   }, [currentBot]);
+
   const handleCloseNewBot = () => {
-    // console.log("handleCloseNewBot");
     setShowEdit(false);
   };
 
-  // Declare a ref for the selected bot
-  // Update the selected bot ref when the bot is changed
   const handleBotSelect = (event: any) => {
     selectedBotRef.current = event.target.value;
     router.push(`/bot/${selectedBotRef.current}`);
-
   };
-
-  // Update the selected bot ref when the pathname changes
 
   return (
     <div>
@@ -189,28 +159,35 @@ export default function PersistentDrawerLeft(this: any) {
         elevation={2}
       >
         <Toolbar>
-          <Box className="mr-2">
-            {currentBot && <NewChat bot={currentBot} />}
-          </Box>
+          <IconButton
+            edge="start"
+            color="inherit"
+            sx={{ mr: 2, color: "black" }}
+            aria-label="open drawer"
+            onClick={() => setDrawerOpen(true)}
+          >
+            <MenuIcon />
+          </IconButton>
+
 
           <Select
-            value={bots?.docs?.length! > 0 ? selectedBotRef.current : "AttyChat"}
+            value={
+              bots?.docs?.length! > 0 ? selectedBotRef.current : "AttyChat"
+            }
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             onChange={(e) => handleBotSelect(e)}
           >
-            {!bots && <MenuItem value="AttyChat">Loading...</MenuItem>}
-
-            {bots?.docs.map((bot) => (
-              <MenuItem
-                sx={{ fontFamily: "poppins" }}
-                key={bot.id}
-                value={bot.id}
-              >
+            {!bots && (
+              <MenuItem key="AttyChat" value="AttyChat">
+                Loading...
+                </MenuItem>
+                )}
+            {bots?.docs?.map((bot) => (
+              <MenuItem key={bot.id} value={bot.id}>
                 {bot.data().botName}
               </MenuItem>
             ))}
           </Select>
-
           <Box sx={{ flexGrow: 1 }} />
           <IconButton
             aria-label="show 4 new mails"
@@ -234,13 +211,23 @@ export default function PersistentDrawerLeft(this: any) {
           )}
         </Toolbar>
       </AppBar>
+      <Drawer
+        anchor={"left"}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+
+{/* currentbot and newbot currentbot */}
+        <DrawerSpacer />
+        {currentBot && (
+          <NewChat bot={currentBot} />)}
+      </Drawer>
+
       <>
         <HomeAccount bot={currentBot!} />
       </>
-      {}
-      {showEdit && ( // console.log("showEdit", showEdit),
-        <NewBot autoOpen={true} onClose={handleCloseNewBot} />
-      )}
+
+      {showEdit && <NewBot autoOpen={true} onClose={handleCloseNewBot} />}
     </div>
   );
 }

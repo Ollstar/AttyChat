@@ -135,7 +135,6 @@ function ChatInput2({ chatId, botid }: Props) {
     <AppBar
       position="fixed"
       sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
         bottom: "0",
         top: "auto",
         padding: "8px",

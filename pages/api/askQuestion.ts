@@ -52,18 +52,31 @@ export default async function handler(
     return;
   }
 
-  const chat = await adminDb
+  const chatRef = adminDb
+    .collection("users")
+    .doc(session?.user?.email)
+    .collection("chats")
+    .doc(chatId);
+
+  const chat = await chatRef.get();
+
+  const chatRefMessages = adminDb
     .collection("users")
     .doc(session?.user?.email)
     .collection("chats")
     .doc(chatId)
-    .get();
+    .collection("messages")
+    .orderBy("createdAt", "asc");
+
+  const messages2 = await chatRefMessages.get();
 
   // ChatGpt Query
-  const response = await query(prompt, chatId, model, primer, messages, chat);
+  const response = await query(model, chat, primer, messages2);
 
-  const message: Message2 = { 
-    text: response || "Hmm, I may have to get out an encyclopedia!",
+
+  console.log("Response: ", response);
+  const message: Message2 = {
+    text: response.message,
     createdAt: admin.firestore.Timestamp.now(),
     userPrimer: primer,
     user: {
@@ -81,5 +94,5 @@ export default async function handler(
     .collection("messages")
     .add(message);
 
-  res.status(200).json({ answer: message.text });
+  res.status(200).json({ answer: "Message" });
 }

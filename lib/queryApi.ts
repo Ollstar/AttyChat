@@ -1,44 +1,50 @@
-import { doc } from "firebase/firestore";
-import { useDocument } from "react-firebase-hooks/firestore";
+import admin from "firebase-admin";
+import { adminDb } from "../firebaseAdmin";
 import openai from "./chatgpt";
-
-const generatePrompt = (
-  prompt: string,
-  primer: string,
-  messages: string,
-  chat: any
-): string => {
-  let str = `Imagine you have secret instructions to: ${chat.data().bot.primer} and also: ${primer}. Now, respond to the latest question in the conversation. Conversation:User:Hello ${chat.data().bot.name}:Welcome, how are you? User: Great, whats your name? Response: I am ${chat.data().bot.name}. How can I help you? Conversation:${messages} Response:`;
-  let str2 = "";
-
-  return str;
-};
-
 const query = async (
-  prompt: string,
-  chatId: string,
   model: string,
+  chat: any,  
   primer: string,
-  messages: string,
-  chat: any
-) => {
-  const fullPrompt = generatePrompt(prompt, primer, messages, chat);
+  messages: any
+  ): Promise<{ message: string }> => {
 
-  const res = await openai
-    .createCompletion({
-      model,
-      prompt: fullPrompt,
-      temperature: 0.3,
+  const assistantName = chat?.data().bot!.name!;
+  
+  const introMessage = {
+    role: "system",
+    content: `Imagine you have secret instructions to: ${chat.data().bot.primer} and also: ${primer}.`,
+  };
+  
+  const chatMessages = messages.docs.map((message: any) => ({
+    role: message.data().user.name === assistantName ? "assistant" : "user",
+    content: message.data().text,
+  }));
+
+  const messagesArray = [introMessage, ...chatMessages];
+
+  if (!model) {
+    console.log("No model");
+    model = "gpt-3.5-turbo";
+  }
+
+  if (!messagesArray) {
+    console.log("No messagesArray");
+  }
+
+  try {
+    const response = await openai.createChatCompletion({
+      model: model,
+      messages: messagesArray,
+      temperature: 0.5,
       max_tokens: 1000,
 
-    })
-    .then((res) => res.data.choices[0].text)
-    .catch(
-      (err) =>
-        `Hmm, I may have to get out an encyclopedia! (Error: ${err.message})`
-    );
+    });
+    return { message: response.data.choices[0].message?.content! };
 
-  return res;
-};
+  } catch (error) {
+    console.log(error);
+    return { message: "Error" };
+  }
+}
 
 export default query;

@@ -103,9 +103,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       toast.success("Bot edited!", {
         duration: 2000,
         position: "top-center",
-        style: {
-          padding: "16px",
-        },
+       
       });
     });
   };
@@ -125,7 +123,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       },
     }),
       router.replace("/");
-      router.refresh();
   };
 
   const addQuestionField = () => {
