@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowDownCircleIcon } from "@heroicons/react/24/solid";
-import { query, collection, orderBy, limit } from "firebase/firestore";
-import { useSession } from "next-auth/react";
+import { query, collection, orderBy, limit, onSnapshot, doc } from "firebase/firestore";
+import { getSession, useSession } from "next-auth/react";
 import { useCollection, useDocument } from "react-firebase-hooks/firestore";
 import { db } from "../firebase";
 import Message from "./Message";
@@ -20,11 +20,9 @@ type Props = {
 };
 
 const fetchPrimer = async (session: Session) => {
-
   if (!session) {
-    return
+    await getSession();
   }
-
 
   return fetch("/api/getPrimer", {
     method: "POST",
@@ -34,10 +32,12 @@ const fetchPrimer = async (session: Session) => {
     body: JSON.stringify({
       session: { user: { email: session?.user?.email! } },
     }),
-  }).then((res) => res.json()).catch((err) => {
-    console.log(`error: ${err}`);
-    return {text: "fallback data"};
-  });
+  })
+    .then((res) => res.json())
+    .catch((err) => {
+      // console.log(`error: ${err}`);
+      return { text: "fallback data" };
+    });
 };
 
 function Chat2({ chatId, botid }: Props) {
@@ -57,9 +57,9 @@ function Chat2({ chatId, botid }: Props) {
       ...mySwrConfig,
       fallbackData: "Fallback data",
       revalidateOnMount: true,
-      revalidateOnFocus: false,
-    }  );
-
+      revalidateOnFocus: true,
+    }
+  );
 
 
   const [messages, loading, error] = useCollection(
@@ -78,26 +78,36 @@ function Chat2({ chatId, botid }: Props) {
   );
 
   async function askQuestion() {
-    console.log("askQuestion");
+    // if no session get session
+    if (!session) {
+      await getSession();
+    }
+    // print out the variable name a : and then the value then a new line for the vars in this function
+    console.log(`session: ${session}
+    messages: ${messages}
+    primer: ${primer}
+    model: ${model}
+    chatId: ${chatId}
+    `);
     if (!session) return;
 
     const author = session?.user?.name!;
     if (!messages) return;
 
-    if (messages?.docs[messages?.docs.length - 1].data().user.name !== author) return;
+    if (messages?.docs[messages?.docs.length - 1].data().user.name !== author)
+      return;
     let msg = messages?.docs[messages?.docs.length - 1].data().text;
     msg = `${author}: ${msg}`;
 
-    await setPrimer();
 
     if (!primer) return;
 
-
     const notification = toast.loading("Thinking...", {
-      position: "top-center",
+      position: "bottom-left",
       style: {
         border: "1px solid white",
-        padding: "16px",
+        // position this in the center of the screen
+        margin: "60px 0",
       },
     });
 
@@ -122,53 +132,54 @@ function Chat2({ chatId, botid }: Props) {
 
         session,
       }),
-    }).then(() => {
-      setLastMessageIsCurrentUser(false);
-      toast.success("My thoughts on this", {
-        id: notification,
-        duration: 2000,
+    })
+      .then(() => {
+        setLastMessageIsCurrentUser(false);
+        toast.success("My thoughts on this", {
+          id: notification,
+          duration: 500,
+        });
+      })
+      .catch((err) => {
+        toast.error("Something went wrong", {
+          id: notification,
+          duration: 2000,
+        });
       });
-    }).catch((err) => {
-      toast.error("Something went wrong", {
-        id: notification,
-        duration: 2000,
-      });
-    }
-    );
+      
   }
 
   const containerRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!session) return
-    if (!messages) return
+    if (!session) return;
+    if (!messages) return;
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-      const lastMessage = messages?.docs[messages?.docs.length - 1];
-      if (lastMessage) {
- 
-        const lastMessageAuthor = lastMessage.data().user.name;
-        const currentUser = session.user?.name!;
-        if (lastMessageAuthor === currentUser && lastMessageIsCurrentUser === false || lastMessageIsCurrentUser === undefined) {
-          setLastMessageIsCurrentUser(true);
-        }
-        if (lastMessageAuthor === currentUser && lastMessageIsCurrentUser) {
-          setLastMessageIsCurrentUser(false);
-        } 
+    const lastMessage = messages?.docs[messages?.docs.length - 1];
+    if (lastMessage) {
+      const lastMessageAuthor = lastMessage.data().user.name;
+      const currentUser = session.user?.name!;
+      if (
+        (lastMessageAuthor === currentUser &&
+          lastMessageIsCurrentUser === false) ||
+        lastMessageIsCurrentUser === undefined
+      ) {
+        setLastMessageIsCurrentUser(true);
       }
-  }, [messages,session]);
-
-
+      if (lastMessageAuthor === currentUser && lastMessageIsCurrentUser) {
+        setLastMessageIsCurrentUser(false);
+      }
+    }
+  }, [messages, session]);
 
   useEffect(() => {
-    if (!session) return
-    console.log("Last message is current user? : ", lastMessageIsCurrentUser);
+    if (!session) return;
+    // console.log("Last message is current user? : ", lastMessageIsCurrentUser);
     if (!lastMessageIsCurrentUser) return;
     askQuestion();
-  }, [session,lastMessageIsCurrentUser]);
-
-  
+  }, [session, lastMessageIsCurrentUser]);
 
   return (
     <Box
@@ -182,7 +193,7 @@ function Chat2({ chatId, botid }: Props) {
         flexDirection: "column",
         backgroundColor: "white",
         overflow: "scroll",
-        marginTop: "16px",
+        marginTop: "20px",
         scrollBehavior: "smooth",
 
         bottom: "0",

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
-import { signOut, useSession } from "next-auth/react";
+import { getSession, signOut, useSession } from "next-auth/react";
 import { FormEvent, useState, useEffect, useRef } from "react";
 import {
   addDoc,
@@ -43,7 +43,7 @@ type Props = {
 };
 const fetchPrimer = async (session: Session) => {
   if (!session) {
-    return;
+    await getSession();
   }
 
   return fetch("/api/getPrimer", {
@@ -57,7 +57,7 @@ const fetchPrimer = async (session: Session) => {
   })
     .then((res) => res.json())
     .catch((err) => {
-      console.log(err);
+      // console.log(err);
       return { text: "fallback data" };
     });
 };

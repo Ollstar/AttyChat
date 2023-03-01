@@ -10,7 +10,7 @@ import { collection, doc, getDoc, orderBy, query, where } from "firebase/firesto
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
-import { Select, MenuItem, SelectChangeEvent, AppBar } from "@mui/material";
+import { Select, MenuItem, SelectChangeEvent, AppBar, Autocomplete, TextField } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import DrawerSpacer from "./DrawerSpacer";
 import { useEffect, useState } from "react";
@@ -26,6 +26,7 @@ type Bot = {
   botColor: string;
   show: boolean;
   avatar: string;
+  textColor: string;
 };
 
 export default function PersistentDrawerLeft(this: any) {
@@ -54,9 +55,11 @@ export default function PersistentDrawerLeft(this: any) {
       botColor: "",
       show: true,
       avatar: "",
+      textColor: "",
     } as Bot
   );
   useEffect(() => {
+    if(!session) return;
     if (!pathname) return;
     if (!selectedBotRef.current) return;
 
@@ -82,7 +85,7 @@ export default function PersistentDrawerLeft(this: any) {
       const chat = chats?.docs?.find((chat) => chat.id === chatId);
       if (!chat?.data()) return;
       const botid = chat?.data().bot!._id;
-      console.log("botid in chat", botid);
+      // console.log("botid in chat", botid);
       if (!botid) return;
       if (botid === "AttyChat") {
         selectedBotRef.current = `AttyChat`;
@@ -92,31 +95,33 @@ export default function PersistentDrawerLeft(this: any) {
     } else {
       selectedBotRef.current = `AttyChat`;
     }
-    console.log("selectedBotRef.current", selectedBotRef.current);
+    // console.log("selectedBotRef.current", selectedBotRef.current);
   };
   useEffect(() => {
     isPathnameBotChatOrRoot();
   }, [pathname, chats, currentBot, session]);
 
   useEffect(() => {
-    console.log("currentBotSideBar", currentBot);
+    // console.log("currentBotSideBar", currentBot);
   }, [currentBot]);
   const handleCloseNewBot = () => {
-    console.log("handleCloseNewBot");
+    // console.log("handleCloseNewBot");
     setShowEdit(false);
   };
 
   // Declare a ref for the selected bot
   // Update the selected bot ref when the bot is changed
-  const handleBotSelect = (event: SelectChangeEvent<string | null>) => {
-    selectedBotRef.current = event.target.value;
-    router.push(`/bot/${selectedBotRef.current}`);
+  const handleBotSelect = (event: any) => {
+    // selectedBotRef.current = event.target.value;
+    // router.push(`/bot/${selectedBotRef.current}`);
+    console.log("event", event);
   };
 
   // Update the selected bot ref when the pathname changes
 
   return (
-    <>
+
+    <div>
       <DrawerSpacer />
       <AppBar
         position="fixed"
@@ -132,11 +137,16 @@ export default function PersistentDrawerLeft(this: any) {
             <NewChat bot={currentBot} />
             )}
           </Box>
-          <Select
-            value={selectedBotRef.current}
+ 
+  
+          
+          {/* <Select
+            value={selectedBotRef.current }
             sx={{ fontFamily: "poppins", borderRadius: "10px" }}
             onChange={(e) => handleBotSelect(e)}
           >
+            {!bots && <MenuItem value="AttyChat">Loading...</MenuItem>}
+    
 
             {bots?.docs.map((bot) => (
               <MenuItem
@@ -147,7 +157,7 @@ export default function PersistentDrawerLeft(this: any) {
                 {bot.data().botName}
               </MenuItem>
             ))}
-          </Select>
+          </Select> */}
 
           <Box sx={{ flexGrow: 1 }} />
           <IconButton
@@ -177,8 +187,8 @@ export default function PersistentDrawerLeft(this: any) {
       </>
       {}
       {showEdit &&
-        (console.log("showEdit", showEdit),
+        (// console.log("showEdit", showEdit),
         (<NewBot autoOpen={true} onClose={handleCloseNewBot} />))}
-    </>
+</div>
   );
 }

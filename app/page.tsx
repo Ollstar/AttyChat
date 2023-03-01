@@ -3,7 +3,7 @@ import { Box, Container } from "@mui/material";
 
 import { doc, getDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { db } from "../firebase";
 import DrawerSpacer from "../components/DrawerSpacer";
@@ -18,6 +18,7 @@ type Bot = {
   botColor: string;
   show: boolean;
   avatar: string;
+  textColor: string;
 };
 
 type Props = {
@@ -33,13 +34,15 @@ function HomePage({ params: { botid = "AttyChat" } }: Props) {
   const [prevBotId, setPrevBotId] = useState("");
 
   useEffect(() => {
-    if (!session) return;
-    console.log("prevBotId", prevBotId);
+    if (!session) {
+      getSession();
+    };
+    // console.log("prevBotId", prevBotId);
 
     if (!botid) return;
     if (botid === prevBotId) return;
-    console.log("prevBotId", prevBotId);
-    console.log("botid", botid);
+    // console.log("Homepage prevBotId", prevBotId);
+    // console.log("Homepage botid", botid);
     const getBot = async () => {
       
       const docRef = doc(db, "bots", botid);
@@ -52,13 +55,13 @@ function HomePage({ params: { botid = "AttyChat" } }: Props) {
   }, [botid, prevBotId, session]);
 
   useEffect(() => {
-    console.log("bot", bot);
+    // console.log("Home page bot", bot);
   }, [bot]);
   if (!bot) {
     return <div className="bg-[#397EF7] h-screen w-screen text-white "></div>;
   }
   if (!bot.botColor) {
-    console.log("no color");
+    // console.log("no color");
     setBot({ ...bot, botColor: "#397EF7" });
   }
 

@@ -27,7 +27,8 @@ const toastOptions = {
     background: '#397EF7',
     color: 'white',
     fontFamily: 'Poppins',
-    fontSize: '20px',
+    padding: '8px',
+    margin: "65px 0"
     
   },
   iconTheme: {

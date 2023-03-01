@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { TwitterPicker } from "react-color";
+import { BlockPicker, TwitterPicker } from "react-color";
 import ClearIcon from "@mui/icons-material/Clear";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
@@ -45,6 +45,7 @@ type Bot = {
   botColor: string;
   show: boolean;
   avatar: string;
+  textColor: string;
 };
 
 type Props = {
@@ -60,7 +61,9 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
   const [showModal, setShowModal] = useState(autoOpen || false);
   const [botName, setBotName] = useState(bot?.botName ?? "");
   const [primer, setPrimer] = useState(bot?.primer ?? "");
-  const [show, setShow] = useState(bot?.show ?? false);
+  const [textColor, setTextColor] = useState(bot?.textColor ?? "#FFFFFF");
+  const [show, setShow] = useState(bot?.show ?? true);
+  const [isBlack, setIsBlack] = useState(false);
   //useRef for botColor
   const [botColor, setBotColor] = useState(bot?.botColor ?? "#397EF7");
   const [botQuestions, setBotQuestions] = useState<string[]>(
@@ -78,6 +81,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       botQuestions,
       avatar,
       botColor: botColor,
+      textColor: isBlack,
     });
 
     router.push(`/bot/${docRef.id}`);
@@ -85,7 +89,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
 
   const editBot = async () => {
     if (!botid) return;
-    router.replace(`/bot/${botid}`);
+
     await updateDoc(doc(db, "bots", botid), {
       botName,
       primer,
@@ -93,7 +97,8 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       show,
       botColor,
       avatar,
-    });
+      textColor: textColor
+    }).then(() => {
     toast.success("Bot edited!", {
       duration: 2000,
       position: "top-center",
@@ -102,6 +107,14 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
         padding: "16px",
       },
     });
+  }).then(() => {
+
+  router.replace(`/bot/${botid}`,
+  {
+    forceOptimisticNavigation: true,
+  });
+  });
+
   };
 
   const deleteBot = async () => {
@@ -159,13 +172,13 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       onClose();
     }
   };
-  
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (bot) {
       editBot();
-      router.refresh();
+
     } else {
       createNewBot();
     }
@@ -175,18 +188,24 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
 
   return (
     <>
-    {autoOpen ? ( "" ) : (  
-      <Box fontFamily="poppins" fontSize="lg" color="black">
-        <div
-          onClick={handleOpen}
-          className={`chatRow text-white p-2 ml-2 text-center ${
-            !bot ? "border border-black" : ""
-          } `}
-        >
-          {bot ? <IconButton sx={{color:"black"}}><MoreHorizIcon /></IconButton> : <h2 className="text-black ">New Bot</h2>}
-        </div>
-      </Box>
-    )}
+      {autoOpen ? (
+        ""
+      ) : (
+        <Box fontFamily="poppins" fontSize="lg" color="black">
+          <div
+            onClick={handleOpen}
+            className={`chatRow text-white p-2 ml-2 text-center ${
+              !bot ? "border border-black" : ""
+            } `}
+          >
+            {bot ? (
+              <MoreHorizIcon sx={{ color: "black" }} />
+            ) : (
+              <h2 className="text-black ">New Bot</h2>
+            )}
+          </div>
+        </Box>
+      )}
 
       <Dialog
         open={showModal}
@@ -248,17 +267,102 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                   required
                 />
                 <Box
-                  sx={{ mt: 2, mb: 2, fontFamily: "poppins" }}
+                  sx={{ mt: 2, fontFamily: "poppins" }}
                   component="div"
                 >
-                  Color Picker
+                  Bot Colors
                 </Box>
-                <TwitterPicker
-                      triangle="hide"
+                <BlockPicker
+                  styles={{
+                    default: {
+                      card: {
+                        //make the corners not rounded
+                     
+                      },
+                      head: {
+                        display: "none",
+                      },
+
+                      body: {
+                        // make the items in the middle from both axis
+                        backgroundColor:botColor,
+                        borderTopRightRadius: "6px",
+                        borderTopLeftRadius: "6px",
+
+                      },
+
+                      label: {
+                        color: "white",
+                      },
+                      // set the background of the other classes in BlockPickerDefaultyStyles each to a different color
+                      input: {
+                        display: "none",
+                      },
+                    },
+                  }}
+                  colors={[
+                    // Make the defaults black white gray and yellow red and blue and green
+                    "#000000",
+                    "#FFFFFF",
+                    "#808080",
+                    "#FFFF00",
+                    "#FF0000",
+                    "#0000FF",
+                    "#397EF7",
+                  ]}
+                  triangle="hide"
+                  width="100%"
+                  color={textColor}
+                  onChange={(color) => setTextColor(color.hex)}
+
+
+                  className="shadow-2xl font-[poppins]"
+                />
+
+                <BlockPicker
+                  styles={{
+                    default: {
+                      head: {
+                        borderTopRightRadius: "0px",
+                        borderTopLeftRadius: "0px",
+                        height: "50px"
+
+                      },
+                      card: {
+
+                      },
+                      body: {
+
+                      },
+                      label: {
+                        color: textColor,
+                        bottom: "30%",
+                      },
+                    },
+                  }}
+                  colors={[
+                    "#FF6900",
+                    "#FCB900",
+                    "#7BDCB5",
+                    "#00D084",
+                    "#8ED1FC",
+                    "#0693E3",
+                    "#ABB8C3",
+                    "#EB144C",
+                    "#F78DA7",
+                    "#9900EF",
+                  ]}
+                  triangle="hide"
+                  width="100%"
                   color={botColor}
                   onChange={(color) => setBotColor(color.hex)}
-                  className="mb-2"
+                  className="mb-2 shadow-2xl font-[poppins] text-white"
                 />
+                <Box sx={{ fontFamily: "poppins" }} component="sub">
+                  Text
+                </Box>
+                
+
                 <Box
                   sx={{ mt: 2, mb: 2, fontFamily: "poppins" }}
                   component="div"
@@ -266,12 +370,11 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                   Avatar
                 </Box>
                 <Box>
-                  <Box alignItems="center">
-                    <TextField
-                      type="file"
-                      onChange={updateAvatar}
-                      className="mb-2"
-                    />
+                  <Box
+                    alignItems="center"
+                    borderRadius="6px"
+                    className=" shadow-sm"
+                  >
                     {avatar !== "" && (
                       <Box display="flex" justifyContent="center">
                         {avatar ? (
@@ -280,12 +383,18 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                             sx={{ width: "100px", height: "100px" }}
                           />
                         ) : (
-                          <Avatar
-                            sx={{ width: "100px", height: "100px" }}
-                          />
+                          <Avatar sx={{ width: "100px", height: "100px" }} />
                         )}
                       </Box>
                     )}
+                    <TextField
+                      fullWidth
+                      type="file"
+                      // make the props font poppins
+                      InputProps={{ sx: { fontFamily: "poppins" } }}
+                      onChange={updateAvatar}
+                      className="mb-2"
+                    />
                   </Box>
                 </Box>
 

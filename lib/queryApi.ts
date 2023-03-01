@@ -28,7 +28,7 @@ const query = async (
     .createCompletion({
       model,
       prompt: fullPrompt,
-      temperature: 0.0,
+      temperature: 0.3,
       max_tokens: 1000,
 
     })

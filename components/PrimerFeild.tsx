@@ -31,7 +31,7 @@ const fetchPrimer = async (session: Session) => {
       session: { user: { email: session?.user?.email! } },
     }),
   }).then((res) => res.json()).catch((err) => {
-    console.log(err);
+    // console.log(err);
     return {text: "fallback data"};
   });
 };
@@ -80,7 +80,7 @@ function PrimerField() {
         text,
       }),
     }).then((res) => res.json()).catch((err) => {
-      console.log(err);
+      // console.log(err);
       return {text: "fallback data"};
     });
 

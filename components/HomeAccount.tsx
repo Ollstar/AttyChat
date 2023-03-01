@@ -23,15 +23,15 @@ export default function HomeAccount(bot: HomeAccountProps) {
   const pathname = usePathname();
 
   return (
-    <>
-    <div className="fixed bottom-2 left-2">
+
+    <div className="fixed h-12 w-12 bottom-2 left-2">
       <Fab
-        className={`fixed h-12 w-12 bottom-2 left-2 `}
+        className={`fixed  bottom-2 `}
         color="primary"
       >
         <Account />
       </Fab>
     </div>
-    </>
+
   );
 }

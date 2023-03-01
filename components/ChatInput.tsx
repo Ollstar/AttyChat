@@ -99,13 +99,13 @@ function ChatInput({ chatId }: Props) {
           name="message"
           placeholder="Type a message..."
         />
-        <button
+        {/* <button
           disabled={!prompt || !session}
           type="submit"
           className="bg-[#11A37F] hover:opacity-50 text-white font-bold px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           <PaperAirplaneIcon className="h-4 w-4 -rotate-45" />
-        </button>
+        </button> */}
       </form>
 
       <div className="justify-center">

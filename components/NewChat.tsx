@@ -40,8 +40,8 @@ function NewChat({ bot }: NewChatProps) {
 
 
   useEffect(() => {
-    console.log("botid", botid);
-    console.log("currentBot", bot);
+    // console.log("NewChat botid", botid);
+    // console.log("NewChat currentBot", bot);
     setBotQuestions(bot.botQuestions);
   }, [botid, bot]);
 
@@ -53,7 +53,7 @@ function NewChat({ bot }: NewChatProps) {
 
     if (!bot) return;
     if (!botid) return;
-    console.log("bot", bot, "botid", botid);
+    // console.log("In NEW CHAT bot", bot, "botid", botid);
     // create new chat
     const docRef = await addDoc(
       collection(db, "users", session?.user?.email!, "chats"),
@@ -103,6 +103,14 @@ function NewChat({ bot }: NewChatProps) {
       router.push(`/chat/${docRef.id}`);
     }
   };
+  useEffect(() => {
+    if (!pathname) return;
+    if (pathname.includes("/bot")) {
+      const botId = pathname?.split("/")[2];
+      // console.log("botId in Chat", botId);
+      setBotid(botId);
+    }
+  }, [pathname])
   const handleChatSelect = (e: any ) => {
     createNewChat(e);
   };
