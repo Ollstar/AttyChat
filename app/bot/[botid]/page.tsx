@@ -3,7 +3,7 @@ import { Box, Container } from "@mui/material";
 import DrawerSpacer from "../../../components/DrawerSpacer";
 import NewChatWithBot from "../../../components/NewChatWithBot";
 import { db } from "../../../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import NewBot from "../../../components/NewBot";
 import { getSession, useSession } from "next-auth/react";
@@ -33,15 +33,12 @@ function BotPage({ params: { botid } }: Props) {
   const [prevBotId, setPrevBotId] = useState("");
   const [bgcolor, setBgcolor] = useState("#397EF7");
   const [textcolor, setTextcolor] = useState("white");
-
   useEffect(() => {
     if (!bot) return;
     setBgcolor(bot.botColor);
     setTextcolor(bot.textColor);
   }, [bot]);
-  useEffect(() => {
-    if (!router) return;
-  }, [router]);
+ 
   useEffect(() => {
     if (!session) {
       getSession();
@@ -54,8 +51,14 @@ function BotPage({ params: { botid } }: Props) {
     // console.log("BotPage botid", botid);
     const getBot = async () => {
       const docRef = doc(db, "bots", botid);
-      const docSnap = await getDoc(docRef);
-      setBot(docSnap.data() as Bot);
+      onSnapshot(docRef, (doc) => {
+        if (doc.exists()) {
+          setBot(doc.data() as Bot);
+        } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+        }
+      });
     };
 
     getBot();
@@ -77,7 +80,12 @@ function BotPage({ params: { botid } }: Props) {
   return (
     <Box
       fontFamily="poppins"
-      sx={{ backgroundColor: bgcolor, color: textcolor, height: "100%", width: "100%" }}
+      sx={{
+        backgroundColor: bgcolor,
+        color: textcolor,
+        height: "100%",
+        width: "100%",
+      }}
     >
       <DrawerSpacer />
       <div className="h-screen w-screen bottom-0">

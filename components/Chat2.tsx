@@ -58,6 +58,7 @@ function Chat2({ chatId, botid }: Props) {
   });
 
   const fetcher = (url: string) => {
+    if (!session) return
     return fetch(url, {
       method: "POST",
       headers: {

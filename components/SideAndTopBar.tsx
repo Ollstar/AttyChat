@@ -80,7 +80,7 @@ export default function PersistentDrawerLeft(this: any) {
       ...mySwrConfig,
       fallbackData: "Fallback data",
 
-      revalidateOnMount: true,
+
     }
   );
 
