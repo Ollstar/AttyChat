@@ -13,18 +13,18 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const session = req.body.session;
+  const email = req.body.email;
 
-  if (!session) {
-    res.status(400).json({  text: 'Missing session.'  });
+  if (!email) {
+    res.status(400).json({  text: 'Missing email.'  });
     return;
   }
 
-  const primerDoc = doc(db, 'users', session?.user?.email!, 'primer', session?.user?.email!);
+  const primerDoc = doc(db, 'users', email, 'primer', email);
   const primerSnapshot = await getDoc(primerDoc);
   const primerData = primerSnapshot.data();
 
   res.status(200).json({
-    text: primerData?.text || '',
+    text: primerData?.text!,
   });
 }

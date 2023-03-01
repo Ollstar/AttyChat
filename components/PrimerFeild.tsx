@@ -40,14 +40,25 @@ const fetchPrimer = async (session: Session) => {
 function PrimerField() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
-  const { data: primer, mutate: setPrimer } = useSWR(
-    "primer",
-    session ? () => fetchPrimer(session) : null,
+  const fetcher = (url: string) => {
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: session?.user?.email!,
+      }),
+      
+    }).then((res) => res.json());
+  };
+  
+  const { data: primer, mutate: setPrimer} = useSWR(
+    `/api/getPrimer`,
+    session && fetcher,
     {
       ...mySwrConfig,
       fallbackData: "Fallback data",
-      revalidateOnMount: true,
-      revalidateOnFocus: false,
     }
   );
   const [text, setText] = useState(primer?.text || "");
@@ -92,7 +103,6 @@ function PrimerField() {
       duration: 2000,
       position: "top-center",
       style: {
-        border: "1px solid white",
         padding: "16px",
       }
     });

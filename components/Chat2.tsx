@@ -1,7 +1,14 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { ArrowDownCircleIcon } from "@heroicons/react/24/solid";
-import { query, collection, orderBy, limit, onSnapshot, doc } from "firebase/firestore";
+import {
+  query,
+  collection,
+  orderBy,
+  limit,
+  onSnapshot,
+  doc,
+} from "firebase/firestore";
 import { getSession, useSession } from "next-auth/react";
 import { useCollection, useDocument } from "react-firebase-hooks/firestore";
 import { db } from "../firebase";
@@ -50,17 +57,32 @@ function Chat2({ chatId, botid }: Props) {
     fallbackData: "text-davinci-003",
   });
 
+  const fetcher = (url: string) => {
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: session?.user?.email!,
+      }),
+    }).then((res) => res.json());
+  };
+
   const { data: primer, mutate: setPrimer } = useSWR(
-    "primer",
-    session ? () => fetchPrimer(session) : null,
+    `/api/getPrimer`,
+    session && fetcher,
     {
       ...mySwrConfig,
       fallbackData: "Fallback data",
-      revalidateOnMount: true,
-      revalidateOnFocus: true,
+
     }
   );
 
+  useEffect(() => {
+    if (primer.text === undefined) return;
+    console.log(`primer: ${primer.text}`);
+  }, [primer]);
 
   const [messages, loading, error] = useCollection(
     session &&
@@ -80,7 +102,7 @@ function Chat2({ chatId, botid }: Props) {
   async function askQuestion() {
     // if no session get session
     if (!session) {
-      await getSession();
+      return
     }
     // print out the variable name a : and then the value then a new line for the vars in this function
     console.log(`session: ${session}
@@ -92,22 +114,19 @@ function Chat2({ chatId, botid }: Props) {
     if (!session) return;
 
     const author = session?.user?.name!;
-    if (!messages) return;
+    if (messages?.empty) return;
 
     if (messages?.docs[messages?.docs.length - 1].data().user.name !== author)
       return;
     let msg = messages?.docs[messages?.docs.length - 1].data().text;
     msg = `${author}: ${msg}`;
 
-
-    if (!primer) return;
+    if (primer.text === undefined) return;
 
     const notification = toast.loading("Thinking...", {
-      position: "bottom-left",
+      position: "top-right",
       style: {
-        border: "1px solid white",
         // position this in the center of the screen
-        margin: "60px 0",
       },
     });
 
@@ -146,7 +165,6 @@ function Chat2({ chatId, botid }: Props) {
           duration: 2000,
         });
       });
-      
   }
 
   const containerRef = useRef<HTMLInputElement>(null);
@@ -176,10 +194,12 @@ function Chat2({ chatId, botid }: Props) {
 
   useEffect(() => {
     if (!session) return;
+    if(!primer) return;
     // console.log("Last message is current user? : ", lastMessageIsCurrentUser);
     if (!lastMessageIsCurrentUser) return;
+    if (primer.text === undefined) return;
     askQuestion();
-  }, [session, lastMessageIsCurrentUser]);
+  }, [session, lastMessageIsCurrentUser,primer]);
 
   return (
     <Box
@@ -201,6 +221,7 @@ function Chat2({ chatId, botid }: Props) {
       }}
     >
       <DrawerSpacer />
+
       {messages?.empty && (
         <Box color="#397EF7">
           <Typography

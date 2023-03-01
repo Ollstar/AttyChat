@@ -8,7 +8,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import NewChat from "./NewChat";
 import { collection, doc, getDoc, orderBy, query, where } from "firebase/firestore";
 import { db } from "../firebase";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { Select, MenuItem, SelectChangeEvent, AppBar, Autocomplete, TextField } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
@@ -17,6 +17,8 @@ import { useEffect, useState } from "react";
 import NewBot from "./NewBot";
 import { ChatBubbleLeftIcon } from "@heroicons/react/24/solid";
 import HomeAccount from "./HomeAccount";
+import mySwrConfig from "../lib/swr-config";
+import useSWR from "swr";
 
 type Bot = {
   botName: string;
@@ -45,6 +47,29 @@ export default function PersistentDrawerLeft(this: any) {
       )
   );
   const selectedBotRef = React.useRef<string | null>("AttyChat");
+  const fetcher = (url: string) => {
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: session?.user?.email!,
+      }),
+    }).then((res) => res.json());
+  };
+
+  const { data: primer, mutate: setPrimer } = useSWR(
+    `/api/getPrimer`,
+    fetcher,
+    {
+      ...mySwrConfig,
+      fallbackData: "Fallback data",
+
+      revalidateOnMount: true,
+
+    }
+  );
 
   const [currentBot, setCurrentBot] = useState<Bot>(
     {
@@ -59,7 +84,7 @@ export default function PersistentDrawerLeft(this: any) {
     } as Bot
   );
   useEffect(() => {
-    if(!session) return;
+    if(!session) getSession();
     if (!pathname) return;
     if (!selectedBotRef.current) return;
 
@@ -126,7 +151,7 @@ export default function PersistentDrawerLeft(this: any) {
       <AppBar
         position="fixed"
         sx={{
-          padding: "10px 0px",
+          padding: "8px 0px",
           backgroundColor: "rgb(240,240,240)",
         }}
         elevation={2}
@@ -177,7 +202,7 @@ export default function PersistentDrawerLeft(this: any) {
                 `https://ui-avatars.com/api/?name=${currentBot?.botName}`
               }
               alt="Profile picture"
-              className={`h-12 w-12 rounded-full cursor-pointer hover:opacity-50`}
+              className={`h-14 w-14 rounded-full cursor-pointer hover:opacity-50`}
             />
           )}
         </Toolbar>

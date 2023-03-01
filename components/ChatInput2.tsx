@@ -66,14 +66,25 @@ function ChatInput2({ chatId, botid }: Props) {
   const [prompt, setPrompt] = useState("");
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const { data: primer, mutate: setPrimer } = useSWR(
-    "primer",
-    session ? () => fetchPrimer(session) : null,
+  const fetcher = (url: string) => {
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: session?.user?.email!,
+      }),
+      
+    }).then((res) => res.json());
+  };
+  
+  const { data: primer, mutate: setPrimer} = useSWR(
+    `/api/getPrimer`,
+    session && fetcher,
     {
       ...mySwrConfig,
       fallbackData: "Fallback data",
-      revalidateOnMount: true,
-      revalidateOnFocus: false,
     }
   );
 
@@ -125,7 +136,7 @@ function ChatInput2({ chatId, botid }: Props) {
         zIndex: (theme) => theme.zIndex.drawer + 1,
         bottom: "0",
         top: "auto",
-        padding: "5px",
+        padding: "8px",
         backgroundColor: "rgb(240,240,240)",
       }}
     >
@@ -137,7 +148,7 @@ function ChatInput2({ chatId, botid }: Props) {
         }}
       >
         {session && (
-          <div className="h-12 w-12 mr-1">
+          <div className="h-14 w-14 mr-1">
             <Account />
           </div>
         )}

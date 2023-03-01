@@ -24,7 +24,7 @@ export default function HomeAccount(bot: HomeAccountProps) {
 
   return (
 
-    <div className="fixed h-12 w-12 bottom-2 left-2">
+    <div className="fixed h-12 w-12 bottom-2 left-2 z-10">
       <Fab
         className={`fixed  bottom-2 `}
         color="primary"

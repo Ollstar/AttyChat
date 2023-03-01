@@ -29,13 +29,18 @@ type Props = {
 function BotPage({ params: { botid } }: Props) {
   const { data: session } = useSession();
   const router = useRouter();
-
   const [bot, setBot] = useState<Bot | null>(null);
   const [prevBotId, setPrevBotId] = useState("");
+  const [bgcolor, setBgcolor] = useState("#397EF7");
+  const [textcolor, setTextcolor] = useState("white");
 
+  useEffect(() => {
+    if(!bot) return;
+    setBgcolor(bot.botColor);
+    setTextcolor(bot.textColor);
+  }, [bot])
   useEffect (() => {
     if (!router) return;
-    console.log("router", router);
   }, [router])
   useEffect(() => {
     if (!session) 
@@ -73,17 +78,20 @@ function BotPage({ params: { botid } }: Props) {
   return (
     <Box
       fontFamily="poppins"
-      sx={{ backgroundColor: bot!.botColor, height: "100vhw", width: "100vhw" }}
+      sx={{ backgroundColor: bgcolor, color:textcolor, height: "100vhw", width: "100vhw" }}
     >
-      <div className={`h-screen w-screen bg-[${bot!.botColor}]`}>
+
+
+      <div className={`text-[${textcolor}] h-screen w-screen bg-[${bgcolor}]`}>
+
           <DrawerSpacer />
-        <div className={`text-[${bot!.textColor}] flex flex-col px-2 pb-4 items-center bg-[${bot!.botColor}]`}>
+        <div className={`flex flex-col px-2 pb-4 items-center bg-[${bgcolor}]`}>
           <div className="flex flex-row">
             <h1 className="text-5xl font-bold">{bot.botName}</h1>
 
           </div>
-          <h1 className="text-3xl font-bold mb-10">Quick Questions</h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center">
+          <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
+          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center `}>
             {Array.isArray(bot.botQuestions) ? (
               bot.botQuestions.map((question, index) => (
                 <NewChatWithBot

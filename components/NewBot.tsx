@@ -81,7 +81,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       botQuestions,
       avatar,
       botColor: botColor,
-      textColor: isBlack,
+      textColor: textColor,
     });
 
     router.push(`/bot/${docRef.id}`);
@@ -89,6 +89,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
 
   const editBot = async () => {
     if (!botid) return;
+    console.log("bot textcolor : ", textColor);
 
     await updateDoc(doc(db, "bots", botid), {
       botName,
@@ -97,24 +98,17 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       show,
       botColor,
       avatar,
-      textColor: textColor
+      textColor,
     }).then(() => {
-    toast.success("Bot edited!", {
-      duration: 2000,
-      position: "top-center",
-      style: {
-        border: "1px solid white",
-        padding: "16px",
-      },
+      toast.success("Bot edited!", {
+        duration: 2000,
+        position: "top-center",
+        style: {
+          padding: "16px",
+        },
+      });
     });
-  }).then(() => {
-
-  router.replace(`/bot/${botid}`,
-  {
-    forceOptimisticNavigation: true,
-  });
-  });
-
+    router.replace(`/bot/${botid}`);
   };
 
   const deleteBot = async () => {
@@ -128,7 +122,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       duration: 2000,
       position: "top-center",
       style: {
-        border: "1px solid white",
         padding: "16px",
       },
     }),
@@ -178,7 +171,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
 
     if (bot) {
       editBot();
-
     } else {
       createNewBot();
     }
@@ -194,9 +186,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
         <Box fontFamily="poppins" fontSize="lg" color="black">
           <div
             onClick={handleOpen}
-            className={`chatRow text-white p-2 ml-2 text-center ${
-              !bot ? "border border-black" : ""
-            } `}
+            
           >
             {bot ? (
               <MoreHorizIcon sx={{ color: "black" }} />
@@ -266,18 +256,15 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                   InputProps={{ sx: { fontFamily: "poppins" } }}
                   required
                 />
-                <Box
-                  sx={{ mt: 2, fontFamily: "poppins" }}
-                  component="div"
-                >
+                <Box sx={{ mt: 2, fontFamily: "poppins" }} component="div">
                   Bot Colors
                 </Box>
                 <BlockPicker
                   styles={{
                     default: {
                       card: {
-                        //make the corners not rounded
-                     
+                        boxShadow: "none",
+
                       },
                       head: {
                         display: "none",
@@ -285,9 +272,11 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
 
                       body: {
                         // make the items in the middle from both axis
-                        backgroundColor:botColor,
+                        backgroundColor: botColor,
                         borderTopRightRadius: "6px",
                         borderTopLeftRadius: "6px",
+                        borderBottomWidth: "0px",
+                        boxShadow: "none",
 
                       },
 
@@ -314,9 +303,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                   width="100%"
                   color={textColor}
                   onChange={(color) => setTextColor(color.hex)}
-
-
-                  className="shadow-2xl font-[poppins]"
+                  className=" font-[poppins]"
                 />
 
                 <BlockPicker
@@ -325,18 +312,14 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                       head: {
                         borderTopRightRadius: "0px",
                         borderTopLeftRadius: "0px",
-                        height: "50px"
-
+                        height: "50px",
                       },
-                      card: {
-
-                      },
+                      card: {},
                       body: {
-
                       },
                       label: {
                         color: textColor,
-                        bottom: "30%",
+                        bottom: "40%",
                       },
                     },
                   }}
@@ -361,7 +344,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                 <Box sx={{ fontFamily: "poppins" }} component="sub">
                   Text
                 </Box>
-                
 
                 <Box
                   sx={{ mt: 2, mb: 2, fontFamily: "poppins" }}
