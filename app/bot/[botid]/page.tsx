@@ -81,14 +81,12 @@ function BotPage({ params: { botid } }: Props) {
     >
       <DrawerSpacer />
       <div className="h-screen w-screen">
-      <div className={`flex flex-col px-2 pb-4 items-center bg-[${bgcolor}]`}>
-        <div className="flex flex-row">
+        <div className={`flex flex-col px-2 pb-4 items-center bg-[${bgcolor}]`}>
           <h1 className="text-5xl font-bold">{bot.botName}</h1>
-        </div>
-        <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
-        <div
-          className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center `}
-        >
+          <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center `}
+          >
             {bot.botQuestions.map((question, index) => (
               <NewChatWithBot
                 key={index}
@@ -96,8 +94,8 @@ function BotPage({ params: { botid } }: Props) {
                 botid={botid}
               />
             ))}
+          </div>
         </div>
-      </div>
       </div>
     </Box>
   );
