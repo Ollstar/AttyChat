@@ -10,6 +10,9 @@ function Message2({ message }: Props) {
   const { data: session } = useSession();
 
   const isUser = message.user.name === session?.user?.name;
+  // for any message that is not user check if the user name is a bot name and if so get the bot
+
+  
 
   return (
     <>

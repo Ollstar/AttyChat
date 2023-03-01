@@ -6,7 +6,7 @@ import { db } from "../../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import NewBot from "../../../components/NewBot";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 
 type Bot = {
@@ -17,6 +17,7 @@ type Bot = {
   botColor: string;
   show: boolean;
   avatar: string;
+  textColor: string;
 };
 
 type Props = {
@@ -27,18 +28,26 @@ type Props = {
 
 function BotPage({ params: { botid } }: Props) {
   const { data: session } = useSession();
+  const router = useRouter();
 
   const [bot, setBot] = useState<Bot | null>(null);
   const [prevBotId, setPrevBotId] = useState("");
 
+  useEffect (() => {
+    if (!router) return;
+    console.log("router", router);
+  }, [router])
   useEffect(() => {
-    if (!session) return;
-    console.log("prevBotId", prevBotId);
+    if (!session) 
+      {
+        getSession();
+      }
+    // console.log("prevBotId", prevBotId);
 
     if (!botid) return;
     if (botid === prevBotId) return;
-    console.log("prevBotId", prevBotId);
-    console.log("botid", botid);
+    // console.log("PotPage prevBotId", prevBotId);
+    // console.log("BotPage botid", botid);
     const getBot = async () => {
       const docRef = doc(db, "bots", botid);
       const docSnap = await getDoc(docRef);
@@ -53,8 +62,12 @@ function BotPage({ params: { botid } }: Props) {
     return;
   }
   if (!bot.botColor) {
-    console.log("no color");
-    setBot({ ...bot, botColor: "#397EF7" });
+    // console.log("no color");
+    setBot({ ...bot, botColor: "#397EF7"});
+  }
+  if (!bot.textColor) {
+    // console.log("no text color");
+    setBot({ ...bot, textColor: "white"});
   }
 
   return (
@@ -64,7 +77,7 @@ function BotPage({ params: { botid } }: Props) {
     >
       <div className={`h-screen w-screen bg-[${bot!.botColor}]`}>
           <DrawerSpacer />
-        <div className={`text-white flex flex-col px-2 pb-4 items-center bg-[${bot!.botColor}]`}>
+        <div className={`text-[${bot!.textColor}] flex flex-col px-2 pb-4 items-center bg-[${bot!.botColor}]`}>
           <div className="flex flex-row">
             <h1 className="text-5xl font-bold">{bot.botName}</h1>
 
