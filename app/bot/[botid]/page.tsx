@@ -85,7 +85,7 @@ function BotPage({ params: { botid } }: Props) {
           <h1 className="text-5xl font-bold">{bot.botName}</h1>
           <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
           <div
-            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center `}
+            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center max-h-full overflow-y-auto`}
           >
             {bot.botQuestions.map((question, index) => (
               <NewChatWithBot
