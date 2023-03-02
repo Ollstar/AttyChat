@@ -15,7 +15,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { getSession, useSession } from "next-auth/react";
+import { getSession, signOut, useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import {
   Select,
@@ -57,6 +57,7 @@ export default function PersistentDrawerLeft(this: any) {
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { data: session } = useSession();
+
   const [showEdit, setShowEdit] = useState(false);
   const pathname = usePathname();
   const [bots] = useCollection(session && query(collection(db, "bots")));
@@ -68,8 +69,6 @@ export default function PersistentDrawerLeft(this: any) {
       )
   );
   const selectedBotRef = React.useRef<string | null>("AttyChat");
-  
-
 
   const [currentBot, setCurrentBot] = useState<Bot>({
     botName: "AttyChat",
@@ -169,7 +168,6 @@ export default function PersistentDrawerLeft(this: any) {
             <MenuIcon />
           </IconButton>
 
-
           <Select
             value={
               bots?.docs?.length! > 0 ? selectedBotRef.current : "AttyChat"
@@ -180,8 +178,8 @@ export default function PersistentDrawerLeft(this: any) {
             {!bots && (
               <MenuItem key="AttyChat" value="AttyChat">
                 Loading...
-                </MenuItem>
-                )}
+              </MenuItem>
+            )}
             {bots?.docs?.map((bot) => (
               <MenuItem key={bot.id} value={bot.id}>
                 {bot.data().botName}
@@ -212,15 +210,17 @@ export default function PersistentDrawerLeft(this: any) {
         </Toolbar>
       </AppBar>
       <Drawer
+        sx={{
+          display: "flex",
+        }}
         anchor={"left"}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
       >
-
-{/* currentbot and newbot currentbot */}
         <DrawerSpacer />
-        {currentBot && (
-          <NewChat bot={currentBot} />)}
+        <NewBot />
+
+        {currentBot && <NewChat bot={currentBot} />}
       </Drawer>
 
       <>

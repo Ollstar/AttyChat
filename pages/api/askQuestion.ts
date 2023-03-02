@@ -12,7 +12,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { prompt, chatId, model, session, primer, messages } = req.body;
+  const { prompt, chatId, model, session, primer } = req.body;
   if (!session) {
     res.status(400).json({
       answer: "Please provide a session.",
@@ -38,12 +38,7 @@ export default async function handler(
     });
     return;
   }
-  if (!messages) {
-    res.status(400).json({
-      answer: "Please provide a messages.",
-    });
-    return;
-  }
+
 
   if (!model) {
     res.status(400).json({

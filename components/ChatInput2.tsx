@@ -67,7 +67,7 @@ function ChatInput2({ chatId, botid }: Props) {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const fetcher = (url: string) => {
-    if (!session) return
+    if (!session) getSession()
 
     return fetch(url, {
       method: 'POST',

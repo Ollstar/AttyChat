@@ -1,4 +1,4 @@
-import { getFirestore } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 // Import the functions you need from the SDKs you need
 import { getApp, getApps, initializeApp } from "firebase/app";
 
@@ -18,4 +18,20 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export { db };
+/// Function to add default properties to a new user document
+const addDefaultProperties = async (uid: string): Promise<void> => {
+  const userRef = doc(db, "users", uid);
+  const defaultProperties = {
+    primer: "Your responding to a new user and you use extra emojis and smileys.",
+    // Add more default properties as needed
+  };
+
+  try {
+    await setDoc(userRef, defaultProperties, { merge: true });
+    console.log("Default properties added to user document");
+  } catch (error) {
+    console.error("Error adding default properties to user document", error);
+  }
+};
+
+export { db, addDefaultProperties };

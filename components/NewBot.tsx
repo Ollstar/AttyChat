@@ -103,7 +103,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
       toast.success("Bot edited!", {
         duration: 2000,
         position: "top-center",
-       
       });
     });
   };
@@ -181,14 +180,11 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
         ""
       ) : (
         <Box fontFamily="poppins" fontSize="lg" color="black">
-          <div
-            onClick={handleOpen}
-            
-          >
+          <div onClick={handleOpen}>
             {bot ? (
               <MoreHorizIcon sx={{ color: "black" }} />
             ) : (
-              <h2 className="text-black ">New Bot</h2>
+              <h2 className=" text-black">New Bot</h2>
             )}
           </div>
         </Box>
@@ -261,7 +257,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                     default: {
                       card: {
                         boxShadow: "none",
-
                       },
                       head: {
                         display: "none",
@@ -274,7 +269,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                         borderTopLeftRadius: "6px",
                         borderBottomWidth: "0px",
                         boxShadow: "none",
-
                       },
 
                       label: {
@@ -312,8 +306,7 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                         height: "50px",
                       },
                       card: {},
-                      body: {
-                      },
+                      body: {},
                       label: {
                         color: textColor,
                         bottom: "40%",
@@ -356,14 +349,11 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                   >
                     {avatar !== "" && (
                       <Box display="flex" justifyContent="center">
-                        {avatar ? (
+                        {avatar &&
                           <Avatar
                             src={avatar}
-                            sx={{ width: "100px", height: "100px" }}
-                          />
-                        ) : (
-                          <Avatar sx={{ width: "100px", height: "100px" }} />
-                        )}
+                            sx={{ width: "100px", height: "100px", marginBottom:"20px" }}
+                          />}
                       </Box>
                     )}
                     <TextField

@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import useSWR from "swr";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import mySwrConfig from "../lib/swr-config";
 import toast from "react-hot-toast";
 import { Session } from "next-auth";
@@ -41,7 +41,7 @@ function PrimerField() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
   const fetcher = (url: string) => {
-    if (!session) return
+    if (!session) getSession()
 
     return fetch(url, {
       method: 'POST',

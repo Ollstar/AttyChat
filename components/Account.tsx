@@ -48,10 +48,10 @@ export default function Account() {
 
       <Avatar
         src={session?.user?.image! || `https://ui-avatars.com/api/?name=${session?.user?.name!}`}
-        onClick={handleAvatarClick}
+        onClick={handleSignOut}
         sx={{ cursor: "pointer", width: "100%", height: "100%" }}
       />
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      {/* <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Chats</DialogTitle>
         <div>
             <div className="flex flex-col space-y-2 my-2 mb-10">
@@ -59,7 +59,7 @@ export default function Account() {
                 <div className="animate-pulse text-center text-white"></div>
               )}
 
-              {/* Map through the ChatRows */}
+
               {chats?.docs.map((chat) => (
                 <ChatRow key={chat.id} id={chat.id} />
               ))}
@@ -67,7 +67,7 @@ export default function Account() {
           </div>
 
 
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 }

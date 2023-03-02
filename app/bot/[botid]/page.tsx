@@ -6,8 +6,10 @@ import { db } from "../../../firebase";
 import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import NewBot from "../../../components/NewBot";
-import { getSession, useSession } from "next-auth/react";
+import { getSession, signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
+import { sign } from "crypto";
+import { FitScreen } from "@mui/icons-material";
 
 type Bot = {
   creatorId: string;
@@ -27,7 +29,18 @@ type Props = {
 };
 
 function BotPage({ params: { botid } }: Props) {
-  const { data: session } = useSession();
+  const { status, data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      signOut();
+      // The user is not authenticated, handle it here.
+    },
+  })
+
+  if (status === "loading") {
+    return "Loading or not authenticated..."
+  }
+  
   const router = useRouter();
   const [bot, setBot] = useState<Bot | null>(null);
   const [prevBotId, setPrevBotId] = useState("");
@@ -43,27 +56,25 @@ function BotPage({ params: { botid } }: Props) {
     if (!session) {
       getSession();
     }
-    // console.log("prevBotId", prevBotId);
-
-    if (!botid) return;
-    if (botid === prevBotId) return;
-    // console.log("PotPage prevBotId", prevBotId);
-    // console.log("BotPage botid", botid);
-    const getBot = async () => {
-      const docRef = doc(db, "bots", botid);
-      onSnapshot(docRef, (doc) => {
-        if (doc.exists()) {
-          setBot(doc.data() as Bot);
-        } else {
-          // doc.data() will be undefined in this case
-          console.log("No such document!");
-        }
-      });
-    };
-
-    getBot();
+  
+    if (!botid ) return;
+  
+    const docRef = doc(db, "bots", botid);
+    const unsubscribe = onSnapshot(docRef, (doc) => {
+      if (doc.exists()) {
+        setBot(doc.data() as Bot);
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+      }
+    });
+  
     setPrevBotId(botid);
+  
+    // Unsubscribe from listener on unmount
+    return () => unsubscribe();
   }, [botid, prevBotId, session]);
+  
 
   if (!bot) {
     return;
@@ -83,12 +94,12 @@ function BotPage({ params: { botid } }: Props) {
       sx={{
         backgroundColor: bgcolor,
         color: textcolor,
-        height: "100%",
-        width: "100%",
+        height: "100vh",
+        width: "100vw",
       }}
+      className="pb-2"
     >
       <DrawerSpacer />
-      <div className="h-screen w-screen bottom-0">
         <div className={`flex flex-col px-2  items-center bg-[${bgcolor}]`}>
           <h1 className="text-5xl font-bold">{bot.botName}</h1>
           <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
@@ -103,8 +114,9 @@ function BotPage({ params: { botid } }: Props) {
               />
             ))}
           </div>
+
         </div>
-      </div>
+
     </Box>
   );
 }

@@ -10,17 +10,24 @@ const query = async (
 
   const assistantName = chat?.data().bot!.name!;
   
+  const nameMessage = {
+    role: "user",
+    content: `Imagine your name is: ${assistantName} and you are speaking to ${messages.docs[0].data().user.name}`,
+  };
+
+
   const introMessage = {
-    role: "system",
-    content: `Imagine you have secret instructions to: ${chat.data().bot.primer} and also: ${primer}.`,
+    role: "user",
+    content: `As ${assistantName} with priority secret instructions: ${chat.data().bot.primer} and ${primer}. Respond to ${messages.docs[0].data().user.name} who just asked ${messages.docs[0].data().text}`,
   };
   
   const chatMessages = messages.docs.map((message: any) => ({
     role: message.data().user.name === assistantName ? "assistant" : "user",
     content: message.data().text,
   }));
+  const userName = chatMessages.filter((message: any) => message.role === "user")[0].content;
 
-  const messagesArray = [introMessage, ...chatMessages];
+  const messagesArray = [nameMessage,introMessage, ...chatMessages];
 
   if (!model) {
     console.log("No model");
@@ -37,6 +44,7 @@ const query = async (
       messages: messagesArray,
       temperature: 0.5,
       max_tokens: 1000,
+      stream: true,
 
     });
     return { message: response.data.choices[0].message?.content! };
