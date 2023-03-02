@@ -5,8 +5,8 @@ const query = async (
   model: string,
   chat: any,  
   primer: string,
-  messages: any
-  ): Promise<{ message: string }> => {
+  messages: any,
+): Promise<{ message: string }> => {
 
   const assistantName = chat?.data().bot!.name!;
   
@@ -25,7 +25,6 @@ const query = async (
     role: message.data().user.name === assistantName ? "assistant" : "user",
     content: message.data().text,
   }));
-  const userName = chatMessages.filter((message: any) => message.role === "user")[0].content;
 
   const messagesArray = [nameMessage,introMessage, ...chatMessages];
 
@@ -44,7 +43,7 @@ const query = async (
       messages: messagesArray,
       temperature: 0.5,
       max_tokens: 1000,
-      stream: true,
+
 
     });
     return { message: response.data.choices[0].message?.content! };

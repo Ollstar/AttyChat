@@ -37,16 +37,17 @@ function Chat2({ chatId, botid }: Props) {
   });
 
   const fetcher = (url: string) => {
-    if (!session) getSession()
-    return fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: session?.user?.email!,
-      }),
-    }).then((res) => res.json());
+    if (session) {
+      return fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: session?.user?.email!,
+        }),
+      }).then((res) => res.json());
+    }
   };
 
   const { data: primer, mutate: setPrimer } = useSWR(
@@ -55,7 +56,6 @@ function Chat2({ chatId, botid }: Props) {
     {
       ...mySwrConfig,
       fallbackData: "Fallback data",
-
     }
   );
 
@@ -82,7 +82,7 @@ function Chat2({ chatId, botid }: Props) {
   async function askQuestion() {
     // if no session get session
     if (!session) {
-      return
+      return;
     }
     // print out the variable name a : and then the value then a new line for the vars in this function
     console.log(`session: ${session}
@@ -98,34 +98,13 @@ function Chat2({ chatId, botid }: Props) {
 
     if (messages?.docs[messages?.docs.length - 1].data().user.name !== author)
       return;
-    let msg = messages?.docs[messages?.docs.length - 1].data().text;
-    msg = `${author}: ${msg}`;
 
     if (primer.text === undefined) return;
 
     const notification = toast.loading("Thinking...", {
       position: "top-right",
-      style: {
-      },
+      style: {},
     });
-
-    // create event source to handle streaming data
-    const eventSource = new EventSource(
-      `/api/askQuestion?prompt=${msg}&chatId=${chatId}&model=${model}&primer=${primer.text}&session=${session}`
-    );
-
-    // listen for message event
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "message") {
-        toast.dismiss(notification);
-        toast.success("My thoughts on this", {
-          id: notification,
-          duration: 500,
-        });
-        eventSource.close();
-      }
-    };
 
     await fetch("/api/askQuestion", {
       method: "POST",
@@ -133,14 +112,9 @@ function Chat2({ chatId, botid }: Props) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        prompt: msg,
         chatId,
         model,
         primer: primer?.text,
-        //map each message so that it displays author: text
-        //then join them with a new line
-
-
         session,
       }),
     })
@@ -186,12 +160,12 @@ function Chat2({ chatId, botid }: Props) {
 
   useEffect(() => {
     if (!session) return;
-    if(!primer) return;
+    if (!primer) return;
     // console.log("Last message is current user? : ", lastMessageIsCurrentUser);
     if (!lastMessageIsCurrentUser) return;
     if (primer.text === undefined) return;
     askQuestion();
-  }, [session, lastMessageIsCurrentUser,primer]);
+  }, [session, lastMessageIsCurrentUser, primer]);
 
   return (
     <Box
