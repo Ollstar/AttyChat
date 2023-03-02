@@ -26,27 +26,6 @@ type Props = {
   botid?: string;
 };
 
-const fetchPrimer = async (session: Session) => {
-  if (!session) {
-    await getSession();
-  }
-
-  return fetch("/api/getPrimer", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      session: { user: { email: session?.user?.email! } },
-    }),
-  })
-    .then((res) => res.json())
-    .catch((err) => {
-      // console.log(`error: ${err}`);
-      return { text: "fallback data" };
-    });
-};
-
 function Chat2({ chatId, botid }: Props) {
   const { data: session } = useSession();
 
@@ -58,7 +37,7 @@ function Chat2({ chatId, botid }: Props) {
   });
 
   const fetcher = (url: string) => {
-    if (!session) return
+    if (!session) getSession()
     return fetch(url, {
       method: "POST",
       headers: {
@@ -127,9 +106,26 @@ function Chat2({ chatId, botid }: Props) {
     const notification = toast.loading("Thinking...", {
       position: "top-right",
       style: {
-        // position this in the center of the screen
       },
     });
+
+    // create event source to handle streaming data
+    const eventSource = new EventSource(
+      `/api/askQuestion?prompt=${msg}&chatId=${chatId}&model=${model}&primer=${primer.text}&session=${session}`
+    );
+
+    // listen for message event
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "message") {
+        toast.dismiss(notification);
+        toast.success("My thoughts on this", {
+          id: notification,
+          duration: 500,
+        });
+        eventSource.close();
+      }
+    };
 
     await fetch("/api/askQuestion", {
       method: "POST",
@@ -143,12 +139,7 @@ function Chat2({ chatId, botid }: Props) {
         primer: primer?.text,
         //map each message so that it displays author: text
         //then join them with a new line
-        messages: messages?.docs
-          .map((doc) => {
-            const data = doc.data();
-            return `${data.user.name}: ${data.text}`;
-          })
-          .join(""),
+
 
         session,
       }),
