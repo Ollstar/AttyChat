@@ -55,7 +55,9 @@ function Message2({ message }: Props) {
                 sm: 10,
                 xs: 10,
               },
+              lineHeight: 0.5,
             }}
+
           >
             {message.user.name}{" "}
           </Typography>
