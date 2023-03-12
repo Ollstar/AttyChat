@@ -160,24 +160,21 @@ export default function PersistentDrawerLeft(this: any) {
             <MenuIcon />
           </IconButton>
 
-          <Select
-            value={
-              bots?.docs?.length! > 0 ? selectedBotRef.current : "AttyChat"
-            }
-            sx={{ fontFamily: "poppins", borderRadius: "10px" }}
-            onChange={(e) => handleBotSelect(e)}
-          >
-            {!bots && (
-              <MenuItem key="AttyChat" value="AttyChat">
-                Loading...
-              </MenuItem>
-            )}
-            {bots?.docs?.map((bot) => (
-              <MenuItem key={bot.id} value={bot.id}>
-                {bot.data().botName}
-              </MenuItem>
-            ))}
-          </Select>
+          <Autocomplete
+          fullWidth
+  options={bots?.docs?.map((bot) => ({
+    label: bot.data().botName,
+    value: bot.id,
+  })) || [{ label: "AttyChat", value: "AttyChat" }]}
+  onChange={(event, value) => {
+    selectedBotRef.current = value?.value || "AttyChat";
+    router.push(`/bot/${selectedBotRef.current}`);
+  }}
+  getOptionLabel={(option) => option.label}
+  renderInput={(params) => (
+    <TextField {...params} label="Search bots" variant="outlined" />
+  )}
+/>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton
             aria-label="show 4 new mails"
