@@ -101,11 +101,6 @@ function Chat2({ chatId, botid }: Props) {
 
     if (primer.text === undefined) return;
 
-    const notification = toast.loading("Thinking...", {
-      position: "top-right",
-      style: {},
-    });
-
     await fetch("/api/askQuestion", {
       method: "POST",
       headers: {
@@ -120,16 +115,6 @@ function Chat2({ chatId, botid }: Props) {
     })
       .then(() => {
         setLastMessageIsCurrentUser(false);
-        toast.success("My thoughts on this", {
-          id: notification,
-          duration: 500,
-        });
-      })
-      .catch((err) => {
-        toast.error("Something went wrong", {
-          id: notification,
-          duration: 2000,
-        });
       });
   }
 
