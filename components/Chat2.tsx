@@ -28,6 +28,7 @@ type Props = {
 
 function Chat2({ chatId, botid }: Props) {
   const { data: session } = useSession();
+  const isOnline = navigator.onLine;
 
   const [lastMessageIsCurrentUser, setLastMessageIsCurrentUser] =
     useState(Boolean);
@@ -51,7 +52,7 @@ function Chat2({ chatId, botid }: Props) {
   };
 
   const { data: primer, mutate: setPrimer } = useSWR(
-    `/api/getPrimer`,
+    isOnline ? `/api/getPrimer` : null,
     session && fetcher,
     {
       ...mySwrConfig,
@@ -80,6 +81,7 @@ function Chat2({ chatId, botid }: Props) {
   );
 
   async function askQuestion() {
+    
     // if no session get session
     if (!session) {
       return;

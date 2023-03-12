@@ -46,7 +46,7 @@ const query = async (
     model: "gpt-3.5-turbo",
     messages: messagesArray,
     temperature: 0.2,
-    max_tokens: 200,
+    max_tokens: 3000,
     stream: true,
     n: 1,
   };
