@@ -74,7 +74,6 @@ export default function PersistentDrawerLeft(this: any) {
 
   
   useEffect(() => {
-    if (!session) getSession();
     if (!pathname) return;
     if (!selectedBotRef.current) return;
     const botid = selectedBotRef.current;
@@ -86,7 +85,7 @@ export default function PersistentDrawerLeft(this: any) {
       }
     };
     getBot();
-  }, [pathname, selectedBotRef.current, session]);
+  }, [pathname, selectedBotRef.current]);
   const handleBotClick = () => {
     router.push(`/bot/${selectedBotRef.current}`);
   };
@@ -220,7 +219,7 @@ export default function PersistentDrawerLeft(this: any) {
         {currentBot && <HomeAccount bot={currentBot} />}
 
 
-      {showEdit && <NewBot autoOpen={true} onClose={handleCloseNewBot} />}
+      {/* {showEdit && <NewBot autoOpen={true} onClose={handleCloseNewBot} />} */}
     </div>
   );
 }

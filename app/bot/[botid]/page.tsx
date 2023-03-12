@@ -89,10 +89,10 @@ function BotPage({ params: { botid } }: Props) {
         height: "100vh",
         width: "100vw",
       }}
-      className="pb-2 items-center"
+      className="flex flex-col pb-2 items-center"
     >
       <DrawerSpacer />
-        <div className={`flex flex-col px-2  bg-[${bgcolor}]`}>
+        <div className={` px-2  bg-[${bgcolor}]`}>
           <h1 className="text-5xl font-bold">{bot.botName}</h1>
           <h1 className={`text-3xl font-bold mb-10`}>Quick Questions</h1>
           <div
