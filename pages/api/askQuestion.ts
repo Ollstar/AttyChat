@@ -62,26 +62,58 @@ export default async function handler(
   // ChatGpt Query
   const response = await query(model, chat, primer, messages2);
 
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
 
-  console.log("Response: ", response);
-  const message: Message2 = {
-    text: response.message,
-    createdAt: admin.firestore.Timestamp.now(),
-    userPrimer: primer,
-    user: {
-      _id: chat?.data()?.bot ? chat!.data()!.bot._id : "Atty Chat",
-      name: chat?.data()?.bot ? chat!.data()!.bot.name : "Atty Chat",
-      avatar: "https://links.papareact.com/89k",
-    },
-  };
+  // This data is a ReadableStream
+  const data = response.body;
+  if (!data) {
+    return;
+  }
 
-  await adminDb
-    .collection("users")
-    .doc(session?.user?.email)
-    .collection("chats")
-    .doc(chatId)
-    .collection("messages")
-    .add(message);
+  const reader = data.getReader();
+  const decoder = new TextDecoder();
+ // Create a new message document with a unique ID
+const messageRef = adminDb
+.collection("users")
+.doc(session?.user?.email)
+.collection("chats")
+.doc(chatId)
+.collection("messages")
+.doc();
 
-  res.status(200).json({ answer: response.message });
+// Create the message object with the unique ID
+const message: Message2 = {
+text: "",
+createdAt: admin.firestore.Timestamp.now(),
+userPrimer: primer,
+user: {
+  _id: chat?.data()?.bot ? chat!.data()!.bot._id : "Atty Chat",
+  name: chat?.data()?.bot ? chat!.data()!.bot.name : "Atty Chat",
+  avatar: "https://links.papareact.com/89k",
+},
+};
+
+// Add the message document to the Firestore collection
+await messageRef.set(message);
+
+let done = false;
+let chunkValue = '';
+
+while (!done) {
+const { value, done: doneReading } = await reader.read();
+done = doneReading;
+chunkValue += decoder.decode(value);
+
+if (chunkValue.length > 0) {
+  // Update the message document with the new chunk
+  await messageRef.update({
+    text: chunkValue,
+  });
+
+}
+}
+
+  res.status(200).json({ answer: response.statusText });
 }

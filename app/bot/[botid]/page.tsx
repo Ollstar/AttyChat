@@ -29,17 +29,9 @@ type Props = {
 };
 
 function BotPage({ params: { botid } }: Props) {
-  const { status, data: session } = useSession({
-    required: true,
-    onUnauthenticated() {
-      signOut();
-      // The user is not authenticated, handle it here.
-    },
-  })
+  const session = useSession();
 
-  if (status === "loading") {
-    return "Loading or not authenticated..."
-  }
+
   
   const router = useRouter();
   const [bot, setBot] = useState<Bot | null>(null);
@@ -54,7 +46,7 @@ function BotPage({ params: { botid } }: Props) {
  
   useEffect(() => {
     if (!session) {
-      getSession();
+      return;
     }
   
     if (!botid ) return;

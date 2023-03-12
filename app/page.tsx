@@ -35,7 +35,7 @@ function HomePage({ params: { botid = "AttyChat" } }: Props) {
 
   useEffect(() => {
     if (!session) {
-      getSession();
+      return;
     };
     // console.log("prevBotId", prevBotId);
 

@@ -41,7 +41,7 @@ function PrimerField() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
   const fetcher = (url: string) => {
-    if (!session) getSession()
+    if (!session) return;
 
     return fetch(url, {
       method: 'POST',

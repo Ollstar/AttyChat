@@ -7,6 +7,7 @@ import ClientProvider from "../components/ClientProvider";
 import PersistentDrawerLeft from "../components/SideAndTopBar";
 import Account from "../components/Account";
 import HomeAccount from "../components/HomeAccount";
+import { getSession } from "next-auth/react";
 
 export default async function RootLayout({
   children,
@@ -14,13 +15,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-
   return (
     <html>
-      <head />
 
       <body>
-        <div style={{ }}>
+        <div>
           <SessionProvider session={session}>
             {!session ? (
               <Login />

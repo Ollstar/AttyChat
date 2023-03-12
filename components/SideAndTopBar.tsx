@@ -69,17 +69,10 @@ export default function PersistentDrawerLeft(this: any) {
       )
   );
   const selectedBotRef = React.useRef<string | null>("AttyChat");
+// make current bot null to start
+  const [currentBot, setCurrentBot] = useState<Bot | null>(null);
 
-  const [currentBot, setCurrentBot] = useState<Bot>({
-    botName: "AttyChat",
-    primer: "",
-    botQuestions: [],
-    creatorId: "",
-    botColor: "",
-    show: true,
-    avatar: "",
-    textColor: "",
-  } as Bot);
+  
   useEffect(() => {
     if (!session) getSession();
     if (!pathname) return;
@@ -192,7 +185,7 @@ export default function PersistentDrawerLeft(this: any) {
             color="inherit"
             sx={{ color: "black" }}
           >
-            {session?.user?.email! === currentBot.creatorId && (
+            {currentBot && session?.user?.email! === currentBot?.creatorId && (
               <NewBot bot={currentBot} botid={selectedBotRef.current!} />
             )}
           </IconButton>
@@ -223,9 +216,9 @@ export default function PersistentDrawerLeft(this: any) {
         {currentBot && <NewChat bot={currentBot} />}
       </Drawer>
 
-      <>
-        <HomeAccount bot={currentBot!} />
-      </>
+
+        {currentBot && <HomeAccount bot={currentBot} />}
+
 
       {showEdit && <NewBot autoOpen={true} onClose={handleCloseNewBot} />}
     </div>

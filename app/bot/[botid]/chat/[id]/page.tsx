@@ -1,3 +1,4 @@
+"use client"
 import React from 'react';
 import { useSession } from 'next-auth/react';
 import Chat2 from '../../../../../components/Chat2';

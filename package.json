@@ -11,6 +11,8 @@
     "@heroicons/react": "^2.0.15",
     "@mui/icons-material": "^5.11.9",
     "@mui/material": "^5.11.9",
+    "eventsource": "^2.0.2",
+    "eventsource-parser": "^0.1.0",
     "firebase": "^9.17.1",
     "firebase-admin": "^11.5.0",
     "next": "latest",

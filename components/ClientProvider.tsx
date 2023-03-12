@@ -40,7 +40,7 @@ const toastOptions = {
 export default function  ClientProviver() {
   return (
     <>
-      <ThemeProvider theme={theme}/>
+
       <Toaster  position="top-center" toastOptions={toastOptions} />
     </>
   );

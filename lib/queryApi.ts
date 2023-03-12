@@ -1,12 +1,18 @@
 import admin from "firebase-admin";
 import { adminDb } from "../firebaseAdmin";
 import openai from "./chatgpt";
-const query = async (
+import { OpenAIStream, OpenAIStreamPayload } from "./OpenAIStream";
+
+export const config = {
+  runtime: "edge",
+};
+
+const query = async (  
   model: string,
   chat: any,  
   primer: string,
-  messages: any,
-): Promise<{ message: string }> => {
+  messages: any,): Promise<Response> => {
+
 
   const assistantName = chat?.data().bot!.name!;
   
@@ -36,22 +42,17 @@ const query = async (
   if (!messagesArray) {
     console.log("No messagesArray");
   }
+  const payload: OpenAIStreamPayload = {
+    model: "gpt-3.5-turbo",
+    messages: messagesArray,
+    temperature: 0.2,
+    max_tokens: 200,
+    stream: true,
+    n: 1,
+  };
 
-  try {
-    const response = await openai.createChatCompletion({
-      model: model,
-      messages: messagesArray,
-      temperature: 0.5,
-      max_tokens: 1000,
-
-
-    });
-    return { message: response.data.choices[0].message?.content! };
-
-  } catch (error) {
-    console.log(error);
-    return { message: "Error" };
-  }
+  const stream = await OpenAIStream(payload);
+  return new Response(stream);
 }
 
 export default query;
