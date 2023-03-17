@@ -4,30 +4,35 @@ import { useSession } from "next-auth/react";
 
 type Props = {
   message: DocumentData;
+  botColor?: string;
+  textColor?: string;
 };
 
-function Message2({ message }: Props) {
+
+function Message2({ message, botColor, textColor }: Props) {
   const { data: session } = useSession();
 
   const isUser = message.user.name === session?.user?.name;
+  const isBot = !isUser;
   // for any message that is not user check if the user name is a bot name and if so get the bot
+
 
   
 
   return (
     <>
-      <Box
-        sx={{
-          display: "inline-block",
-          maxWidth: "70%",
-          padding: "10px",
-          borderRadius: "10px",
-          backgroundColor: isUser ? "#E9E9EB" : "#397EF7",
-          textAlign: isUser ? "right" : "left",
-          float: isUser ? "right" : "left",
-          color: isUser ? "black" : "white",
-        }}
-      >
+ <Box
+  sx={{
+    display: "inline-block",
+    maxWidth: "70%",
+    padding: "10px",
+    borderRadius: "10px",
+    backgroundColor: isUser ? "#E9E9EB" : isBot ? botColor : "#397EF7",
+    textAlign: isUser ? "right" : "left",
+    float: isUser ? "right" : "left",
+    color: isUser ? "black" : isBot ? textColor : "white",
+  }}
+>
         <Typography
           width="100%"
           fontFamily="Poppins"
@@ -42,8 +47,16 @@ function Message2({ message }: Props) {
             wordWrap: "break-word",
           }}
         >
-          {message.text}
-        </Typography>
+  {isBot ? (
+    <div
+      dangerouslySetInnerHTML={{
+        __html: message.text,
+      }}
+    />
+  ) : (
+    message.text
+  )}
+</Typography>
         <Box>
           <Typography
             fontFamily="Poppins"

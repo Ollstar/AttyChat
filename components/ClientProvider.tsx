@@ -2,6 +2,8 @@
 import { Toaster } from 'react-hot-toast'
 import { createTheme, ThemeProvider } from '@mui/material';
 import { alignProperty } from '@mui/material/styles/cssUtils';
+import { SWRConfig } from 'swr';
+import mySwrConfig from '../lib/swr-config';
 
 const theme = createTheme({
   palette: {
@@ -40,8 +42,9 @@ const toastOptions = {
 export default function  ClientProviver() {
   return (
     <>
-
+    <SWRConfig value={mySwrConfig}/>
       <Toaster  position="top-center" toastOptions={toastOptions} />
+
     </>
   );
 }

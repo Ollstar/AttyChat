@@ -331,9 +331,6 @@ function NewBot({ bot, botid, autoOpen = false, onClose }: Props) {
                   onChange={(color) => setBotColor(color.hex)}
                   className="mb-2 shadow-2xl font-[poppins] text-white"
                 />
-                <Box sx={{ fontFamily: "poppins" }} component="sub">
-                  Text
-                </Box>
 
                 <Box
                   sx={{ mt: 2, mb: 2, fontFamily: "poppins" }}

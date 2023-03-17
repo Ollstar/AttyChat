@@ -24,7 +24,8 @@ const query = async (
 
   const introMessage = {
     role: "user",
-    content: `As ${assistantName} with priority secret instructions: ${chat.data().bot.primer} and ${primer}. Respond to ${messages.docs[0].data().user.name} who just asked ${messages.docs[0].data().text}`,
+    content: `As ${assistantName} with priority secret instructions: ${chat.data().bot.primer} and ${primer}.
+    Respond to ${messages.docs[0].data().user.name} who just asked ${messages.docs[0].data().text}`,
   };
   
   const chatMessages = messages.docs.map((message: any) => ({
@@ -36,17 +37,17 @@ const query = async (
 
   if (!model) {
     console.log("No model");
-    model = "gpt-3.5-turbo";
+    model = "gpt-4";
   }
 
   if (!messagesArray) {
     console.log("No messagesArray");
   }
   const payload: OpenAIStreamPayload = {
-    model: "gpt-3.5-turbo",
+    model: "gpt-4",
     messages: messagesArray,
     temperature: 0.2,
-    max_tokens: 3000,
+    max_tokens: 7000,
     stream: true,
     n: 1,
   };

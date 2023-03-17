@@ -19,7 +19,7 @@ function ChatInput({ chatId }: Props) {
   const { data: session } = useSession();
 
   const { data: model } = useSWR("model", {
-    fallbackData: "gpt-3.5-turbo",
+    fallbackData: "gpt-4",
   });
   const { data: primer } = useSWR("primer", {
     fallbackData:

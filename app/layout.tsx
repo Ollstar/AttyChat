@@ -8,6 +8,7 @@ import PersistentDrawerLeft from "../components/SideAndTopBar";
 import Account from "../components/Account";
 import HomeAccount from "../components/HomeAccount";
 import { getSession } from "next-auth/react";
+import React from "react";
 
 export default async function RootLayout({
   children,
@@ -21,6 +22,7 @@ export default async function RootLayout({
       <body>
         <div>
           <SessionProvider session={session}>
+            <React.Suspense fallback="Loading...">
             {!session ? (
               <Login />
             ) : (
@@ -32,6 +34,7 @@ export default async function RootLayout({
 
               </div>
             )}
+            </React.Suspense>
           </SessionProvider>
         </div>
       </body>

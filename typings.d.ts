@@ -8,3 +8,4 @@ interface Message2 {
         avatar: string;
     }
 }
+

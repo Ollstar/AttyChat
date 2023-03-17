@@ -8,6 +8,12 @@ import {
   limit,
   onSnapshot,
   doc,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
+  DocumentData,
+  Unsubscribe,
+  getDoc,
+  where,
 } from "firebase/firestore";
 import { getSession, useSession } from "next-auth/react";
 import { useCollection, useDocument } from "react-firebase-hooks/firestore";
@@ -25,34 +31,102 @@ type Props = {
   chatId: string;
   botid?: string;
 };
+type Bot = {
+  botName: string;
+  primer: string;
+  botQuestions: string[];
+  creatorId: string;
+  botColor: string;
+  show: boolean;
+  avatar: string;
+  textColor: string;
+};
+type UseCollectionDataReturnType<T> = [T[], boolean, Error | null];
 
-function Chat2({ chatId, botid }: Props) {
+const useCollectionData = <T,>(query: any): UseCollectionDataReturnType<T> => {
+  const [data, setData] = useState<T[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const memoizedQuery = React.useMemo(() => query, [query]);
+
+  useEffect(() => {
+    let unsubscribe: Unsubscribe | undefined;
+
+    if (memoizedQuery) {
+      unsubscribe = onSnapshot(memoizedQuery, (snapshot: QuerySnapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as T[];
+        setData(data);
+        setLoading(false);
+        setError(null);
+      });
+    }
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, []);
+
+  return [data, loading, error];
+};
+ function Chat2({ chatId, botid }: Props) {
   const { data: session } = useSession();
-  const isOnline = navigator.onLine;
+
+  const [bot, setBot] = useState<Bot>();
+  useEffect(() => {
+    if (botid) {
+      const botRef = doc(db, "bots", botid);
+      getDoc(botRef).then((doc) => {
+        if (doc.exists()) {
+          setBot(doc.data() as Bot);
+        } else {
+          toast.error("Bot not found");
+        }
+      });
+    }
+  }, []);
+  const messagesQuery =
+    session &&
+    query(
+      collection(
+        db,
+        "users",
+        session?.user?.email!,
+        "chats",
+        chatId,
+        "messages"
+      ),
+      orderBy("createdAt", "asc")
+    );
+
+  const [messages, loading, error] =
+    useCollectionData<DocumentData>(messagesQuery);
 
   const [lastMessageIsCurrentUser, setLastMessageIsCurrentUser] =
     useState(Boolean);
 
   const { data: model } = useSWR("model", {
-    fallbackData: "gpt-3.5-turbo",
+    fallbackData: "gpt-4",
   });
 
   const fetcher = (url: string) => {
-    if (session) {
-      return fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: session?.user?.email!,
-        }),
-      }).then((res) => res.json());
-    }
+    if (!session) getSession();
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: session?.user?.email!,
+      }),
+    }).then((res) => res.json());
   };
 
   const { data: primer, mutate: setPrimer } = useSWR(
-    isOnline ? `/api/getPrimer` : null,
+    `/api/getPrimer`,
     session && fetcher,
     {
       ...mySwrConfig,
@@ -65,23 +139,7 @@ function Chat2({ chatId, botid }: Props) {
     console.log(`primer: ${primer.text}`);
   }, [primer]);
 
-  const [messages, loading, error] = useCollection(
-    session &&
-      query(
-        collection(
-          db,
-          "users",
-          session?.user?.email!,
-          "chats",
-          chatId,
-          "messages"
-        ),
-        orderBy("createdAt", "asc")
-      )
-  );
-
   async function askQuestion() {
-    
     // if no session get session
     if (!session) {
       return;
@@ -96,10 +154,11 @@ function Chat2({ chatId, botid }: Props) {
     if (!session) return;
 
     const author = session?.user?.name!;
-    if (messages?.empty) return;
+    if (messages?.length === 0) return;
 
-    if (messages?.docs[messages?.docs.length - 1].data().user.name !== author)
+    if (messages[messages.length - 1].user.name !== author) {
       return;
+    }
 
     if (primer.text === undefined) return;
 
@@ -114,10 +173,9 @@ function Chat2({ chatId, botid }: Props) {
         primer: primer?.text,
         session,
       }),
-    })
-      .then(() => {
-        setLastMessageIsCurrentUser(false);
-      });
+    }).then(() => {
+      setLastMessageIsCurrentUser(false);
+    });
   }
 
   const containerRef = useRef<HTMLInputElement>(null);
@@ -128,9 +186,9 @@ function Chat2({ chatId, botid }: Props) {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-    const lastMessage = messages?.docs[messages?.docs.length - 1];
+    const lastMessage = messages[messages.length - 1];
     if (lastMessage) {
-      const lastMessageAuthor = lastMessage.data().user.name;
+      const lastMessageAuthor = lastMessage.user.name;
       const currentUser = session.user?.name!;
       if (
         (lastMessageAuthor === currentUser &&
@@ -174,28 +232,26 @@ function Chat2({ chatId, botid }: Props) {
       }}
     >
       <DrawerSpacer />
-
-      {messages?.empty && (
-        <Box color="#397EF7">
-          <Typography
-            fontFamily={"Poppins"}
-            variant="subtitle1"
-            align="center"
-            className="mt-10 text-[#397EF7]"
+      {messages?.map((message) => {
+        return (
+          <Box
+            key={message.id}
+            sx={{
+              marginBottom: "20px",
+              width: "100%",
+              backgroundColor: "white",
+            }}
           >
-            Type a prompt in below to get started!
-          </Typography>
-          <ArrowDownCircleIcon className="h-10 w-10 mx-auto mt-5 animate-bounce" />
-        </Box>
-      )}
-      {messages?.docs.map((message) => (
-        <Box
-          key={message.id}
-          sx={{ marginBottom: "20px", width: "100%", backgroundColor: "white" }}
-        >
-          <Message2 key={message.id} message={message.data()} />
-        </Box>
-      ))}
+            <Message2
+              key={message.id}
+              message={message}
+              botColor={bot ? bot.botColor : undefined}
+              textColor={bot ? bot.textColor : undefined}
+            />
+          </Box>
+        );
+      })}
+
       <DrawerSpacer />
     </Box>
   );
