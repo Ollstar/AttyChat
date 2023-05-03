@@ -7,20 +7,20 @@ AttyChat is a web application designed to research and explore the capabilities 
 - User authentication and secure session management using NextAuth.js
 - Real-time chatbot interaction and management through Firebase Firestore
 - Customizable chatbot creation using GPT-based AI models
-- Responsive and intuitive user interface built with Next.js and Material-UI
+- Responsive and intuitive user interface built with React, Material-UI and TailwindCSS, and written in TypeScript
 - Chatbot sharing for community engagement and feedback
 
-![Bot Interface]<img width="661" alt="bot-interface" src="https://user-images.githubusercontent.com/10384072/235965839-5da7a927-ab4b-41a8-b5fa-c7f43a4ce491.png">
+<img width="661" alt="bot-interface" src="https://user-images.githubusercontent.com/10384072/235965839-5da7a927-ab4b-41a8-b5fa-c7f43a4ce491.png">
+
 *Bot Interface*
 
-![Primer Creation Interface]<img width="660" alt="primer-creation" src="https://user-images.githubusercontent.com/10384072/235966289-ab806add-9a60-46e8-a725-081e5db305ac.png">
+<img width="660" alt="primer-creation" src="https://user-images.githubusercontent.com/10384072/235966289-ab806add-9a60-46e8-a725-081e5db305ac.png">
+
 *Primer Creation Interface*
 
-
-![Chat Interface](path/to/chat-interface-image.png)
-*Chat Interface*
 <img width="659" alt="chat-interface" src="https://user-images.githubusercontent.com/10384072/235966743-080d7f1b-fdc6-410b-afee-0403fe243ca0.png">
 
+*Chat Interface*
 
 ## Research Conclusions
 
